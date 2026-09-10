@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS courier_previous_consignment_ids jsonb NOT NULL DEFAULT '[]'::jsonb;

@@ -1,0 +1,5 @@
+-- Original migration hardcoded a PUSH_WEBHOOK_SECRET value belonging to a
+-- different business's project directly in a committed file. Deliberately
+-- removed for this client — secrets should never be committed to git.
+-- Set PUSH_WEBHOOK_SECRET via the Supabase dashboard (Edge Functions → Secrets)
+-- or `supabase secrets set` instead, with a freshly generated random value.

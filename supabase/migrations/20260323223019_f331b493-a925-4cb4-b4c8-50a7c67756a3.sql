@@ -1,0 +1,1 @@
+ALTER TABLE acc_work_orders ADD COLUMN pricing numeric NOT NULL DEFAULT 0;

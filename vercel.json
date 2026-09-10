@@ -1,0 +1,37 @@
+{
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/((?!assets/).*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/robots.txt/", "destination": "/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "https://REPLACE_WITH_NEW_SUPABASE_PROJECT_REF.supabase.co/functions/v1/sitemap" },
+    { "source": "/feeds/google-merchant-optimized.xml", "destination": "https://REPLACE_WITH_NEW_SUPABASE_PROJECT_REF.supabase.co/functions/v1/google-merchant-feed" },
+    { "source": "/sitemap.xml/", "destination": "/sitemap.xml" },
+    { "source": "/favicon.ico", "destination": "/favicon.ico" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

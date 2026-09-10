@@ -1,0 +1,4 @@
+-- Original migration seeded this project with a live Meta App ID/secret
+-- belonging to a different business's Meta Developer app. Deliberately
+-- stripped for this client — a new Meta app (or the client's own) must be
+-- configured via the admin Integrations page instead of seeding any secret here.

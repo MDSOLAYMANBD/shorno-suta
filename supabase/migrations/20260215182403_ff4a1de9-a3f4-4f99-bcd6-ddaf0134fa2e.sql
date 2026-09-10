@@ -1,0 +1,4 @@
+-- Original migration seeded this project with a live UddoktaPay API key/base URL
+-- belonging to a different business. Deliberately stripped for this client —
+-- add the new client's own UddoktaPay credentials via the admin Payment Settings
+-- page once they have a merchant account, instead of seeding any key here.

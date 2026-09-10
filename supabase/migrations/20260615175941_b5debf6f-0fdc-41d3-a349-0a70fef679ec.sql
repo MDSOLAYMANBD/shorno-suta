@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime DROP TABLE public.chat_sessions;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_sessions (id, visitor_name, visitor_phone, status, assigned_to, last_message_at, unread_count, created_at, customer_user_id);

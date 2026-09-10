@@ -1,0 +1,1 @@
+ALTER TABLE acc_unit_custom_expenses ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;

@@ -1,0 +1,145 @@
+project_id = "gdwvktufhsbrblzzeiir"
+
+[functions.ai-generate]
+verify_jwt = false
+
+[functions.steadfast-courier]
+verify_jwt = false
+
+[functions.recover-checkout]
+verify_jwt = false
+
+[functions.product-feed]
+verify_jwt = false
+
+[functions.order-lookup]
+verify_jwt = false
+
+[functions.place-order]
+verify_jwt = false
+
+[functions.save-abandoned-checkout]
+verify_jwt = false
+
+[functions.manage-employee]
+verify_jwt = false
+
+[functions.bd-courier-check]
+verify_jwt = false
+
+[functions.meta-capi]
+verify_jwt = false
+
+[functions.uddoktapay-checkout]
+verify_jwt = false
+
+[functions.uddoktapay-verify]
+verify_jwt = false
+
+[functions.bkash-checkout]
+verify_jwt = false
+
+[functions.bkash-verify]
+verify_jwt = false
+
+[functions.sitemap]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.get-vapid-key]
+verify_jwt = false
+
+[functions.order-memo]
+verify_jwt = false
+
+[functions.send-sms]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.customer-signup]
+verify_jwt = false
+
+[functions.steadfast-webhook]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-order-notification]
+verify_jwt = false
+
+[functions.send-bulk-email]
+verify_jwt = false
+
+[functions.check-sms-balance]
+verify_jwt = false
+
+[functions.google-merchant-feed]
+verify_jwt = false
+
+[functions.meta-webhook]
+verify_jwt = false
+
+[functions.meta-webhook-test]
+verify_jwt = false
+
+[functions.send-whatsapp]
+verify_jwt = false
+
+[functions.send-messenger]
+verify_jwt = false
+
+[functions.pathao-courier]
+verify_jwt = false
+
+[functions.pathao-webhook]
+verify_jwt = false
+
+[functions.redx-courier]
+verify_jwt = false
+
+[functions.redx-webhook]
+verify_jwt = false
+
+[functions.optimize-product-feed]
+verify_jwt = false
+
+[functions.generate-category-banner]
+verify_jwt = false
+
+[functions.generate-hero-banner]
+verify_jwt = false
+
+[functions.get-turn-credentials]
+verify_jwt = false
+
+[functions.inbox-automation-process]
+verify_jwt = true
+
+[functions.inbox-ai-assist]
+verify_jwt = true
+[functions.inbox-broadcast-simulate]
+verify_jwt = true
+
+[functions.inbox-followup-schedule]
+verify_jwt = true
+
+[functions.inbox-followup-dispatch]
+verify_jwt = false
+
+[functions.courier-status-poll]
+verify_jwt = false
+
+[functions.courier-full-backfill]
+verify_jwt = false
+
+[functions.test-sms-provider]
+verify_jwt = false
+

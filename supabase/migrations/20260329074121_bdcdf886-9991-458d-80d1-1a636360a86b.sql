@@ -1,0 +1,1 @@
+UPDATE acc_accounts SET balance = balance + 49740 WHERE id = '0c788629-b021-4296-90aa-39c0b3667058';

@@ -1,0 +1,1 @@
+ALTER TABLE public.products ALTER COLUMN allow_pre_order SET DEFAULT false;

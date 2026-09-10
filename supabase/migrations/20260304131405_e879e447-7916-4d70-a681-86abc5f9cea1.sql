@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can read active coupons" ON public.coupons FOR SELECT USING (is_active = true);

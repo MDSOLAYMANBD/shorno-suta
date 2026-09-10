@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN is_hidden_from_shop boolean NOT NULL DEFAULT false;

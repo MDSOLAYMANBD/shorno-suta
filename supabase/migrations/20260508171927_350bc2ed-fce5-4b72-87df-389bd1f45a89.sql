@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category_pinned_at TIMESTAMPTZ NULL;
+CREATE INDEX IF NOT EXISTS idx_products_category_pinned ON public.products(category_id, category_pinned_at DESC NULLS LAST);

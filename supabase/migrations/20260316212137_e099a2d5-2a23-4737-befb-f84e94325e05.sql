@@ -1,0 +1,1 @@
+ALTER TABLE public.acc_transactions ADD COLUMN IF NOT EXISTS source text DEFAULT NULL;

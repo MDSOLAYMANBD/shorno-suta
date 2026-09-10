@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN is_gift_order boolean NOT NULL DEFAULT false;

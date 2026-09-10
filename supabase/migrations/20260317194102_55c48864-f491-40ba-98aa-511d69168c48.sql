@@ -1,0 +1,1 @@
+ALTER TABLE public.courier_payments ADD COLUMN courier_provider text NOT NULL DEFAULT 'steadfast';

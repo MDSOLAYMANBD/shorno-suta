@@ -1,0 +1,5 @@
+-- Original migration seeded this project with a live Instagram access token,
+-- app ID and app secret belonging to a different business. Deliberately
+-- stripped for this client — the new client connects their own Instagram
+-- account via the admin Integrations page once ready, instead of seeding any
+-- credentials here.

@@ -1,0 +1,1 @@
+ALTER TABLE categories ADD COLUMN parent_id uuid REFERENCES categories(id) ON DELETE CASCADE DEFAULT NULL;

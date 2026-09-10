@@ -1,0 +1,2 @@
+alter table public.acc_persons add column if not exists linked_loan_id uuid references public.acc_loans(id) on delete set null;
+create index if not exists idx_acc_persons_loan on public.acc_persons(linked_loan_id);

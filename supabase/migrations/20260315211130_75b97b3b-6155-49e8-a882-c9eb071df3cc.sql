@@ -1,0 +1,5 @@
+-- Original migration seeded this project with a live WhatsApp Business access
+-- token and account/phone IDs belonging to a different business. Deliberately
+-- stripped for this client — the new client connects their own WhatsApp
+-- Business account via the admin Integrations page once ready, instead of
+-- seeding any credentials here.

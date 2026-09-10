@@ -1,0 +1,1 @@
+ALTER TABLE public.landing_pages ADD COLUMN page_config JSONB NOT NULL DEFAULT '{}'::jsonb;

@@ -1,0 +1,22 @@
+# স্বর্ণ সুতা (Shorno Suta)
+
+> Shorno Suta is a Bangladesh-based online fashion store offering apparel with cash on delivery across the country.
+
+## Pages
+
+- [Home](/): Featured products and category showcase.
+- [Shop](/shop): Browse the full product catalog.
+- [Trending Products](/trending): Best-selling and trending items.
+- [Clearance](/clearance): Discounted clearance items.
+- [Cart](/cart): Shopping cart and checkout entry point.
+- [About](/about): About Shorno Suta.
+- [Contact](/contact): Customer support contact details.
+- [Order Status](/order-status): Track your order.
+- [Return & Exchange Policy](/Return-ExchangePolicy): Return and exchange terms.
+- [Refund Policy](/refund-policy): Refund and cancellation terms.
+- [Privacy Policy](/privacy-policy): Privacy practices.
+- [Policies](/policies): Combined store policies.
+
+## Optional
+
+- [Install App](/app): Install the customer mobile app (PWA).

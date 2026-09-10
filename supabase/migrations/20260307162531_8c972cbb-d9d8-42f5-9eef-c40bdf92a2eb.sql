@@ -1,0 +1,1 @@
+ALTER TABLE public.coupons ADD COLUMN IF NOT EXISTS max_discount_amount numeric DEFAULT NULL;

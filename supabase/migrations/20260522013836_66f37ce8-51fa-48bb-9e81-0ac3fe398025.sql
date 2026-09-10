@@ -1,0 +1,1 @@
+DELETE FROM public.acc_persons WHERE id='9d6ad983-3d3a-4240-adf9-0a0fce2bbb59';

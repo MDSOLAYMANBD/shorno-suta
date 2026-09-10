@@ -1,0 +1,1 @@
+ALTER TABLE public.staff_notifications ADD COLUMN IF NOT EXISTS sender_name TEXT DEFAULT '';

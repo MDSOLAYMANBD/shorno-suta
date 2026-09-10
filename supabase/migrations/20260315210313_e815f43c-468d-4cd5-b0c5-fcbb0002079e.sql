@@ -1,0 +1,4 @@
+-- Original migration seeded this project with a live Meta Page access token
+-- belonging to a different business. Deliberately stripped for this client —
+-- the new client connects their own Facebook Page via the admin Integrations
+-- page once ready, instead of seeding any token here.

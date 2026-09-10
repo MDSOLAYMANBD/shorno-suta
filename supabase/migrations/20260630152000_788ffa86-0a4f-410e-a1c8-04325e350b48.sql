@@ -1,0 +1,1 @@
+ALTER TABLE public.sms_campaigns ADD COLUMN IF NOT EXISTS audience_source TEXT; ALTER TABLE public.sms_campaigns ADD COLUMN IF NOT EXISTS manual_count INTEGER DEFAULT 0; ALTER TABLE public.sms_campaigns ADD COLUMN IF NOT EXISTS database_count INTEGER DEFAULT 0;

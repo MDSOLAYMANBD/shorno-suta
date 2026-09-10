@@ -1,0 +1,1 @@
+ALTER TABLE public.courier_payments ADD CONSTRAINT courier_payments_invoice_number_unique UNIQUE (invoice_number);

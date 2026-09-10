@@ -1,0 +1,1 @@
+ALTER TABLE public.acc_persons ADD COLUMN resigned_at timestamptz DEFAULT NULL;

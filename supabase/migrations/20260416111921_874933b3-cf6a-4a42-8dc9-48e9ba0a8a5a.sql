@@ -1,0 +1,1 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE staff_notification_reactions, staff_notification_comments;

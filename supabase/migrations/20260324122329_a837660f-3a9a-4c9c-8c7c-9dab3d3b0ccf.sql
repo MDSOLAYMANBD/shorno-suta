@@ -1,0 +1,1 @@
+ALTER TABLE public.acc_work_order_entries ADD COLUMN rate numeric NOT NULL DEFAULT 0;

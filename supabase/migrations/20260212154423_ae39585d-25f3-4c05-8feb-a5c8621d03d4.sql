@@ -1,0 +1,1 @@
+ALTER TABLE public.abandoned_checkouts ADD COLUMN notes text DEFAULT '';

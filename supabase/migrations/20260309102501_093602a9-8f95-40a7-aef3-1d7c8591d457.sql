@@ -1,0 +1,1 @@
+ALTER TABLE public.notification_logs ADD COLUMN IF NOT EXISTS message_content text;

@@ -1,0 +1,1 @@
+ALTER TABLE public.acc_salary_records ADD COLUMN paid_amount numeric NOT NULL DEFAULT 0;

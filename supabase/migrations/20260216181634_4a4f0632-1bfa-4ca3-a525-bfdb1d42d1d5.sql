@@ -1,0 +1,4 @@
+-- Original migration seeded this project with live Steadfast courier API
+-- credentials belonging to a different business. Deliberately stripped for
+-- this client — add the new client's own Steadfast credentials via the admin
+-- Integrations page once they have a merchant account, instead of seeding any key here.

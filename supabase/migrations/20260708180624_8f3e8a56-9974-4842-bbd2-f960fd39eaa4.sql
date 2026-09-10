@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Anyone can read chat images" ON storage.objects;

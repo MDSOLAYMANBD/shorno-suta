@@ -1,0 +1,2 @@
+ALTER TABLE acc_persons ADD COLUMN IF NOT EXISTS duty_start time DEFAULT '09:00';
+ALTER TABLE acc_persons ADD COLUMN IF NOT EXISTS duty_end time DEFAULT '18:00';

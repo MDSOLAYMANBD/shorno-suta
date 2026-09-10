@@ -1,0 +1,1 @@
+ALTER TABLE public.acc_work_orders ADD COLUMN wage numeric NOT NULL DEFAULT 0;

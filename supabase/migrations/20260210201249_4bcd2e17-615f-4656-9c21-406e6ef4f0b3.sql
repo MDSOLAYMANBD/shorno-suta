@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN source_landing_page_id uuid REFERENCES public.landing_pages(id);

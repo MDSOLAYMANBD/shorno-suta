@@ -1,0 +1,1 @@
+UPDATE public.products SET name_bn = name WHERE name IS NOT NULL AND name != name_bn;

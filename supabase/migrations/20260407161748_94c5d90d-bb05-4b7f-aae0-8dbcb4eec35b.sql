@@ -1,0 +1,1 @@
+UPDATE acc_transactions SET source = 'cash' WHERE id = '03e5a619-445c-4c1b-829b-0ee1c3950a0e' AND source IS NULL;
