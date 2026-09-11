@@ -59,7 +59,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
           nav's reserved space doesn't show as a bare white gap under it */}
       <div className={cn('lg:hidden h-20', matchFooterBg && 'bg-accent')} aria-hidden />
       <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 lg:hidden animate-fade-in">
-        <div className="relative flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-background/90 backdrop-blur-xl border border-border shadow-[0_8px_32px_rgba(0,0,0,0.18)] ring-1 ring-black/5">
+        <div className="relative flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-gradient-to-b from-background/95 to-accent/[0.06] backdrop-blur-xl border border-primary/25 shadow-[0_8px_28px_rgba(107,30,43,0.22)] ring-1 ring-primary/10">
           {enabledItems.map((item: any, index: number) => {
             const isLink = item.type === 'link';
             const isActive = isLink && location.pathname === item.to;
