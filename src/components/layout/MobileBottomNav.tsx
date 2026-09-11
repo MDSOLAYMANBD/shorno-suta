@@ -38,7 +38,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   messenger: MessengerIcon as any,
 };
 
-export default function MobileBottomNav() {
+export default function MobileBottomNav({ matchFooterBg = false }: { matchFooterBg?: boolean }) {
   const { totalItems } = useCart();
   const location = useLocation();
   const { data: settings } = usePublicSettings();
@@ -54,8 +54,10 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      {/* Spacer so page content doesn't hide behind floating nav */}
-      <div className="lg:hidden h-20" aria-hidden />
+      {/* Spacer so page content doesn't hide behind floating nav — coloured
+          to match the footer when it directly precedes this, so the fixed
+          nav's reserved space doesn't show as a bare white gap under it */}
+      <div className={cn('lg:hidden h-20', matchFooterBg && 'bg-accent')} aria-hidden />
       <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 lg:hidden animate-fade-in">
         <div className="relative flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-background/90 backdrop-blur-xl border border-border shadow-[0_8px_32px_rgba(0,0,0,0.18)] ring-1 ring-black/5">
           {enabledItems.map((item: any, index: number) => {

@@ -101,7 +101,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </LazyLoadSection>
       )}
       {!hideFooter && <Footer />}
-      <MobileBottomNav />
+      <MobileBottomNav matchFooterBg={!hideFooter} />
       <FloatingCart />
       <GlobalFreeShippingBar />
       <Suspense fallback={null}>
