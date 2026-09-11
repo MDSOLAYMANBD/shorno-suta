@@ -183,8 +183,8 @@ export default function LandingOrderForm({
 }: Props) {
   const lpNavigate = useNavigate();
   const defaultProduct = products[0];
-  const accent = highlightColor || '#429B39';
-  const priceColor = totalColor || '#429B39';
+  const accent = highlightColor || '#8C6A1A';
+  const priceColor = totalColor || '#8C6A1A';
   const { data: salesMap } = useProductSalesCounts();
 
   const getRatingInfo = (productId: string) => {
@@ -828,7 +828,7 @@ export default function LandingOrderForm({
             </div>
 
             {/* Submit */}
-            <Button type="submit" size="lg" className={cn('w-full text-base font-semibold py-6 animate-glow-pulse-btn badge-shimmer', submitRounded ? 'rounded-full' : 'rounded-lg')} style={{ backgroundColor: submitColor || '#429B39', ...(submitTextColor ? { color: submitTextColor } : {}) }} disabled={loading}>
+            <Button type="submit" size="lg" className={cn('w-full text-base font-semibold py-6 animate-glow-pulse-btn badge-shimmer', submitRounded ? 'rounded-full' : 'rounded-lg')} style={{ backgroundColor: submitColor || '#8C6A1A', ...(submitTextColor ? { color: submitTextColor } : {}) }} disabled={loading}>
               {loading ? 'অর্ডার হচ্ছে...' : `🛒 ${submitText || 'অর্ডার কনফার্ম করুন'}`}
             </Button>
           </div>

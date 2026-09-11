@@ -1,7 +1,7 @@
 import { useAllSettings } from './useAllSettings';
 
 export const SHIPPING_DEFAULTS = {
-  dhaka_inside: 70,
+  dhaka_inside: 80,
   dhaka_suburb: 100,
   dhaka_outside: 130,
 } as const;

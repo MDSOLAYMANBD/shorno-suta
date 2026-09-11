@@ -247,12 +247,12 @@ function ThemeLoader() {
 }
 
 function SitemapRedirect() {
-  window.location.replace('https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/sitemap');
+  window.location.replace('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/sitemap');
   return null;
 }
 
 function MerchantFeedRedirect() {
-  window.location.replace('https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/google-merchant-feed');
+  window.location.replace('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/google-merchant-feed');
   return null;
 }
 

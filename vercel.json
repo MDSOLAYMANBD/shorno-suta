@@ -28,8 +28,8 @@
   "rewrites": [
     { "source": "/robots.txt", "destination": "/robots.txt" },
     { "source": "/robots.txt/", "destination": "/robots.txt" },
-    { "source": "/sitemap.xml", "destination": "https://REPLACE_WITH_NEW_SUPABASE_PROJECT_REF.supabase.co/functions/v1/sitemap" },
-    { "source": "/feeds/google-merchant-optimized.xml", "destination": "https://REPLACE_WITH_NEW_SUPABASE_PROJECT_REF.supabase.co/functions/v1/google-merchant-feed" },
+    { "source": "/sitemap.xml", "destination": "https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/sitemap" },
+    { "source": "/feeds/google-merchant-optimized.xml", "destination": "https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/google-merchant-feed" },
     { "source": "/sitemap.xml/", "destination": "/sitemap.xml" },
     { "source": "/favicon.ico", "destination": "/favicon.ico" },
     { "source": "/(.*)", "destination": "/index.html" }

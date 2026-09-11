@@ -51,9 +51,9 @@ const DEFAULT_CONFIG = {
     enabled: true,
     text: 'স্বর্ণ সুতায় স্বাগতম • অগ্রিম টাকা লাগে না • পণ্য হাতে পেয়ে দেখে টাকা দিন • ১০০% কোয়ালিটি পণ্য • ৭ দিনের রিটার্ন/এক্সচেঞ্জ • হোম ডেলিভারি সারা বাংলাদেশে • হটলাইন: 01843711211 • হোয়াটসঅ্যাপ: 01843711211',
   },
-  header: { brand_name: 'স্বর্ণ সুতা', helpline: '01843-711211', cta_text: 'এখনই অর্ডার করুন', brand_color: '#429B39', logo_url: '' },
-  hero: { cta_text: 'অর্ডার করতে নিচের ফর্মে যান', cta_color: '#213580' },
-  order_form: { heading: 'অর্ডার করুন', submit_text: 'অর্ডার কনফার্ম করুন', submit_color: '#429B39', show_email: false, show_order_note: false, name_placeholder: 'সম্পূর্ণ নাম', phone_placeholder: '01XXXXXXXXX', address_placeholder: 'বাড়ি নম্বর, রোড, এলাকা, থানা, জেলা' },
+  header: { brand_name: 'স্বর্ণ সুতা', helpline: '01843-711211', cta_text: 'এখনই অর্ডার করুন', brand_color: '#8C6A1A', logo_url: '' },
+  hero: { cta_text: 'অর্ডার করতে নিচের ফর্মে যান', cta_color: '#6B1E2B' },
+  order_form: { heading: 'অর্ডার করুন', submit_text: 'অর্ডার কনফার্ম করুন', submit_color: '#8C6A1A', show_email: false, show_order_note: false, name_placeholder: 'সম্পূর্ণ নাম', phone_placeholder: '01XXXXXXXXX', address_placeholder: 'বাড়ি নম্বর, রোড, এলাকা, থানা, জেলা' },
   trust_signals: {
     enabled: true,
     heading: 'ডেলিভারি ও রিটার্ন পলিসি',
@@ -757,7 +757,7 @@ export default function AdminLandingPageEditor() {
                     <div><Label className="text-xs mb-1 block">CTA টেক্সট</Label><Input value={pageConfig.header?.cta_text || ''} onChange={e => updateConfig('header', 'cta_text', e.target.value)} /></div>
                     <div>
                      <Label className="text-xs mb-1 block">ব্র্যান্ড কালার</Label>
-                      <ColorPickerWithRecent value={pageConfig.header?.brand_color || '#429B39'} onChange={v => updateConfig('header', 'brand_color', v)} />
+                      <ColorPickerWithRecent value={pageConfig.header?.brand_color || '#8C6A1A'} onChange={v => updateConfig('header', 'brand_color', v)} />
                     </div>
 
                     {/* Call / WhatsApp */}
@@ -777,7 +777,7 @@ export default function AdminLandingPageEditor() {
                     <div className="border-t pt-3">
                       <p className="text-xs font-semibold text-muted-foreground mb-3">🎨 CTA বাটন স্টাইল</p>
                       <div className="grid grid-cols-2 gap-3">
-                        <div><Label className="text-xs mb-1 block">বাটন কালার</Label><ColorPickerWithRecent value={pageConfig.header?.cta_color || pageConfig.header?.brand_color || '#429B39'} onChange={v => updateConfig('header', 'cta_color', v)} /></div>
+                        <div><Label className="text-xs mb-1 block">বাটন কালার</Label><ColorPickerWithRecent value={pageConfig.header?.cta_color || pageConfig.header?.brand_color || '#8C6A1A'} onChange={v => updateConfig('header', 'cta_color', v)} /></div>
                         <div><Label className="text-xs mb-1 block">টেক্সট কালার</Label><ColorPickerWithRecent value={pageConfig.header?.cta_text_color || '#ffffff'} onChange={v => updateConfig('header', 'cta_text_color', v)} /></div>
                       </div>
                     </div>
@@ -787,7 +787,7 @@ export default function AdminLandingPageEditor() {
                       <p className="text-xs font-semibold text-muted-foreground mb-3">🏗️ হেডার স্টাইল</p>
                       <div className="grid grid-cols-2 gap-3">
                         <div><Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড</Label><ColorPickerWithRecent value={pageConfig.header?.bg_color || '#ffffff'} onChange={v => updateConfig('header', 'bg_color', v)} /></div>
-                        <div><Label className="text-xs mb-1 block">নাম কালার</Label><ColorPickerWithRecent value={pageConfig.header?.text_color || pageConfig.header?.brand_color || '#429B39'} onChange={v => updateConfig('header', 'text_color', v)} /></div>
+                        <div><Label className="text-xs mb-1 block">নাম কালার</Label><ColorPickerWithRecent value={pageConfig.header?.text_color || pageConfig.header?.brand_color || '#8C6A1A'} onChange={v => updateConfig('header', 'text_color', v)} /></div>
                       </div>
                       <div className="flex items-center justify-between mt-3"><Label className="text-sm">শ্যাডো</Label><Switch checked={pageConfig.header?.show_shadow !== false} onCheckedChange={v => updateConfig('header', 'show_shadow', v)} /></div>
                     </div>
@@ -818,7 +818,7 @@ export default function AdminLandingPageEditor() {
                     <div><Label className="text-xs mb-1 block">CTA বাটন টেক্সট</Label><Input value={pageConfig.hero?.cta_text || ''} onChange={e => updateConfig('hero', 'cta_text', e.target.value)} /></div>
                     <div>
                      <Label className="text-xs mb-1 block">CTA বাটন কালার</Label>
-                      <ColorPickerWithRecent value={pageConfig.hero?.cta_color || '#213580'} onChange={v => updateConfig('hero', 'cta_color', v)} />
+                      <ColorPickerWithRecent value={pageConfig.hero?.cta_color || '#6B1E2B'} onChange={v => updateConfig('hero', 'cta_color', v)} />
                     </div>
                     <div>
                      <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label>
@@ -842,7 +842,7 @@ export default function AdminLandingPageEditor() {
                     <div><Label className="text-xs mb-1 block">সাবমিট বাটন টেক্সট</Label><Input value={pageConfig.order_form?.submit_text || ''} onChange={e => updateConfig('order_form', 'submit_text', e.target.value)} /></div>
                     <div>
                      <Label className="text-xs mb-1 block">সাবমিট বাটন কালার</Label>
-                      <ColorPickerWithRecent value={pageConfig.order_form?.submit_color || '#429B39'} onChange={v => updateConfig('order_form', 'submit_color', v)} />
+                      <ColorPickerWithRecent value={pageConfig.order_form?.submit_color || '#8C6A1A'} onChange={v => updateConfig('order_form', 'submit_color', v)} />
                     </div>
                     <div>
                      <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label>
@@ -877,8 +877,8 @@ export default function AdminLandingPageEditor() {
                     <div className="border-t pt-3">
                       <p className="text-xs font-semibold text-muted-foreground mb-3">💰 প্রাইস ও হাইলাইট</p>
                       <div className="space-y-3">
-                        <div><Label className="text-xs mb-1 block">সর্বমোট কালার</Label><ColorPickerWithRecent value={pageConfig.order_form?.total_color || '#429B39'} onChange={v => updateConfig('order_form', 'total_color', v)} /></div>
-                        <div><Label className="text-xs mb-1 block">হাইলাইট কালার</Label><ColorPickerWithRecent value={pageConfig.order_form?.highlight_color || '#429B39'} onChange={v => updateConfig('order_form', 'highlight_color', v)} /></div>
+                        <div><Label className="text-xs mb-1 block">সর্বমোট কালার</Label><ColorPickerWithRecent value={pageConfig.order_form?.total_color || '#8C6A1A'} onChange={v => updateConfig('order_form', 'total_color', v)} /></div>
+                        <div><Label className="text-xs mb-1 block">হাইলাইট কালার</Label><ColorPickerWithRecent value={pageConfig.order_form?.highlight_color || '#8C6A1A'} onChange={v => updateConfig('order_form', 'highlight_color', v)} /></div>
                       </div>
                     </div>
 
@@ -1385,7 +1385,7 @@ function CtaForm({ content, onChange }: { content: any; onChange: (k: string, v:
   return (
     <div className="space-y-3">
       <div><Label className="text-xs mb-1 block">বাটন টেক্সট</Label><Input value={content.text || ''} onChange={e => onChange('text', e.target.value)} placeholder="এখনই অর্ডার করুন" /></div>
-      <div><Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label><Input value={content.bg_color || ''} onChange={e => onChange('bg_color', e.target.value)} placeholder="#429B39" /></div>
+      <div><Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label><Input value={content.bg_color || ''} onChange={e => onChange('bg_color', e.target.value)} placeholder="#8C6A1A" /></div>
     </div>
   );
 }

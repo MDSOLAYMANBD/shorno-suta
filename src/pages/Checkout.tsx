@@ -469,28 +469,39 @@ export default function Checkout() {
                     const isSelected = paymentMethod === method.id;
                     const brand = method.brand;
                     const watermarkColor = brand ? brand.accentText : 'text-primary';
+                    const disabled = !!method.comingSoon;
                     return (
                       <button
                         key={method.id}
                         type="button"
-                        onClick={() => setPaymentMethod(method.id as typeof paymentMethod)}
+                        disabled={disabled}
+                        onClick={() => { if (!disabled) setPaymentMethod(method.id as typeof paymentMethod); }}
+                        aria-disabled={disabled}
                         className={cn(
                           "flex flex-col items-center gap-2 p-4 border-2 rounded-xl transition-all relative overflow-hidden",
-                          isSelected
-                            ? (brand ? brand.selectedBorder : 'border-primary bg-primary/5')
-                            : 'border-border hover:border-primary/30',
-                          brand ? 'animate-pm-card-glow-pink' : 'animate-pm-card-glow-primary'
+                          disabled
+                            ? "opacity-60 cursor-not-allowed border-border"
+                            : isSelected
+                              ? (brand ? brand.selectedBorder : 'border-primary bg-primary/5')
+                              : 'border-border hover:border-primary/30',
+                          !disabled && (brand ? 'animate-pm-card-glow-pink' : 'animate-pm-card-glow-primary')
                         )}
                       >
                         {/* Watermark icon — fills the card's empty space */}
                         <Icon className={cn("absolute -right-2.5 -bottom-2.5 h-14 w-14 rotate-[-15deg] opacity-[0.08] pointer-events-none", watermarkColor)} />
 
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          {isSelected && <CheckCircle className={cn("absolute -top-2.5 right-0 h-4 w-4", brand ? brand.accentText : 'text-primary')} />}
+                        {disabled && (
+                          <span className="absolute top-1.5 left-1/2 -translate-x-1/2 z-10 text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border whitespace-nowrap">
+                            শীঘ্রই আসছে
+                          </span>
+                        )}
+
+                        <div className="relative z-10 flex flex-col items-center gap-2 mt-2">
+                          {isSelected && !disabled && <CheckCircle className={cn("absolute -top-2.5 right-0 h-4 w-4", brand ? brand.accentText : 'text-primary')} />}
                           <div className={cn(
                             "w-12 h-12 rounded-full flex items-center justify-center",
                             brand ? brand.iconBg : 'bg-primary/10',
-                            brand?.glowClassName
+                            !disabled && brand?.glowClassName
                           )}>
                             <Icon className={cn("h-6 w-6", brand ? brand.iconColor : 'text-primary')} />
                           </div>

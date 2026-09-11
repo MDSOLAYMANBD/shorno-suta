@@ -37,7 +37,7 @@ function getUnitStyle(unitId: string | null, unitName?: string | null): { color:
   const name = (unitName || '').toLowerCase();
   if (name.includes('অফিস') || name.includes('office')) return { color: '#16a34a', label: unitName || 'অফিস' };
   if (name.includes('সাপ্লায়ার') || name.includes('supplier')) return { color: '#ea580c', label: unitName || 'সাপ্লায়ার' };
-  if (name.includes('সেউইং') || name.includes('কারখানা') || name.includes('factory') || name.includes('sewing')) return { color: '#213580', label: unitName || 'সেউইং ফ্যাক্টরি' };
+  if (name.includes('সেউইং') || name.includes('কারখানা') || name.includes('factory') || name.includes('sewing')) return { color: '#6B1E2B', label: unitName || 'সেউইং ফ্যাক্টরি' };
   if (name.includes('print') || name.includes('প্রিন্ট')) return { color: '#7c3aed', label: unitName || 'Print' };
   return { color: hashColor(unitName || 'unit'), label: unitName || 'Staff' };
 }

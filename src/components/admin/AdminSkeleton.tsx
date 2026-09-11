@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminSkeleton() {
   return (
-    <div className="min-h-screen flex bg-muted/40">
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar skeleton - desktop */}
       <aside className="w-60 bg-background border-r border-border p-4 hidden md:flex flex-col shrink-0">
         <div className="flex items-center gap-2 px-3 mb-8">

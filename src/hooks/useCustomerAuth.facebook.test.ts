@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react';
 // Capture options passed to signInWithOAuth so we can assert on them.
 let capturedOptions: any = null;
 let mockUrl =
-  'https://gdwvktufhsbrblzzeiir.supabase.co/auth/v1/authorize' +
+  'https://xxucasikopqtcztbgfbw.supabase.co/auth/v1/authorize' +
   '?provider=facebook' +
   '&redirect_to=https%3A%2F%2Fwww.shadamonshop.com%2Fauth%2Fcallback' +
   '&scope=email+public_profile';

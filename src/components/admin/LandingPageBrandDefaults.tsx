@@ -146,7 +146,7 @@ export default function LandingPageBrandDefaults() {
           </div>
           <div>
             <Label className="text-xs mb-1 block">ব্র্যান্ড কালার</Label>
-            <ColorPickerWithRecent value={defaults.header?.brand_color || '#429B39'} onChange={v => u('header', 'brand_color', v)} />
+            <ColorPickerWithRecent value={defaults.header?.brand_color || '#8C6A1A'} onChange={v => u('header', 'brand_color', v)} />
           </div>
         </div>
 
@@ -167,7 +167,7 @@ export default function LandingPageBrandDefaults() {
         <div className="border-t border-border pt-3 mt-3">
           <p className="text-xs font-semibold text-muted-foreground mb-3">🎨 CTA বাটন স্টাইল</p>
           <div className="grid grid-cols-2 gap-3">
-            <div><Label className="text-xs mb-1 block">বাটন কালার</Label><ColorPickerWithRecent value={defaults.header?.cta_color || defaults.header?.brand_color || '#429B39'} onChange={v => u('header', 'cta_color', v)} /></div>
+            <div><Label className="text-xs mb-1 block">বাটন কালার</Label><ColorPickerWithRecent value={defaults.header?.cta_color || defaults.header?.brand_color || '#8C6A1A'} onChange={v => u('header', 'cta_color', v)} /></div>
             <div><Label className="text-xs mb-1 block">টেক্সট কালার</Label><ColorPickerWithRecent value={defaults.header?.cta_text_color || '#ffffff'} onChange={v => u('header', 'cta_text_color', v)} /></div>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function LandingPageBrandDefaults() {
           <p className="text-xs font-semibold text-muted-foreground mb-3">🏗️ হেডার স্টাইল</p>
           <div className="grid grid-cols-2 gap-3">
             <div><Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড</Label><ColorPickerWithRecent value={defaults.header?.bg_color || '#ffffff'} onChange={v => u('header', 'bg_color', v)} /></div>
-            <div><Label className="text-xs mb-1 block">নাম কালার</Label><ColorPickerWithRecent value={defaults.header?.text_color || defaults.header?.brand_color || '#429B39'} onChange={v => u('header', 'text_color', v)} /></div>
+            <div><Label className="text-xs mb-1 block">নাম কালার</Label><ColorPickerWithRecent value={defaults.header?.text_color || defaults.header?.brand_color || '#8C6A1A'} onChange={v => u('header', 'text_color', v)} /></div>
           </div>
           <div className="flex items-center justify-between mt-3"><Label className="text-sm">শ্যাডো</Label><Switch checked={defaults.header?.show_shadow !== false} onCheckedChange={v => u('header', 'show_shadow', v)} /></div>
         </div>
@@ -216,7 +216,7 @@ export default function LandingPageBrandDefaults() {
           </div>
           <div>
             <Label className="text-xs mb-1 block">CTA কালার</Label>
-            <ColorPickerWithRecent value={defaults.hero?.cta_color || '#213580'} onChange={v => u('hero', 'cta_color', v)} />
+            <ColorPickerWithRecent value={defaults.hero?.cta_color || '#6B1E2B'} onChange={v => u('hero', 'cta_color', v)} />
           </div>
         </div>
         <div className="mt-3">
@@ -251,7 +251,7 @@ export default function LandingPageBrandDefaults() {
           </div>
           <div>
             <Label className="text-xs mb-1 block">সাবমিট বাটন কালার</Label>
-            <ColorPickerWithRecent value={defaults.order_form?.submit_color || '#429B39'} onChange={v => u('order_form', 'submit_color', v)} />
+            <ColorPickerWithRecent value={defaults.order_form?.submit_color || '#8C6A1A'} onChange={v => u('order_form', 'submit_color', v)} />
           </div>
           <div>
             <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label>
@@ -289,8 +289,8 @@ export default function LandingPageBrandDefaults() {
         <div className="border-t border-border pt-3 mt-3">
           <p className="text-xs font-semibold text-muted-foreground mb-3">💰 প্রাইস ও হাইলাইট</p>
           <div className="space-y-3">
-            <div><Label className="text-xs mb-1 block">সর্বমোট কালার</Label><ColorPickerWithRecent value={defaults.order_form?.total_color || '#429B39'} onChange={v => u('order_form', 'total_color', v)} /></div>
-            <div><Label className="text-xs mb-1 block">হাইলাইট কালার</Label><ColorPickerWithRecent value={defaults.order_form?.highlight_color || '#429B39'} onChange={v => u('order_form', 'highlight_color', v)} /></div>
+            <div><Label className="text-xs mb-1 block">সর্বমোট কালার</Label><ColorPickerWithRecent value={defaults.order_form?.total_color || '#8C6A1A'} onChange={v => u('order_form', 'total_color', v)} /></div>
+            <div><Label className="text-xs mb-1 block">হাইলাইট কালার</Label><ColorPickerWithRecent value={defaults.order_form?.highlight_color || '#8C6A1A'} onChange={v => u('order_form', 'highlight_color', v)} /></div>
           </div>
         </div>
 
@@ -442,7 +442,7 @@ export default function LandingPageBrandDefaults() {
           </div>
           <div>
             <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label>
-            <ColorPickerWithRecent value={defaults.cta?.bg_color || '#429B39'} onChange={v => u('cta', 'bg_color', v)} />
+            <ColorPickerWithRecent value={defaults.cta?.bg_color || '#8C6A1A'} onChange={v => u('cta', 'bg_color', v)} />
           </div>
         </div>
       </Section>

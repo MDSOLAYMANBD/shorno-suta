@@ -30,12 +30,13 @@ serve(async (req) => {
     const imgQuality = Math.min(95, Math.max(50, quality || 85));
 
     // Fetch store info and best-selling products in parallel
-    let brandColor = "#429B39";
+    let brandColor = "#8C6A1A"; // antique gold — primary
+    let accentColor = "#6B1E2B"; // deep maroon/burgundy — secondary
     let storeName = "Shorno Suta";
     let storeNameBn = "স্বর্ণ সুতা";
 
     const [brandRes, storeRes, bestSellingRes] = await Promise.all([
-      supabase.from("store_settings").select("value").eq("key", "landing_brand_defaults").single(),
+      supabase.from("store_settings").select("value").eq("key", "theme_config").single(),
       supabase.from("store_settings").select("value").eq("key", "store_name").single(),
       supabase.rpc("get_best_selling_product_ids", { p_limit: 6 }),
     ]);
@@ -43,7 +44,8 @@ serve(async (req) => {
     try {
       if (brandRes.data?.value) {
         const parsed = JSON.parse(brandRes.data.value);
-        if (parsed?.header?.primaryColor) brandColor = parsed.header.primaryColor;
+        if (parsed?.primary) brandColor = parsed.primary;
+        if (parsed?.secondary) accentColor = parsed.secondary;
       }
     } catch (_) {}
 
@@ -151,7 +153,8 @@ LAYOUT: Show 5-7 different products/models in an elegant catalog layout spread a
 Study the reference images below to understand the product style.
 
 BRAND: "${storeNameBn}" (${storeName})
-Primary brand color: ${brandColor}
+Primary brand color: ${brandColor} (rich antique gold)
+Secondary/accent brand color: ${accentColor} (deep maroon/burgundy)
 
 TYPOGRAPHY — bake INTO the image:
 - Brand name "স্বর্ণ সুতা" prominently displayed
@@ -173,12 +176,13 @@ LAYOUT & COMPOSITION:
 - Arrange in a visually pleasing catalog layout SPREAD HORIZONTALLY across the ultra-wide banner
 
 DESIGN & AESTHETICS:
-- Background: soft, luxurious gradient using ${brandColor} (brand green) blended with cream, gold, and warm neutrals
+- Background: soft, luxurious gradient blending antique gold (${brandColor}) and deep maroon/burgundy (${accentColor}) with cream and warm neutrals — an elegant, premium South Asian fashion palette. Use the maroon as a rich accent (borders, decorative panels, shadow depth) and the gold as the dominant warm tone; never use flat green or navy.
 - Decorative botanical, floral, or geometric accents between product frames
 - Overall look: premium fashion catalog / lookbook spread — aspirational and purchase-driving
 
 BRAND: "${storeNameBn}" (${storeName})
-Primary brand color: ${brandColor}
+Primary brand color: ${brandColor} (rich antique gold)
+Secondary/accent brand color: ${accentColor} (deep maroon/burgundy)
 
 TYPOGRAPHY — bake INTO the image:
 - Brand name "স্বর্ণ সুতা" in large, elegant Bengali typography — prominently positioned

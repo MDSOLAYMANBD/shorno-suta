@@ -10,7 +10,7 @@ export default function MapAddressCard() {
   return (
     <div className="max-w-3xl mx-auto px-3 sm:px-4 mt-6 sm:mt-8">
       <a
-        href="https://maps.app.goo.gl/bSsZ9Y7UvPECVUE48"
+        href="https://maps.app.goo.gl/6yTAKU5mCaJ8ajYH9"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Google Maps এ আমাদের ঠিকানা দেখুন"

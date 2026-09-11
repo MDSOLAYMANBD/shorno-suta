@@ -11,7 +11,7 @@ import { RefreshCw, Send, Clock, StickyNote, Truck, MapPin, Phone, User } from '
 import { format } from 'date-fns';
 import { bn } from 'date-fns/locale';
 
-const SUPABASE_URL = 'https://gdwvktufhsbrblzzeiir.supabase.co';
+const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
 
 interface CourierTrackingDialogProps {
   open: boolean;

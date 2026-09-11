@@ -81,7 +81,7 @@ No new Supabase project secrets are required for this release. The three variabl
 
 ## 6. Required Supabase Deployment Commands
 
-Run from the project root, against the correct Supabase project (`gdwvktufhsbrblzzeiir`):
+Run from the project root, against the correct Supabase project (`xxucasikopqtcztbgfbw`):
 
 ```bash
 supabase db push

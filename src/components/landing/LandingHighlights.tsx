@@ -13,8 +13,8 @@ export default function LandingHighlights() {
       <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         {highlights.map((h, i) => (
           <div key={i} className="flex gap-3 p-4 rounded-xl border border-border bg-card">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#429B3915' }}>
-              <h.icon className="h-5 w-5" style={{ color: '#429B39' }} />
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8C6A1A15' }}>
+              <h.icon className="h-5 w-5" style={{ color: '#8C6A1A' }} />
             </div>
             <div>
               <h3 className="font-semibold text-sm mb-1">{h.title}</h3>

@@ -1,25 +1,73 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Phone, MapPin, Facebook, Instagram, Youtube, MessageCircle } from 'lucide-react';
+import { Phone, MapPin, Facebook, Instagram, Youtube, MessageCircle, Sparkles } from 'lucide-react';
 import { useSiteConfig, DEFAULT_FOOTER_CONFIG } from '@/hooks/useSiteConfig';
+import SeamVineMotif from './SeamVineMotif';
 
-const FLOATING_EMOJIS = [
-  { emoji: '🛍️', top: '8%', left: '5%', delay: '0s', duration: '7s', size: 'text-3xl' },
-  { emoji: '🛒', top: '60%', left: '85%', delay: '1.5s', duration: '9s', size: 'text-2xl' },
-  { emoji: '📦', top: '25%', left: '90%', delay: '3s', duration: '8s', size: 'text-xl' },
-  { emoji: '🎁', top: '70%', left: '10%', delay: '2s', duration: '6s', size: 'text-3xl' },
-  { emoji: '✨', top: '15%', left: '50%', delay: '4s', duration: '5s', size: 'text-2xl' },
-  { emoji: '💝', top: '80%', left: '45%', delay: '0.5s', duration: '10s', size: 'text-xl' },
-  { emoji: '🏷️', top: '40%', left: '75%', delay: '2.5s', duration: '7.5s', size: 'text-2xl' },
-  { emoji: '👗', top: '35%', left: '20%', delay: '1s', duration: '8.5s', size: 'text-3xl' },
-  { emoji: '👜', top: '50%', left: '60%', delay: '3.5s', duration: '7s', size: 'text-2xl' },
-  { emoji: '💎', top: '20%', left: '70%', delay: '2.2s', duration: '6.5s', size: 'text-xl' },
-  { emoji: '🌸', top: '85%', left: '70%', delay: '4.5s', duration: '9s', size: 'text-2xl' },
-  { emoji: '⭐', top: '5%', left: '30%', delay: '1.8s', duration: '5.5s', size: 'text-xl' },
-  { emoji: '🛵', top: '55%', left: '35%', delay: '3.2s', duration: '11s', size: 'text-3xl' },
-  { emoji: '💐', top: '90%', left: '25%', delay: '0.8s', duration: '8s', size: 'text-2xl' },
-  { emoji: '🎀', top: '30%', left: '40%', delay: '2.8s', duration: '6.8s', size: 'text-xl' },
-];
+/** Hand-drawn line-art paisley (কলকা) motif — classic Bengali textile print. */
+function KolkaMotif({ className }: { className: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 100 130" className={className} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M62 8 C 90 22, 92 58, 68 82 C 50 100, 50 112, 66 122 C 44 126, 24 112, 22 90 C 20 66, 40 58, 52 66 C 62 72, 60 84, 48 84 C 40 84, 36 76, 40 70" />
+      <circle cx="70" cy="30" r="2" fill="currentColor" stroke="none" />
+      <circle cx="78" cy="42" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Nakshi-kantha inspired stitched floral rosette. */
+function KanthaRosette({ className }: { className: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <circle cx="50" cy="50" r="42" strokeDasharray="1 6" />
+      {[0, 60, 120, 180, 240, 300].map((deg) => (
+        <path
+          key={deg}
+          d="M50 50 Q 58 34 50 20 Q 42 34 50 50"
+          transform={`rotate(${deg} 50 50)`}
+        />
+      ))}
+      <circle cx="50" cy="50" r="7" />
+    </svg>
+  );
+}
+
+/** Thread spool, needle & trailing stitch — the brand's own "golden thread" mark. */
+function ThreadSpoolMotif({ className }: { className: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 200 200" className={className} fill="none" stroke="currentColor">
+      <circle cx="100" cy="100" r="92" strokeWidth="1" strokeDasharray="1 5" strokeLinecap="round" />
+      <circle cx="100" cy="100" r="80" strokeWidth="0.75" />
+      <line x1="52" y1="152" x2="148" y2="56" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="139" cy="65" r="8" strokeWidth="2.5" />
+      <path
+        d="M52 152 C 26 142, 14 110, 40 93 C 62 79, 80 98, 64 114 C 54 124, 40 117, 47 106"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path d="M118 38 C 129 26, 147 28, 153 43 C 141 47, 124 47, 118 38 Z" fill="currentColor" stroke="none" opacity="0.7" />
+      <path d="M134 22 C 142 16, 154 19, 157 29 C 148 31, 137 29, 134 22 Z" fill="currentColor" stroke="none" opacity="0.5" />
+    </svg>
+  );
+}
+
+/** Palm-leaf & vine branch — anchors the opposite corner, mirrors the logo's leaf flourish. */
+function LeafBranchMotif({ className }: { className: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 120 180" className={className} fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <path d="M20 175 C 22 130, 18 80, 30 20" />
+      {[
+        [30, 150, 60, 140, 40, 128],
+        [30, 120, 65, 108, 42, 98],
+        [30, 92, 68, 78, 44, 68],
+        [30, 62, 64, 46, 42, 40],
+        [28, 34, 55, 18, 38, 14],
+      ].map(([sx, sy, ex, ey, mx], i) => (
+        <path key={i} d={`M${sx} ${sy} Q ${mx} ${(sy + ey) / 2} ${ex} ${ey}`} />
+      ))}
+    </svg>
+  );
+}
 
 
 export default function Footer() {
@@ -56,43 +104,56 @@ export default function Footer() {
   const paymentMethods = cfg.payment_methods || DEFAULT_FOOTER_CONFIG.payment_methods;
 
   return (
-    <footer className="mt-16 bg-accent relative overflow-hidden">
-      {/* Floating shopping emojis */}
+    <footer className="mt-16 bg-accent relative rounded-t-3xl sm:rounded-t-[2.5rem]">
+      {/* Growing vines at the seam — climb out of the maroon footer into the white
+          page above it, softly swaying, so the boundary feels alive rather than a
+          flat cut between two stacked colour blocks. */}
+      <div className="absolute -top-[100px] sm:-top-[123px] left-0 w-[175px] sm:w-[230px] h-[207px] sm:h-[272px] z-10 pointer-events-none overflow-hidden">
+        <SeamVineMotif className="w-full h-full animate-seam-vine-grow" variant="a" animationClass="animate-seam-vine-sway" />
+      </div>
+      <div className="absolute -top-[73px] sm:-top-[89px] right-0 w-[145px] sm:w-[190px] h-[171px] sm:h-[225px] z-10 pointer-events-none overflow-hidden">
+        <SeamVineMotif className="w-full h-full animate-seam-vine-grow" variant="b" animationClass="animate-seam-vine-sway-slow" />
+      </div>
+
+      {/* Brand illustration set — Bengali textile motifs (কলকা, নকশিকাঁথা, সুতা-সুচ), scattered densely like a hand-drawn signature rather than generic icons. Visible at every breakpoint (site is mostly mobile traffic) so the background never reads as bare. */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {FLOATING_EMOJIS.map((item, i) => (
-          <span
-            key={i}
-            className={`absolute ${item.size} opacity-[0.22] animate-footer-emoji-float drop-shadow-[0_0_8px_rgba(255,255,255,0.35)]`}
-            style={{
-              top: item.top,
-              left: item.left,
-              animationDelay: item.delay,
-              animationDuration: item.duration,
-            }}
-          >
-            {item.emoji}
-          </span>
-        ))}
+        <LeafBranchMotif className="absolute -bottom-4 -left-2 w-24 sm:w-32 text-white/[0.15]" />
+        <LeafBranchMotif className="absolute -top-3 -right-3 w-16 sm:w-20 text-white/[0.13] scale-x-[-1]" />
+        <ThreadSpoolMotif className="absolute -bottom-10 -right-10 w-64 sm:w-80 text-primary/[0.18]" />
+        <KolkaMotif className="absolute top-[6%] right-[8%] w-12 sm:w-16 text-white/[0.17] rotate-[-15deg]" />
+        <KolkaMotif className="absolute top-[42%] left-[4%] w-10 sm:w-14 text-white/[0.15] rotate-[12deg]" />
+        <KolkaMotif className="absolute bottom-[30%] right-[20%] w-10 sm:w-14 text-primary/[0.16] rotate-[-8deg]" />
+        <KanthaRosette className="absolute top-[3%] left-[12%] w-10 sm:w-12 text-white/[0.17]" />
+        <KanthaRosette className="absolute top-[58%] right-[6%] w-9 sm:w-12 text-white/[0.15]" />
+        <KanthaRosette className="absolute bottom-[42%] left-[22%] w-8 sm:w-10 text-white/[0.13]" />
+        <KanthaRosette className="absolute top-[24%] right-[32%] w-8 sm:w-10 text-white/[0.12]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-white">
         {/* Brand */}
         <div className="text-center sm:text-left">
-          <div className={`flex items-center gap-2 mb-4 justify-center sm:justify-start ${cfg.logo_mode === 'wide_logo' && cfg.wide_logo_url ? (cfg.wide_logo_align === 'center' ? 'justify-center' : '') : ''}`}>
+          <div className={`flex items-center gap-3 mb-4 justify-center sm:justify-start ${cfg.logo_mode === 'wide_logo' && cfg.wide_logo_url ? (cfg.wide_logo_align === 'center' ? 'justify-center' : '') : ''}`}>
             {cfg.logo_mode === 'wide_logo' && cfg.wide_logo_url ? (
-              <img src={cfg.wide_logo_url} alt={cfg.brand_name || 'Logo'} className="h-10 object-contain" />
+              <img src={cfg.wide_logo_url} alt={cfg.brand_name || 'Logo'} className="h-12 object-contain" />
             ) : (
               <>
                 {cfg.logo_url ? (
-                  <img src={cfg.logo_url} alt={cfg.brand_name || 'Logo'} className="w-8 h-8 rounded-full object-cover" />
+                  <img src={cfg.logo_url} alt={cfg.brand_name || 'Logo'} className="w-16 h-16 rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">{(cfg.brand_name || 'স').charAt(0)}</div>
+                  <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl shrink-0">{(cfg.brand_name || 'স').charAt(0)}</div>
                 )}
-                <h3 className="text-lg font-bold">{cfg.brand_name || 'স্বর্ণ সুতা'}</h3>
+                <h3 className="text-xl font-bold">{cfg.brand_name || 'স্বর্ণ সুতা'}</h3>
               </>
             )}
           </div>
-          <p className="text-sm opacity-80 leading-relaxed mb-4">{cfg.brand_description}</p>
+          {/* Decorative sparkle divider — signature touch */}
+          <div className="flex items-center gap-2 mb-3 justify-center sm:justify-start" aria-hidden="true">
+            <span className="h-px w-8 bg-gradient-to-r from-transparent via-primary/60 to-primary/60" />
+            <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span className="h-px w-8 bg-gradient-to-l from-transparent via-primary/60 to-primary/60 sm:hidden" />
+          </div>
+
+          <p className="text-[15px] sm:text-base opacity-90 leading-relaxed mb-5 max-w-xs mx-auto sm:mx-0 font-light">{cfg.brand_description}</p>
           <div className="flex items-center gap-3 justify-center sm:justify-start">
             {cfg.facebook && (
               <a href={cfg.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full backdrop-blur-sm bg-white/10 border border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-[0_0_14px_hsl(var(--primary)/0.5)]">
@@ -155,7 +216,7 @@ export default function Footer() {
           <div className="h-0.5 w-10 mx-auto sm:mx-0 mb-4 rounded-full bg-gradient-to-r from-primary to-primary/30" />
           <div className="space-y-3 text-sm opacity-90 mb-4">
             <a
-              href="https://maps.app.goo.gl/bSsZ9Y7UvPECVUE48"
+              href="https://maps.app.goo.gl/6yTAKU5mCaJ8ajYH9"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Google Maps এ আমাদের ঠিকানা দেখুন"

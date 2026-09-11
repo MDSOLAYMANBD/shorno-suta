@@ -442,15 +442,15 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm max-h-[85vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-sm max-h-[85vh] rounded-2xl overflow-hidden p-0 flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground px-4 py-2.5 rounded-t-lg">
+        <div className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground px-4 py-2.5 shrink-0">
           <DialogHeader>
             <DialogTitle className="text-accent-foreground text-sm">দ্রুত অর্ডার</DialogTitle>
           </DialogHeader>
         </div>
 
-        <div className="px-4 pb-4 pt-2 space-y-3">
+        <div className="px-4 pb-4 pt-2 space-y-3 overflow-y-auto min-h-0 scrollbar-hide">
           {duplicateOrder && (
             <DuplicateOrderBanner
               existingOrder={duplicateOrder}
@@ -467,13 +467,13 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
           {/* Product info card */}
           <div className="border border-primary/20 rounded-xl p-3 bg-primary/5 space-y-2.5">
             <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-md overflow-hidden bg-muted flex-shrink-0 border border-border">
-                <img src={optimizedImageUrl(productImage, 100, 70)} alt={product.name_bn || product.name} className="w-full h-full object-cover" loading="lazy" />
+              <div className="w-20 h-28 rounded-lg overflow-hidden bg-muted flex-shrink-0 border-2 border-primary/30 shadow-sm">
+                <img src={optimizedImageUrl(productImage, 160, 224)} alt={product.name_bn || product.name} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
               <div className="flex-1 min-w-0 text-sm">
-                <p className="font-medium line-clamp-1">{product.name_bn || product.name}</p>
-                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                  <span className="text-primary font-bold">৳{effectivePrice}</span>
+                <p className="font-semibold text-base line-clamp-2">{product.name_bn || product.name}</p>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span className="text-primary font-bold text-lg">৳{effectivePrice}</span>
                   {effectiveOriginal && (
                     <span className="text-xs text-muted-foreground line-through">৳{effectiveOriginal}</span>
                   )}
@@ -512,26 +512,47 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
             {colors.length > 0 && (
               <div>
                 <Label className="text-xs font-medium mb-1.5 block">কালার</Label>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="grid grid-cols-4 gap-2">
                   {colors.map(c => {
-                    const colorImg = variantImages?.color_images?.[c];
+                    const colorImg = getColorPrimaryImage(variantImages?.color_images, c);
+                    const isSelected = localColor === c;
                     return (
                       <button
                         key={c}
                         type="button"
                         onClick={() => setLocalColor(c)}
                         className={cn(
-                          'px-3 py-1.5 text-xs rounded-full border transition-all font-medium flex items-center gap-1.5',
-                          localColor === c
-                            ? 'bg-primary text-primary-foreground border-primary ring-2 ring-primary/30'
-                            : 'border-border bg-background hover:border-primary/50'
+                          'flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all',
+                          isSelected
+                            ? 'border-primary bg-primary/5 shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]'
+                            : 'border-border bg-background hover:border-primary/40 hover:bg-muted/40'
                         )}
                       >
-                        {colorImg && (
-                          <img src={optimizedImageUrl(colorImg, 60, 70)} alt={c} className="w-8 h-8 rounded-full object-cover border border-border" loading="lazy" />
-                        )}
-                        {c}
-                        {localColor === c && <CheckCircle className="h-3 w-3" />}
+                        <div className="relative">
+                          {colorImg ? (
+                            <img
+                              src={optimizedImageUrl(colorImg, 100, 132)}
+                              alt={c}
+                              className={cn('w-14 h-[4.5rem] rounded-lg object-cover object-top border-2', isSelected ? 'border-primary' : 'border-border')}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className={cn(
+                              'w-14 h-[4.5rem] rounded-lg flex items-center justify-center text-sm font-bold border-2',
+                              isSelected ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-muted text-muted-foreground'
+                            )}>
+                              {c.charAt(0)}
+                            </div>
+                          )}
+                          {isSelected && (
+                            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center ring-2 ring-background">
+                              <CheckCircle className="h-3 w-3" />
+                            </span>
+                          )}
+                        </div>
+                        <span className={cn('text-[11px] font-medium text-center leading-tight line-clamp-1 w-full', isSelected ? 'text-primary' : 'text-foreground')}>
+                          {c}
+                        </span>
                       </button>
                     );
                   })}
@@ -700,27 +721,38 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
                   const isSelected = paymentMethod === method.id;
                   const brand = method.brand;
                   const watermarkColor = brand ? brand.accentText : 'text-accent';
+                  const disabled = !!method.comingSoon;
                   return (
                     <button
                       key={method.id}
                       type="button"
-                      onClick={() => setPaymentMethod(method.id)}
+                      disabled={disabled}
+                      onClick={() => { if (!disabled) setPaymentMethod(method.id); }}
+                      aria-disabled={disabled}
                       className={cn(
                         "flex flex-col items-center gap-1 p-2 border-2 rounded-xl relative transition-all overflow-hidden",
-                        isSelected
-                          ? (brand ? brand.selectedBorder : 'border-accent bg-accent/5')
-                          : 'border-border hover:border-accent/30',
-                        brand ? 'animate-pm-card-glow-pink' : 'animate-pm-card-glow-primary'
+                        disabled
+                          ? "opacity-60 cursor-not-allowed border-border"
+                          : isSelected
+                            ? (brand ? brand.selectedBorder : 'border-accent bg-accent/5')
+                            : 'border-border hover:border-accent/30',
+                        !disabled && (brand ? 'animate-pm-card-glow-pink' : 'animate-pm-card-glow-primary')
                       )}
                     >
                       {/* Watermark icon — fills the card's empty space */}
                       <Icon className={cn("absolute -right-1.5 -bottom-1.5 h-9 w-9 rotate-[-15deg] opacity-[0.08] pointer-events-none", watermarkColor)} />
 
-                      {isSelected && <CheckCircle className={cn("absolute top-1 right-1 h-3 w-3 z-10", brand ? brand.accentText : 'text-accent')} />}
+                      {disabled && (
+                        <span className="absolute top-0.5 left-1/2 -translate-x-1/2 z-10 text-[7px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border whitespace-nowrap">
+                          শীঘ্রই
+                        </span>
+                      )}
+
+                      {isSelected && !disabled && <CheckCircle className={cn("absolute top-1 right-1 h-3 w-3 z-10", brand ? brand.accentText : 'text-accent')} />}
                       <div className={cn(
-                        "relative z-10 w-8 h-8 rounded-full flex items-center justify-center",
+                        "relative z-10 w-8 h-8 rounded-full flex items-center justify-center mt-1.5",
                         brand ? brand.iconBg : 'bg-accent/10',
-                        brand?.glowClassName
+                        !disabled && brand?.glowClassName
                       )}>
                         <Icon className={cn("h-4 w-4", brand ? brand.iconColor : 'text-accent')} />
                       </div>

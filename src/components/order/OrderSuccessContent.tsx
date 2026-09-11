@@ -23,6 +23,47 @@ interface OrderSuccessContentProps {
   customerPhone?: string;
 }
 
+// Decorative leaf sprig growing in from the success card's corner, curving
+// down toward the checkmark — root anchored at the corner so grow/sway
+// animate from there. `mirrored` flips it for the right side so the pair
+// frames the circle instead of repeating the same shape.
+function SuccessLeafSprig({ className, mirrored, style }: { className?: string; mirrored?: boolean; style?: React.CSSProperties }) {
+  const leaf = (cx: number, cy: number, rot: number, scale: number) => (
+    <g transform={`translate(${cx},${cy}) rotate(${rot}) scale(${scale})`}>
+      <path
+        d="M0,1 C3,-2 4,-7 8,-13 C11,-19 10,-26 5,-32 C3,-35 0,-36 0,-36 C0,-36 -3,-35 -6,-31 C-10,-25 -10,-18 -7,-12 C-5,-6 -3,-2 0,1 Z"
+        fill="url(#success-leaf-fill)"
+        stroke="hsl(var(--accent))"
+        strokeWidth="0.8"
+      />
+      <path d="M0,0 C1,-9 0,-20 -1,-27" fill="none" stroke="hsl(var(--accent))" strokeWidth="0.7" strokeLinecap="round" opacity="0.6" />
+    </g>
+  );
+  return (
+    <div className={`${className} animate-corner-leaf-grow`} style={style}>
+      <div className="w-full h-full animate-corner-leaf-sway" style={style}>
+        <svg viewBox="0 0 56 80" className="w-full h-full" style={mirrored ? { transform: 'scaleX(-1)' } : undefined} aria-hidden="true">
+          <defs>
+            <linearGradient id="success-leaf-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="hsl(var(--primary))" />
+              <stop offset="100%" stopColor="hsl(var(--primary) / 0.75)" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M6,4 C10,20 6,34 18,44 C28,52 26,62 36,72"
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          {leaf(12, 26, -20, 0.8)}
+          {leaf(28, 55, 25, 0.7)}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export default function OrderSuccessContent({ orderNumber, orderId, items, deliveryCharge, discount, onClose, closeLabel = 'ঠিক আছে', customerPhone }: OrderSuccessContentProps) {
   const { data: footerConfig } = useSiteConfig('footer_config');
   const config = { ...DEFAULT_FOOTER_CONFIG, ...footerConfig };
@@ -55,7 +96,20 @@ ${itemLines}
   const whatsappUrl = `https://wa.me/880${whatsappNumber.replace(/^0/, '')}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div className="text-center space-y-4">
+    <div className="relative text-center space-y-4">
+      {/* Leaf sprigs growing in from the card's two top corners, curving
+          down toward the checkmark. -top-6/-left-6/-right-6 cancel out the
+          card's own p-6 padding so they root exactly at its corners. */}
+      <SuccessLeafSprig
+        className="absolute -top-6 -left-6 w-11 h-16 pointer-events-none"
+        style={{ transformOrigin: 'top left' }}
+      />
+      <SuccessLeafSprig
+        className="absolute -top-6 -right-6 w-11 h-16 pointer-events-none"
+        style={{ transformOrigin: 'top right' }}
+        mirrored
+      />
+
       {/* Success icon */}
       <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
         <CheckCircle className="h-9 w-9 text-primary" />

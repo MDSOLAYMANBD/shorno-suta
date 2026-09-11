@@ -114,7 +114,8 @@ serve(async (req) => {
     if (catErr || !category) throw new Error("Category not found");
 
     let parentName = "";
-    let brandColor = "#429B39";
+    let brandColor = "#8C6A1A"; // antique gold — primary
+    let accentColor = "#6B1E2B"; // deep maroon/burgundy — secondary
     let storeName = "Shorno Suta";
     let storeNameBn = "স্বর্ণ সুতা";
 
@@ -122,17 +123,18 @@ serve(async (req) => {
       category.parent_id
         ? supabase.from("categories").select("name, name_bn").eq("id", category.parent_id).single()
         : Promise.resolve({ data: null }),
-      supabase.from("store_settings").select("value").eq("key", "landing_brand_defaults").single(),
+      supabase.from("store_settings").select("value").eq("key", "theme_config").single(),
       supabase.from("store_settings").select("value").eq("key", "store_name").single(),
       supabase.from("products").select("name, name_bn, images").eq("category_id", category_id).eq("is_active", true).limit(8),
     ]);
 
     if (parentRes.data) parentName = parentRes.data.name_bn || parentRes.data.name;
-    
+
     try {
       if (brandRes.data?.value) {
         const parsed = JSON.parse(brandRes.data.value);
-        if (parsed?.header?.primaryColor) brandColor = parsed.header.primaryColor;
+        if (parsed?.primary) brandColor = parsed.primary;
+        if (parsed?.secondary) accentColor = parsed.secondary;
       }
     } catch (_) { /* use default */ }
 
@@ -180,7 +182,8 @@ ${parentName ? `মূল ক্যাটেগরি: ${parentName}` : ""}
     // ===== Step 2: Generate banner image with multimodal product references =====
     const brandingInstructions = `
 BRAND: "${storeNameBn}" (${storeName})
-Primary brand color: ${brandColor}
+Primary brand color: ${brandColor} (rich antique gold)
+Secondary/accent brand color: ${accentColor} (deep maroon/burgundy)
 
 MANDATORY TYPOGRAPHY — bake these directly INTO the image as part of the graphic design (NOT as overlay text boxes):
 - Category name "${catName}" in large, bold, elegant Bengali typography — positioned prominently (top-center or left side)
@@ -222,7 +225,7 @@ LAYOUT & COMPOSITION:
 - Each model/product should show a DIFFERENT design, print, or color variation
 
 DESIGN & AESTHETICS:
-- Background: soft, luxurious gradient using ${brandColor} (brand green) blended with cream, gold, and warm neutrals
+- Background: soft, luxurious gradient blending antique gold (${brandColor}) and deep maroon/burgundy (${accentColor}) with cream and warm neutrals — an elegant, premium South Asian fashion palette. Use the maroon as a rich accent (borders, decorative panels, shadow depth) and the gold as the dominant warm tone; never use flat green or navy.
 - Decorative botanical, floral, or geometric accents between the product frames
 - The prints, patterns, and fabric designs on the clothing MUST match what "${catName}" category actually sells
 - If reference images are provided below, study them to understand the EXACT prints, patterns, textures, and design language — then create NEW original products with SIMILAR aesthetics

@@ -157,7 +157,7 @@ function GiftOrdersTab() {
     const productMap = new Map((products || []).map((p: any) => [p.id, p]));
     const itemsWithImages = items.map(item => {
       const product = productMap.get(item.product_id);
-      const colorImage = item.color && (product?.variant_images as any)?.color_images?.[item.color];
+      const colorImage = item.color && getColorPrimaryImage((product?.variant_images as any)?.color_images, item.color);
       return { ...item, image: colorImage || product?.images?.[0] || null, regular_price: product?.price || null };
     });
     setPrintOrder(order);

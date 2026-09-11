@@ -25,6 +25,7 @@ import { applyClearanceList } from '@/lib/clearancePrice';
 import { estimateReviewCount } from '@/lib/reviewCount';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
+import { explodeProductsByColor } from '@/lib/productVariants';
 
 function ScrollAnimatedSection({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
@@ -381,7 +382,7 @@ const Index = () => {
                   {sectionCfg.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{sectionCfg.subheading}</p>}
                 </div>
                 {bestSellingLoading ? <ProductGridSkeleton /> : (
-                  <ProductSlider products={bestSelling || []} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+                  <ProductSlider products={explodeProductsByColor(bestSelling || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
                 )}
               </div>
             </section>
@@ -401,7 +402,7 @@ const Index = () => {
                   {sectionCfg.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{sectionCfg.subheading}</p>}
                 </div>
                 {newProductsLoading ? <ProductGridSkeleton /> : (
-                  <ProductSlider products={newProducts?.slice(0, sectionCfg.limit || 10) || []} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+                  <ProductSlider products={explodeProductsByColor(newProducts?.slice(0, sectionCfg.limit || 10) || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
                 )}
               </div>
             </section>
@@ -597,6 +598,11 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
   const loaded = sortedProducts.length;
   const hasMore = totalCount ? loaded < totalCount : false;
 
+  // Exploded only for display — pagination math above stays keyed to raw
+  // product rows (matching the server-side count/limit), while the grid
+  // itself shows one card per color variant, same as every other section.
+  const displayCards = useMemo(() => explodeProductsByColor(sortedProducts), [sortedProducts]);
+
   return (
     <section className="py-12 bg-accent/5" style={sectionStyle}>
       <div className="px-3 md:px-0 md:container">
@@ -609,8 +615,8 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
         {isLoading && loaded === 0 ? <ProductGridSkeleton /> : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
-              {sortedProducts.map((p: any) => (
-                <ProductCard key={p.id} id={p.id} slug={p.slug} name={p.name} name_bn={p.name_bn} price={p.price} original_price={p.original_price} image={p.images?.[0]} buttonConfig={buttonConfig} totalSold={salesMap?.get(p.id)} totalViews={viewsMap?.get(p.id)} hasVideo={!!p.video_url} createdAt={p.created_at} clearance_active={p.clearance_active} variant_images={p.variant_images} />
+              {displayCards.map((p: any) => (
+                <ProductCard key={p.linkColor ? `${p.id}::${p.linkColor}` : p.id} id={p.id} slug={p.slug} name={p.name} name_bn={p.name_bn} price={p.price} original_price={p.original_price} image={p.images?.[0]} buttonConfig={buttonConfig} totalSold={salesMap?.get(p.id)} totalViews={viewsMap?.get(p.id)} hasVideo={!!p.video_url} createdAt={p.created_at} clearance_active={p.clearance_active} variant_images={p.variant_images} linkColor={p.linkColor} />
               ))}
             </div>
             {hasMore && (
@@ -848,7 +854,7 @@ function ProductBlockSection({ block, sectionStyle, wrapSection, sKey }: { block
           </div>
           {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{block.subheading}</p>}
         </div>
-        <ProductSlider products={displayProducts} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+        <ProductSlider products={explodeProductsByColor(displayProducts)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
       </div>
     </section>
   );
@@ -945,7 +951,7 @@ function StockClearanceSection({ block, sectionStyle, wrapSection, sKey }: { blo
           {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{block.subheading}</p>}
         </div>
         <div className="clearance-slider-wrap">
-          <ProductSlider products={display} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+          <ProductSlider products={explodeProductsByColor(display)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
         </div>
       </div>
     </section>
@@ -1000,9 +1006,10 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
   const { data: fillerProducts } = useProductCardsByIds(fillerIds);
 
   const combinedTrending = useMemo(() => {
-    if (!fillerProducts || fillerProducts.length === 0) return trending;
-    const needed = limit - trending.length;
-    return [...trending, ...fillerProducts.slice(0, needed)];
+    const merged = !fillerProducts || fillerProducts.length === 0
+      ? trending
+      : [...trending, ...fillerProducts.slice(0, limit - trending.length)];
+    return explodeProductsByColor(merged);
   }, [trending, fillerProducts, limit]);
 
   if (isLoading) return wrapSection(sKey, <section style={sectionStyle}><div className="container py-6"><ProductGridSkeleton /></div></section>);
@@ -1050,7 +1057,7 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
         {/* Mobile: horizontal snap slider */}
         <div className="sm:hidden -mx-3 px-3 flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {combinedTrending.map((p: any, idx: number) => (
-            <div key={p.__key || `${p.id}-${idx}`} className="trending-grid-card shrink-0 w-[45%] snap-start">
+            <div key={p.linkColor ? `${p.id}::${p.linkColor}` : `${p.id}-${idx}`} className="trending-grid-card shrink-0 w-[45%] snap-start">
               <ProductCard
                 id={p.id}
                 slug={p.slug}
@@ -1066,6 +1073,7 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}
                 variant_images={p.variant_images}
+                linkColor={p.linkColor}
               />
             </div>
           ))}
@@ -1074,7 +1082,7 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
         {/* Desktop / tablet: grid */}
         <div className="hidden sm:grid grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
           {combinedTrending.map((p: any, idx: number) => (
-            <div key={p.__key || `${p.id}-${idx}`} className="trending-grid-card min-w-0">
+            <div key={p.linkColor ? `${p.id}::${p.linkColor}` : `${p.id}-${idx}`} className="trending-grid-card min-w-0">
               <ProductCard
                 id={p.id}
                 slug={p.slug}
@@ -1090,6 +1098,7 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}
                 variant_images={p.variant_images}
+                linkColor={p.linkColor}
               />
             </div>
           ))}

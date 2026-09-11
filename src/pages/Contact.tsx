@@ -132,16 +132,43 @@ export default function Contact() {
           </Card>
 
           <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><MapPin className="h-5 w-5 text-primary" /> 📍 আমাদের লোকেশন</CardTitle></CardHeader>
+            <CardContent>
+              <div className="rounded-lg overflow-hidden border border-border">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3652.9095349430227!2d90.3638034!3d23.714924399999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf50d7851ea7%3A0xad932e31f5429df6!2zU2hvcm5vIFN1dGEgJ-CmuOCnjeCmrOCmsOCnjeCmoyDgprjgp4HgpqTgpr4n!5e0!3m2!1sen!2sbd!4v1789111011085!5m2!1sen!2sbd"
+                  width="100%"
+                  height="350"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  title="Shorno Suta Location"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Globe className="h-5 w-5 text-primary" /> 🌐 Online Presence</CardTitle></CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a href="https://shorno-suta.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
                   <Globe className="h-5 w-5 text-primary flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Website</p><p className="text-sm font-medium text-foreground">shorno-suta.vercel.app</p></div>
                 </a>
-                <a href="https://www.facebook.com/shornosuta" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
+                <a href="https://www.facebook.com/shornosuta/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
                   <Facebook className="h-5 w-5 text-[#1877F2] flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Facebook</p><p className="text-sm font-medium text-foreground">shornosuta</p></div>
                 </a>
-                {/* TODO: Instagram/YouTube not provided yet by the client — add back once known. */}
+                <a href="https://www.instagram.com/Shorno_Suta" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
+                  <Instagram className="h-5 w-5 text-[#E4405F] flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Instagram</p><p className="text-sm font-medium text-foreground">Shorno_Suta</p></div>
+                </a>
+                <a href="https://www.youtube.com/channel/UCM_OpuUCL19i0Ha-LQOMdzg" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
+                  <Youtube className="h-5 w-5 text-[#FF0000] flex-shrink-0" /><div><p className="text-sm text-muted-foreground">YouTube</p><p className="text-sm font-medium text-foreground">ShornoSuta</p></div>
+                </a>
+                <a href="https://www.tiktok.com/@shornosutabd" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
+                  <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.27 0 .54.04.8.1v-3.5a6.37 6.37 0 0 0-.8-.05A6.34 6.34 0 0 0 3.15 15.3a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.98a8.2 8.2 0 0 0 3.76.92V6.69z"/></svg>
+                  <div><p className="text-sm text-muted-foreground">TikTok</p><p className="text-sm font-medium text-foreground">shornosutabd</p></div>
+                </a>
               </div>
             </CardContent>
           </Card>

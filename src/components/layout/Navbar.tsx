@@ -90,9 +90,9 @@ export default function Navbar() {
             ) : (
               <>
                 {navConfig.logo_url ? (
-              <img src={navConfig.logo_url} alt={navConfig.brand_name || 'Logo'} className="w-11 h-11 rounded-full object-cover shrink-0 logo-shine" width="44" height="44" />
+              <img src={navConfig.logo_url} alt={navConfig.brand_name || 'Logo'} className="w-14 h-14 rounded-full object-cover shrink-0 logo-shine" width="56" height="56" />
                 ) : (
-                  <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold shrink-0 logo-shine">
+                  <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold shrink-0 logo-shine">
                     {(navConfig.brand_name || 'স').charAt(0)}
                   </div>
                 )}

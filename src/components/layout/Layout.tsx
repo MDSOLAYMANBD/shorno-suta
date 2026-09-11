@@ -2,6 +2,7 @@ import { ReactNode, lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import BrandSideBorder from './BrandSideBorder';
 import MobileBottomNav from './MobileBottomNav';
 import FloatingCart from './FloatingCart';
 import FloatingBackButton from './FloatingBackButton';
@@ -66,7 +67,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   const showReviews = path === '/' || path.startsWith('/shop') || path.startsWith('/product/') || path.startsWith('/collection/');
   const hideFooter = isMobile && (path === '/cart' || path === '/checkout');
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <BrandSideBorder />
       <CustomerWelcomeIsland />
       <Navbar />
       <main className="flex-1">

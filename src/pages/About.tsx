@@ -30,7 +30,7 @@ export default function About() {
   if (pageConfig?.sections?.length) {
     return (
       <Layout>
-        <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০১৬ সাল থেকে সেরা মানের পোশাক তৈরি ও বিক্রয়।" canonical="/about" />
+        <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০২৪ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
 
         {/* Editorial Hero */}
         <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/[0.05] via-background to-background">
@@ -39,7 +39,7 @@ export default function About() {
           <div className="container relative py-16 md:py-24 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-medium tracking-wider uppercase mb-6">
               {pageConfig.icon ? <span>{pageConfig.icon}</span> : <Award className="h-3.5 w-3.5" />}
-              Est. ২০১৬ · Shorno Suta
+              Est. ২০২৪ · Shorno Suta
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1] max-w-3xl mx-auto">
               {pageConfig.title}
@@ -109,15 +109,10 @@ export default function About() {
               const cleanBody = stripTags(body);
 
               // === STORY / TIMELINE ===
-              // TODO: this whole timeline is the previous client's real company history
-              // (Daraz origin, factories, etc.) — replace with Shorno Suta's actual story
-              // once the client provides it. Do not ship this as-is.
               if (/গল্প|story|যাত্রা|journey|পথচলা/i.test(heading)) {
                 const timeline = [
-                  { year: '২০১৬', title: 'যাত্রা শুরু', text: 'Daraz প্ল্যাটফর্মের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু। প্রথমে ছোট পরিসরে কিচেন আইটেম নিয়ে কাজ শুরু হয়।' },
-                  { year: '২০১৮', title: 'পোশাকে মনোযোগ', text: 'গ্রাহকদের চাহিদা অনুযায়ী পোশাক (Clothing) সেক্টরে মনোযোগ দেওয়া হয়। নিজস্ব উৎপাদন শুরু।' },
-                  { year: '২০২০', title: 'নিজস্ব প্ল্যাটফর্ম', text: 'নিজস্ব ওয়েবসাইট ও সোশ্যাল মিডিয়া মার্কেটিং-এর মাধ্যমে সরাসরি গ্রাহকের কাছে পণ্য পৌঁছানো শুরু।' },
-                  { year: 'বর্তমান', title: 'পূর্ণাঙ্গ উৎপাদন', text: 'এমব্রয়ডারি, স্ক্রিন প্রিন্ট ও সেলাই — তিনটি ফ্যাক্টরি সহ পূর্ণাঙ্গ উৎপাদন ব্যবস্থা।' },
+                  { year: '২০২৪', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
+                  { year: 'বর্তমান', title: 'নিজস্ব ওয়েবসাইট', text: 'ফেসবুকের গণ্ডি পেরিয়ে নিজস্ব ওয়েবসাইট চালু — যাতে গ্রাহকরা আরও সহজে ও নিরাপদে অর্ডার করতে পারেন।' },
                 ];
                 return (
                   <section key={idx}>
@@ -370,7 +365,7 @@ export default function About() {
                           <h3 className="text-3xl md:text-4xl font-bold text-foreground">{name}</h3>
                           <p className="text-muted-foreground mt-1 text-sm md:text-base">Founder & CEO · Shorno Suta</p>
                           <blockquote className="mt-5 pl-4 border-l-2 border-primary/50 italic text-muted-foreground leading-relaxed">
-                            "২০১৬ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
+                            "২০২৪ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
                           </blockquote>
                         </div>
                       </div>
@@ -416,23 +411,14 @@ export default function About() {
   }
 
   // Fallback: professional editorial-style content
-  const facilities = [
-    { icon: Factory, name: 'এমব্রয়ডারি ফ্যাক্টরি', nameEn: 'Embroidery Factory' },
-    { icon: Printer, name: 'স্ক্রিন প্রিন্ট ফ্যাক্টরি', nameEn: 'Screen Print Factory' },
-    { icon: Scissors, name: 'সেলাই ফ্যাক্টরি', nameEn: 'Sewing Factory' },
-    { icon: ShoppingBag, name: 'অফিস (অনলাইন সেলস)', nameEn: 'Office (Online Sales)' },
-  ];
-
   const timeline = [
-    { year: '২০১৬', title: 'যাত্রা শুরু', text: 'Daraz প্ল্যাটফর্মের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু। প্রথমে ছোট পরিসরে কিচেন আইটেম নিয়ে কাজ শুরু হয়।' },
-    { year: '২০১৮', title: 'পোশাকে মনোযোগ', text: 'গ্রাহকদের চাহিদা অনুযায়ী পোশাক (Clothing) সেক্টরে মনোযোগ দেওয়া হয়। নিজস্ব উৎপাদন শুরু।' },
-    { year: '২০২০', title: 'নিজস্ব প্ল্যাটফর্ম', text: 'নিজস্ব ওয়েবসাইট ও সোশ্যাল মিডিয়া মার্কেটিং-এর মাধ্যমে সরাসরি গ্রাহকের কাছে পণ্য পৌঁছানো শুরু।' },
-    { year: 'বর্তমান', title: 'পূর্ণাঙ্গ উৎপাদন', text: 'এমব্রয়ডারি, স্ক্রিন প্রিন্ট ও সেলাই — তিনটি ফ্যাক্টরি সহ পূর্ণাঙ্গ উৎপাদন ব্যবস্থা।' },
+    { year: '২০২৪', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
+    { year: 'বর্তমান', title: 'নিজস্ব ওয়েবসাইট', text: 'ফেসবুকের গণ্ডি পেরিয়ে নিজস্ব ওয়েবসাইট চালু — যাতে গ্রাহকরা আরও সহজে ও নিরাপদে অর্ডার করতে পারেন।' },
   ];
 
   return (
     <Layout>
-      <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০১৬ সাল থেকে সেরা মানের পোশাক তৈরি ও বিক্রয়।" canonical="/about" />
+      <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০২৪ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
 
       {/* Editorial Hero */}
       <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/[0.04] via-background to-background">
@@ -442,26 +428,14 @@ export default function About() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-medium tracking-wider uppercase mb-6">
               <Award className="h-3.5 w-3.5" />
-              Est. ২০১৬ · Shorno Suta
+              Est. ২০২৪ · Shorno Suta
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1]">
               আমাদের <span className="italic font-serif text-primary">গল্প</span>,<br className="hidden md:block" /> আপনার বিশ্বাসে গড়া
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mt-6 max-w-2xl mx-auto leading-relaxed">
-              সরাসরি প্রস্তুতকারক থেকে আপনার দোরগোড়ায় — মধ্যস্বত্বভোগী ছাড়াই সেরা মানের পোশাক, সেরা দামে।
+              ফেসবুক পেজ থেকে শুরু করে আজকের এই ওয়েবসাইট — মধ্যস্বত্বভোগী ছাড়াই সেরা মানের পোশাক, সেরা দামে।
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-10 pt-8 border-t border-border/40 max-w-xl mx-auto">
-              {[
-                { num: '১০+', label: 'বছরের অভিজ্ঞতা' },
-                { num: '৩', label: 'নিজস্ব ফ্যাক্টরি' },
-                { num: '৫০K+', label: 'সন্তুষ্ট গ্রাহক' },
-              ].map((s, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-foreground">{s.num}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 uppercase tracking-wider">{s.label}</div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -500,27 +474,6 @@ export default function About() {
             </div>
           </section>
 
-          {/* Facilities */}
-          <section>
-            <div className="text-center mb-12">
-              <div className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-2">— Our Facilities —</div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">বর্তমানে আমাদের রয়েছে</h2>
-              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">প্রতিটি ধাপ — কাটিং থেকে প্যাকিং — সম্পূর্ণ নিজস্ব ব্যবস্থাপনায়</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {facilities.map((f, i) => (
-                <div key={i} className="group relative bg-card border border-border/60 rounded-2xl p-5 md:p-6 hover:border-primary/40 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <div className="absolute top-3 right-3 text-[10px] font-mono font-bold text-muted-foreground/40">0{i + 1}</div>
-                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <f.icon className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                  </div>
-                  <h3 className="font-bold text-sm md:text-base text-foreground leading-tight">{f.name}</h3>
-                  <p className="text-[11px] md:text-xs text-muted-foreground mt-1 uppercase tracking-wide">{f.nameEn}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* Mission — two column editorial */}
           <section className="relative">
             <div className="grid md:grid-cols-5 gap-8 md:gap-12 items-start">
@@ -536,9 +489,9 @@ export default function About() {
               </div>
               <div className="md:col-span-3 space-y-4">
                 {[
-                  { title: 'সরাসরি গ্রাহকের কাছে', text: 'মধ্যস্বত্বভোগী ছাড়াই সরাসরি প্রস্তুতকারক থেকে আপনার দোরগোড়ায়।' },
-                  { title: 'সেরা দামে সেরা মান', text: 'তুলনামূলক কম দামে — কারণ আমরাই বানাই, আমরাই বিক্রি করি।' },
-                  { title: 'নিজস্ব ব্যবস্থাপনা', text: 'প্রতিটি পোশাক — কাটিং, এমব্রয়ডারি, সেলাই, প্যাকিং — ধাপে ধাপে নিজস্ব তত্ত্বাবধানে।' },
+                  { title: 'সরাসরি গ্রাহকের কাছে', text: 'মধ্যস্বত্বভোগী ছাড়াই সরাসরি আপনার দোরগোড়ায় পণ্য পৌঁছে দেওয়া।' },
+                  { title: 'সেরা দামে সেরা মান', text: 'তুলনামূলক কম দামে মানসম্পন্ন পণ্য নিশ্চিত করা।' },
+                  { title: 'যত্নসহকারে বাছাই', text: 'প্রতিটি পণ্য পাঠানোর আগে ভালোভাবে যাচাই করে নেওয়া হয়।' },
                   { title: 'গ্রাহক সন্তুষ্টিই প্রথম', text: 'দ্রুত ডেলিভারি, সহজ রিটার্ন, ও ২৪/৭ সাপোর্ট।' },
                 ].map((p, i) => (
                   <div key={i} className="group flex gap-4 p-5 rounded-xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-md transition-all">
@@ -557,35 +510,42 @@ export default function About() {
             </div>
           </section>
 
-          {/* Founder — Editorial Card */}
-          {/* TODO: MD SOLAYMAN / "MS" initials / the quote below belong to the previous
-              client's founder — replace with Shorno Suta's actual founder details.
-              Do not ship this as-is. */}
+          {/* Founders — Editorial Cards */}
           <section>
-            <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04]">
-              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-              <div className="relative grid md:grid-cols-5 gap-8 p-8 md:p-12 items-center">
-                <div className="md:col-span-2 flex justify-center">
-                  <div className="relative">
-                    <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl opacity-60" />
-                    <div className="relative h-40 w-40 md:h-52 md:w-52 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
-                      <span className="text-5xl md:text-6xl font-extrabold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">MS</span>
+            <div className="text-center mb-10">
+              <div className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-2">— Our Founders —</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">প্রতিষ্ঠাতাগণ</h2>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-6">
+              {[
+                { name: 'IMON MAHMUD', initials: 'IM' },
+                { name: 'ABU MUSA', initials: 'AM' },
+                { name: 'MD EMRAN HOSSAIN', initials: 'MH' },
+              ].map((f, i) => (
+                <div key={i} className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04] p-8 text-center">
+                  <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+                  <div className="relative flex justify-center">
+                    <div className="relative">
+                      <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl opacity-60" />
+                      <div className="relative h-28 w-28 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
+                        <span className="text-3xl font-extrabold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">{f.initials}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="md:col-span-3 text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
-                    <User className="h-3.5 w-3.5" />
-                    প্রতিষ্ঠাতা
+                  <div className="relative mt-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
+                      <User className="h-3.5 w-3.5" />
+                      প্রতিষ্ঠাতা
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground">{f.name}</h3>
+                    <p className="text-muted-foreground mt-1 text-sm">Co-Founder · Shorno Suta</p>
                   </div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-foreground">MD SOLAYMAN</h3>
-                  <p className="text-muted-foreground mt-1 text-sm md:text-base">Founder & CEO · Shorno Suta</p>
-                  <blockquote className="mt-5 pl-4 border-l-2 border-primary/50 italic text-muted-foreground leading-relaxed">
-                    "২০১৬ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
-                  </blockquote>
                 </div>
-              </div>
+              ))}
             </div>
+            <blockquote className="mt-8 max-w-2xl mx-auto text-center pl-4 border-l-2 border-primary/50 italic text-muted-foreground leading-relaxed">
+              "২০২৪ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
+            </blockquote>
           </section>
 
         </div>

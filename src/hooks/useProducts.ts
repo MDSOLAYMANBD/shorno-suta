@@ -8,7 +8,7 @@ const PRODUCT_LIST_SELECT = 'id, slug, name, name_bn, price, original_price, cle
 // clearance columns are missing (e.g. migration not yet applied / stale schema cache).
 const PRODUCT_LIST_SELECT_SAFE = PRODUCT_LIST_SELECT.replace('clearance_price, clearance_active, ', '');
 
-const HOMEPAGE_CARD_SELECT = 'id, slug, name, name_bn, price, original_price, clearance_price, clearance_active, images, video_url, stock, allow_pre_order, created_at, variant_images';
+const HOMEPAGE_CARD_SELECT = 'id, slug, name, name_bn, price, original_price, clearance_price, clearance_active, images, video_url, stock, allow_pre_order, created_at, colors, variant_images';
 const HOMEPAGE_CARD_SELECT_SAFE = HOMEPAGE_CARD_SELECT.replace('clearance_price, clearance_active, ', '');
 
 const PRODUCT_DETAIL_SELECT = 'id, slug, name, name_bn, description, description_bn, price, original_price, clearance_price, clearance_active, images, is_featured, is_active, category_id, stock, allow_pre_order, colors, sizes, product_type, video_url, video_file_url, created_at, bump_product_id, bump_discount, addon_config, variant_images, is_hidden_from_shop, seo_title, seo_description, seo_keywords, feed_title, feed_description, linked_product_ids, suggested_product_ids, categories(name, name_bn, slug)';

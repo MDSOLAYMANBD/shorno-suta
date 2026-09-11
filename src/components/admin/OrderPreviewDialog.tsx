@@ -317,7 +317,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/${fn}?action=check_status`, {
+        const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${fn}?action=check_status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({ consignment_id: cid }),

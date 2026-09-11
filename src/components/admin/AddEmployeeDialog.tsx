@@ -35,7 +35,7 @@ export default function AddEmployeeDialog({ open, onOpenChange, onSuccess }: Pro
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/manage-employee`, {
+      const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

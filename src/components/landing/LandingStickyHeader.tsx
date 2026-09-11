@@ -51,7 +51,7 @@ export default function LandingStickyHeader({
     document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const color = brandColor || '#429B39';
+  const color = brandColor || '#8C6A1A';
   const headerBg = bgColor || '#ffffff';
   const brandTextColor = textColor || color;
   const buttonBg = ctaColor || color;

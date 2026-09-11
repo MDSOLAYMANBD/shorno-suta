@@ -14,6 +14,10 @@ export interface PaymentMethodDef {
   settingKey?: string;
   /** Whether this method is enabled when its settingKey is missing/unset. */
   defaultEnabled: boolean;
+  /** Shown in checkout but not yet selectable — displays an "Upcoming" badge
+   * instead of letting the customer pick it. Remove once the gateway is fully
+   * wired up (edge functions deployed + merchant credentials configured). */
+  comingSoon?: boolean;
   /** Optional gateway-brand styling for methods with a recognizable wallet
    * identity (e.g. bKash pink). Callers fall back to the theme's primary
    * color when this is absent. */
@@ -48,6 +52,7 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
     icon: CreditCard,
     settingKey: 'payment_uddoktapay_enabled',
     defaultEnabled: true, // preserves current behavior for existing stores
+    comingSoon: true, // gateway not configured yet — visible, not selectable
   },
   {
     id: 'bkash',
@@ -56,7 +61,8 @@ export const PAYMENT_METHODS: PaymentMethodDef[] = [
     sublabel: 'bKash Payment',
     icon: Wallet,
     settingKey: 'payment_bkash_enabled',
-    defaultEnabled: false, // opt-in, off until admin configures + enables it
+    defaultEnabled: true, // shown as "upcoming" until the gateway is wired up
+    comingSoon: true, // gateway not configured yet — visible, not selectable
     brand: {
       iconBg: 'bg-gradient-to-br from-[#F0509C] to-[#E2136E]',
       iconColor: 'text-white',

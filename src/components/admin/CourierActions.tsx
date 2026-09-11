@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const SUPABASE_URL = 'https://gdwvktufhsbrblzzeiir.supabase.co';
+const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
 
 type CourierProvider = 'steadfast' | 'pathao' | 'redx';
 

@@ -393,7 +393,7 @@ export default function WebhookStatusChecker() {
           <Card>
             <CardContent className="px-4 py-3">
               <div className="space-y-1.5">
-                <a href="https://supabase.com/dashboard/project/gdwvktufhsbrblzzeiir/functions/meta-webhook/logs" target="_blank" rel="noopener" className="flex items-center gap-1.5 text-xs text-primary hover:underline">
+                <a href="https://supabase.com/dashboard/project/xxucasikopqtcztbgfbw/functions/meta-webhook/logs" target="_blank" rel="noopener" className="flex items-center gap-1.5 text-xs text-primary hover:underline">
                   <ExternalLink className="h-3 w-3" /> Edge Function Logs
                 </a>
                 <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener" className="flex items-center gap-1.5 text-xs text-primary hover:underline">

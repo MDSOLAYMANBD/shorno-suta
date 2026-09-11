@@ -247,7 +247,7 @@ export default function AiGenerateWizard({ open, onOpenChange }: Props) {
                 </button>
                 {presets.map((p: any) => {
                   const sel = presetKey === p.key;
-                  const color = p.default_colors?.primary || '#429B39';
+                  const color = p.default_colors?.primary || '#8C6A1A';
                   return (
                     <button
                       key={p.key}

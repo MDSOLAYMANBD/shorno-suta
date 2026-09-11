@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-const SUPABASE_URL = "https://gdwvktufhsbrblzzeiir.supabase.co";
+const SUPABASE_URL = "https://xxucasikopqtcztbgfbw.supabase.co";
 const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {

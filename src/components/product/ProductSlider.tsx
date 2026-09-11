@@ -16,6 +16,8 @@ interface Product {
   created_at?: string | null;
   clearance_active?: boolean | null;
   variant_images?: any;
+  linkColor?: string;
+  __key?: string;
 }
 
 interface ProductSliderProps {
@@ -55,7 +57,7 @@ const ProductSlider = forwardRef<HTMLDivElement, ProductSliderProps>(({ products
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex -ml-2">
           {products.map((p: any, idx) => (
-            <div key={p.__key || `${p.id}-${idx}`} className="shrink-0 basis-[42%] md:basis-[20%] pl-2 min-w-0">
+            <div key={p.linkColor ? `${p.id}::${p.linkColor}` : (p.__key || `${p.id}-${idx}`)} className="shrink-0 basis-[42%] md:basis-[20%] pl-2 min-w-0">
               <ProductCard
                 id={p.id}
                 slug={p.slug}
@@ -71,6 +73,7 @@ const ProductSlider = forwardRef<HTMLDivElement, ProductSliderProps>(({ products
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}
                 variant_images={p.variant_images}
+                linkColor={p.linkColor}
               />
             </div>
           ))}

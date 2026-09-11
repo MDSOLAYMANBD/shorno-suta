@@ -1041,7 +1041,7 @@ export default function AdminOrders() {
       const productMap = new Map((products || []).map((p: any) => [p.id, p]));
       const itemsWithImages = items.map(item => {
         const product = productMap.get(item.product_id);
-        const colorImage = item.color && (product?.variant_images as any)?.color_images?.[item.color];
+        const colorImage = item.color && getColorPrimaryImage((product?.variant_images as any)?.color_images, item.color);
         return { ...item, image: colorImage || product?.images?.[0] || null, regular_price: product?.price || null };
       });
       allData.push({ order, items: itemsWithImages });
@@ -1222,7 +1222,7 @@ export default function AdminOrders() {
 
     try {
       if (provider === 'steadfast') {
-        const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/${cfg.fn}?action=bulk_create`, {
+        const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=bulk_create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({ order_ids: eligibleIds }),
@@ -1236,7 +1236,7 @@ export default function AdminOrders() {
         // Pathao / RedX: no bulk endpoint — loop single create_order calls
         for (const id of eligibleIds) {
           try {
-            const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/${cfg.fn}?action=create_order`, {
+            const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=create_order`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
               body: JSON.stringify({ order_id: id }),
@@ -1281,7 +1281,7 @@ export default function AdminOrders() {
         .filter(([, ids]) => ids.length > 0)
         .map(async ([p, ids]) => {
           const cfg = COURIER_FUNCTIONS[p];
-          const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/${cfg.fn}?action=bulk_status`, {
+          const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=bulk_status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({ order_ids: ids }),
@@ -1324,7 +1324,7 @@ export default function AdminOrders() {
       // Sync ALL active courier parcels across every page (in_review, pending, hold, …)
       await Promise.all(providers.map(async (p) => {
         try {
-          const res = await fetch(`https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/${p.fn}?action=bulk_status`, {
+          const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${p.fn}?action=bulk_status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({ only_active: true, limit: 500 }),

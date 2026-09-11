@@ -33,8 +33,8 @@ export default function LandingTrustSignals({ enabled = true, heading, items }: 
             const Icon = ICON_MAP[s.icon || ''] || Truck;
             return (
               <div key={i} className="bg-white rounded-xl p-4 flex gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#429B3915' }}>
-                  <Icon className="h-5 w-5" style={{ color: '#429B39' }} />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8C6A1A15' }}>
+                  <Icon className="h-5 w-5" style={{ color: '#8C6A1A' }} />
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm mb-0.5">{s.title}</h3>

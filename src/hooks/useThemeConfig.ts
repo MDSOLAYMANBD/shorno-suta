@@ -20,21 +20,21 @@ export interface ThemeConfig {
 }
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#429B39',
+  primary: '#8C6A1A',
   primary_foreground: '#ffffff',
-  secondary: '#213580',
+  secondary: '#6B1E2B',
   secondary_foreground: '#ffffff',
-  accent: '#213580',
+  accent: '#6B1E2B',
   accent_foreground: '#ffffff',
   background: '#ffffff',
-  foreground: '#1a2547',
+  foreground: '#2A1519',
   card: '#ffffff',
-  card_foreground: '#1a2547',
-  muted: '#f5f5f5',
-  muted_foreground: '#4a5568',
-  border: '#e5e5e5',
-  input: '#e5e5e5',
-  ring: '#429B39',
+  card_foreground: '#2A1519',
+  muted: '#F5EFE6',
+  muted_foreground: '#6B5A4A',
+  border: '#E8DCC8',
+  input: '#E8DCC8',
+  ring: '#8C6A1A',
 };
 
 function hexToHsl(hex: string): string {

@@ -325,7 +325,7 @@ export default function LandingPage() {
             <button
               onClick={() => document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-3 rounded-full text-white font-bold text-lg"
-              style={{ backgroundColor: '#429B39' }}
+              style={{ backgroundColor: '#8C6A1A' }}
             >
               {content?.text || 'এখনই অর্ডার করুন'}
             </button>

@@ -116,7 +116,7 @@ CRITICAL OUTPUT RULES
 - All visible copy MUST be in Bengali (বাংলা). The brand name MUST always be written as "স্বর্ণ সুতা" — NEVER "Shorno Suta", "SHADAMON", "Shadamon", or any English/romanized form. Generic English fashion terms (e.g. "abaya", "premium") are OK only when there is no natural Bengali equivalent.
 - Each section's "html" is a self-contained fragment (no <html>, <head>, <body>, <script>, <iframe>, no external CSS/fonts/JS links). Renderer wraps it in a sandboxed iframe.
 - Use ONLY the supplied product image URLs. Never invent image URLs or use placeholders.
-- Brand primary color: ${opts.brand.primary}. Use it intentionally for accents/CTAs, NOT as a flat background everywhere.
+- Brand palette: primary ${opts.brand.primary} (antique gold), secondary/accent ${opts.brand.secondary} (deep maroon/burgundy). Use them intentionally for accents/CTAs/borders — a premium South Asian fashion gold+maroon look — NOT as a flat background everywhere, and never substitute green or navy.
 
 ═══════════════════════════════════════
 🚫 ABSOLUTELY FORBIDDEN — POLICY VIOLATIONS (NEVER WRITE)
@@ -304,7 +304,8 @@ ${JSON.stringify(productSummary, null, 2)}
 
 Brand:
 - Name: ${opts.brand.name}
-- Primary color: ${opts.brand.primary}
+- Primary color: ${opts.brand.primary} (antique gold)
+- Secondary/accent color: ${opts.brand.secondary} (deep maroon/burgundy)
 - WhatsApp: ${opts.brand.whatsapp || "N/A"}
 - Helpline: ${opts.brand.helpline || "N/A"}
 
@@ -459,12 +460,22 @@ Deno.serve(async (req) => {
     const { data: settingsRows } = await supabaseAdmin
       .from("store_settings")
       .select("key, value")
-      .in("key", ["site_name", "whatsapp_number", "phone", "landing_page_defaults"]);
+      .in("key", ["site_name", "whatsapp_number", "phone", "landing_page_defaults", "theme_config"]);
     const settingsMap: Record<string, string> = {};
     (settingsRows || []).forEach((r: any) => { if (r.value) settingsMap[r.key] = r.value; });
+    let themePrimary = "#8C6A1A"; // antique gold
+    let themeSecondary = "#6B1E2B"; // deep maroon/burgundy
+    try {
+      if (settingsMap.theme_config) {
+        const t = JSON.parse(settingsMap.theme_config);
+        if (t?.primary) themePrimary = t.primary;
+        if (t?.secondary) themeSecondary = t.secondary;
+      }
+    } catch (_) { /* use defaults */ }
     const brand = {
       name: "স্বর্ণ সুতা",
-      primary: preset?.default_colors?.primary || "#429B39",
+      primary: preset?.default_colors?.primary || themePrimary,
+      secondary: preset?.default_colors?.secondary || themeSecondary,
       whatsapp: settingsMap.whatsapp_number || "01843711211",
       helpline: settingsMap.phone || "01843711211",
     };

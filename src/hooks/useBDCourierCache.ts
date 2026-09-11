@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-const SUPABASE_URL = 'https://gdwvktufhsbrblzzeiir.supabase.co';
+const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
 
 export interface CourierBreakdown {
   key: string;

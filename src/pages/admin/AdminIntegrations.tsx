@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import SmsProvidersSection from '@/components/admin/SmsProvidersSection';
 
 
-const SUPABASE_URL = 'https://gdwvktufhsbrblzzeiir.supabase.co';
+const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
 const defaultGoogleFeed = `${SUPABASE_URL}/functions/v1/product-feed?format=google`;
 const defaultFacebookFeed = `${SUPABASE_URL}/functions/v1/product-feed?format=facebook`;
 
@@ -726,7 +726,7 @@ export default function AdminIntegrations() {
                     <li><strong>Meta App তৈরি:</strong> <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener" className="text-primary underline">developers.facebook.com</a> → Create App → Business type</li>
                     <li><strong>Products যোগ:</strong> App Dashboard → Add Products → <strong>Messenger</strong> ও <strong>Webhooks</strong> যোগ করুন</li>
                     <li><strong>Webhook কনফিগার:</strong> Webhooks product → Edit Subscription → <code className="bg-muted px-1 rounded">Page</code> object সিলেক্ট করুন</li>
-                    <li><strong>Callback URL:</strong> <code className="bg-muted px-1 rounded text-[10px] break-all">https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/meta-webhook</code></li>
+                    <li><strong>Callback URL:</strong> <code className="bg-muted px-1 rounded text-[10px] break-all">https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/meta-webhook</code></li>
                     <li><strong>Verify Token:</strong> নিচে যে token দিয়েছেন সেটাই Meta-তে পেস্ট করুন</li>
                     <li><strong>Page Token:</strong> Graph API Explorer → Page → Generate Access Token → নিচে সেভ করুন</li>
                     <li><strong>Page Subscribe:</strong> Smart Inbox → ⚙️ → "Page Subscribe" বাটন চাপুন</li>
@@ -824,7 +824,7 @@ export default function AdminIntegrations() {
 
                 <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 text-xs text-blue-700 dark:text-blue-400 space-y-1">
                   <p><strong>🔗 Webhook Callback URL:</strong></p>
-                  <code className="block bg-muted p-1.5 rounded text-[10px] break-all">https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/meta-webhook</code>
+                  <code className="block bg-muted p-1.5 rounded text-[10px] break-all">https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/meta-webhook</code>
                   <p className="mt-1">Meta Developer App → Webhooks → Edit Subscription → <strong>"Page"</strong> object → Callback URL-এ উপরের URL পেস্ট করুন।</p>
                   <p>Verify Token ফিল্ডে উপরে যে token সেভ করেছেন সেটা দিন → "Verify and save" চাপুন।</p>
                   <p className="mt-1">✅ সেভ করার পর <strong>Smart Inbox → ⚙️ → "চেক করুন"</strong> বাটন চেপে confirm করুন।</p>
@@ -907,7 +907,7 @@ export default function AdminIntegrations() {
 
                 <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 text-xs text-blue-700 dark:text-blue-400 space-y-1">
                   <p><strong>🔗 WhatsApp Webhook URL:</strong></p>
-                  <code className="block bg-muted p-1.5 rounded text-[10px] break-all">https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/meta-webhook</code>
+                  <code className="block bg-muted p-1.5 rounded text-[10px] break-all">https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/meta-webhook</code>
                   <p>WhatsApp → Configuration → Callback URL-এ উপরের URL দিন। Verify Token-ও একই ব্যবহার করুন।</p>
                   <p>✅ WhatsApp already verify হয়ে গেলে "WABA Subscribe" করুন Smart Inbox → ⚙️ থেকে।</p>
                 </div>

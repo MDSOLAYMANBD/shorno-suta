@@ -191,7 +191,7 @@ export default function AdminDashboard() {
           const { data: { session } } = await supabase.auth.getSession();
           if (cancelled) return;
           if (session) return; // recovered
-          const stored = localStorage.getItem('sb-gdwvktufhsbrblzzeiir-auth-token');
+          const stored = localStorage.getItem('sb-xxucasikopqtcztbgfbw-auth-token');
           if (stored) {
             // Session token still present — wait once more.
             await new Promise((r) => setTimeout(r, 1500));
@@ -489,7 +489,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen flex bg-muted/40 overflow-x-clip">
+    <div className="min-h-screen flex bg-background overflow-x-clip">
       <aside className="admin-sidebar w-64 bg-background border-r border-border p-4 hidden md:flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto scrollbar-hide print:!hidden">
         <SidebarContent />
       </aside>

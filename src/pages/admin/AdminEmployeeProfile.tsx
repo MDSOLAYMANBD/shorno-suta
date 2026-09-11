@@ -22,7 +22,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import { getRandomQuote, MOTIVATIONAL_QUOTES, type Quote as QuoteType } from '@/lib/motivationalQuotes';
 
-const FUNC_URL = 'https://gdwvktufhsbrblzzeiir.supabase.co/functions/v1/manage-employee';
+const FUNC_URL = 'https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee';
 
 // Hobby options
 const HOBBY_OPTIONS = [
