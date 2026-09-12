@@ -223,8 +223,18 @@ Deno.serve(async (req) => {
         return p.images?.[0] || '';
       };
 
-      // Ensure color & size for Google apparel eligibility
-      const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'x';
+      // Ensure color & size for Google apparel eligibility.
+      // Colors/sizes are stored in Bengali, so an ASCII-only slug (stripping
+      // everything outside [a-z0-9]) collapses every value to the same
+      // fallback string — every variant ends up with an identical g:id, and
+      // Google dedupes them down to a single visible product. A charcode
+      // hash works on any script and stays stable across feed refreshes.
+      const slug = (s: string) => {
+        const trimmed = s.trim().toLowerCase();
+        let hash = 5381;
+        for (let i = 0; i < trimmed.length; i++) hash = ((hash << 5) + hash + trimmed.charCodeAt(i)) | 0;
+        return (hash >>> 0).toString(36) || 'x';
+      };
       const rawColors: string[] = Array.isArray(p.colors) && p.colors.length > 0
         ? p.colors.map(normalize).filter(Boolean)
         : ['Multicolor'];

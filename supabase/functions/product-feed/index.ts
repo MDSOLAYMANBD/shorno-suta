@@ -145,8 +145,16 @@ function getFeedVideoLink(videoUrl: string | null, videoFileUrl: string | null):
   return '';
 }
 
+// Colors/sizes are stored in Bengali, so an ASCII-only slug (stripping
+// everything outside [a-z0-9]) collapses every value to the same fallback
+// string — every variant ends up with an identical id, and both Google and
+// Facebook dedupe them down to a single visible product. A charcode hash
+// works on any script and stays stable across feed refreshes.
 function slugify(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'x';
+  const trimmed = s.trim().toLowerCase();
+  let hash = 5381;
+  for (let i = 0; i < trimmed.length; i++) hash = ((hash << 5) + hash + trimmed.charCodeAt(i)) | 0;
+  return (hash >>> 0).toString(36) || 'x';
 }
 
 // Same-product-different-color items (linked via colors[] + variant_images.color_images,
