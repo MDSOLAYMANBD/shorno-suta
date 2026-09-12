@@ -149,12 +149,16 @@ function getFeedVideoLink(videoUrl: string | null, videoFileUrl: string | null):
 // everything outside [a-z0-9]) collapses every value to the same fallback
 // string — every variant ends up with an identical id, and both Google and
 // Facebook dedupe them down to a single visible product. A charcode hash
-// works on any script and stays stable across feed refreshes.
+// works on any script and stays stable across feed refreshes. Fixed-width
+// (4 chars) so id (product uuid + '-' + color slug + '-' + size slug)
+// always stays comfortably under Google's 50-char id limit — a
+// variable-length base36 hash could run to 7 chars and push the combined
+// id past 50, which Google silently rejects the item for.
 function slugify(s: string): string {
   const trimmed = s.trim().toLowerCase();
   let hash = 5381;
   for (let i = 0; i < trimmed.length; i++) hash = ((hash << 5) + hash + trimmed.charCodeAt(i)) | 0;
-  return (hash >>> 0).toString(36) || 'x';
+  return ((hash >>> 0) % 1679616).toString(36).padStart(4, '0');
 }
 
 // Same-product-different-color items (linked via colors[] + variant_images.color_images,
