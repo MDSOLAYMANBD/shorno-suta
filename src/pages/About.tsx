@@ -30,7 +30,7 @@ export default function About() {
   if (pageConfig?.sections?.length) {
     return (
       <Layout>
-        <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০২৪ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
+        <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০১৯ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
 
         {/* Editorial Hero */}
         <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/[0.05] via-background to-background">
@@ -39,7 +39,7 @@ export default function About() {
           <div className="container relative py-16 md:py-24 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-medium tracking-wider uppercase mb-6">
               {pageConfig.icon ? <span>{pageConfig.icon}</span> : <Award className="h-3.5 w-3.5" />}
-              Est. ২০২৪ · Shorno Suta
+              Est. ২০১৯ · Shorno Suta
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1] max-w-3xl mx-auto">
               {pageConfig.title}
@@ -111,7 +111,7 @@ export default function About() {
               // === STORY / TIMELINE ===
               if (/গল্প|story|যাত্রা|journey|পথচলা/i.test(heading)) {
                 const timeline = [
-                  { year: '২০২৪', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
+                  { year: '২০১৯', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
                   { year: 'বর্তমান', title: 'নিজস্ব ওয়েবসাইট', text: 'ফেসবুকের গণ্ডি পেরিয়ে নিজস্ব ওয়েবসাইট চালু — যাতে গ্রাহকরা আরও সহজে ও নিরাপদে অর্ডার করতে পারেন।' },
                 ];
                 return (
@@ -365,7 +365,7 @@ export default function About() {
                           <h3 className="text-3xl md:text-4xl font-bold text-foreground">{name}</h3>
                           <p className="text-muted-foreground mt-1 text-sm md:text-base">Founder & CEO · Shorno Suta</p>
                           <blockquote className="mt-5 pl-4 border-l-2 border-primary/50 italic text-muted-foreground leading-relaxed">
-                            "২০২৪ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
+                            "২০১৯ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
                           </blockquote>
                         </div>
                       </div>
@@ -412,13 +412,13 @@ export default function About() {
 
   // Fallback: professional editorial-style content
   const timeline = [
-    { year: '২০২৪', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
+    { year: '২০১৯', title: 'যাত্রা শুরু', text: 'ফেসবুক পেজের মাধ্যমে স্বর্ণ সুতা-এর পথচলা শুরু — অল্প কিছু পণ্য নিয়ে সরাসরি গ্রাহকদের কাছে বিক্রয়।' },
     { year: 'বর্তমান', title: 'নিজস্ব ওয়েবসাইট', text: 'ফেসবুকের গণ্ডি পেরিয়ে নিজস্ব ওয়েবসাইট চালু — যাতে গ্রাহকরা আরও সহজে ও নিরাপদে অর্ডার করতে পারেন।' },
   ];
 
   return (
     <Layout>
-      <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০২৪ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
+      <SEOHead title="আমাদের সম্পর্কে | স্বর্ণ সুতা" description="স্বর্ণ সুতা সম্পর্কে জানুন। ২০১৯ সাল থেকে ফেসবুকের মাধ্যমে যাত্রা শুরু, এখন অনলাইনে সেরা মানের পোশাক বিক্রয়।" canonical="/about" />
 
       {/* Editorial Hero */}
       <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/[0.04] via-background to-background">
@@ -428,7 +428,7 @@ export default function About() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-medium tracking-wider uppercase mb-6">
               <Award className="h-3.5 w-3.5" />
-              Est. ২০২৪ · Shorno Suta
+              Est. ২০১৯ · Shorno Suta
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1]">
               আমাদের <span className="italic font-serif text-primary">গল্প</span>,<br className="hidden md:block" /> আপনার বিশ্বাসে গড়া
@@ -518,9 +518,9 @@ export default function About() {
             </div>
             <div className="grid sm:grid-cols-3 gap-6">
               {[
-                { name: 'IMON MAHMUD', initials: 'IM' },
-                { name: 'ABU MUSA', initials: 'AM' },
-                { name: 'MD EMRAN HOSSAIN', initials: 'MH' },
+                { name: 'IMON MAHMUD', initials: 'IM', title: 'Co-Founder · Shorno Suta' },
+                { name: 'ABU MUSA', initials: 'AM', title: 'Co-Founder & CEO · Shorno Suta' },
+                { name: 'MD EMRAN HOSSAIN', initials: 'MH', title: 'Co-Founder & CMO · Shorno Suta' },
               ].map((f, i) => (
                 <div key={i} className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04] p-8 text-center">
                   <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
@@ -538,13 +538,13 @@ export default function About() {
                       প্রতিষ্ঠাতা
                     </div>
                     <h3 className="text-xl md:text-2xl font-bold text-foreground">{f.name}</h3>
-                    <p className="text-muted-foreground mt-1 text-sm">Co-Founder · Shorno Suta</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{f.title}</p>
                   </div>
                 </div>
               ))}
             </div>
             <blockquote className="mt-8 max-w-2xl mx-auto text-center pl-4 border-l-2 border-primary/50 italic text-muted-foreground leading-relaxed">
-              "২০২৪ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
+              "২০১৯ সাল থেকে একটাই স্বপ্ন — মানসম্মত পোশাক সরাসরি গ্রাহকের কাছে পৌঁছে দেওয়া, কোনো মধ্যস্বত্বভোগী ছাড়াই।"
             </blockquote>
           </section>
 
