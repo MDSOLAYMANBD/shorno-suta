@@ -205,7 +205,7 @@ ${custom_prompt}
 Category: ${catName}
 ${parentName ? `Parent: ${parentName}` : ""}
 
-LAYOUT: Show 5-7 different products/models. Use elegant decorative arch frames as BACKGROUND elements only — models/products must OVERFLOW and extend BEYOND the frame borders. The full dress, prints, and designs must be completely visible and NOT clipped or cut off by the frame edges. Frames should frame the background, NOT crop the product.
+LAYOUT: Show 5-7 different products/models. Use soft round/oval spotlight glows with a delicate gold floral border as BACKGROUND elements only (NO architectural shapes — no arches, windows, doorways, or building/haveli silhouettes) — models/products must OVERFLOW and extend BEYOND the panel borders. The full dress, prints, and designs must be completely visible and NOT clipped or cut off by the panel edges. Panels should frame the background, NOT crop the product.
 Study the reference images below to understand the EXACT type, prints, patterns, and design style of products in this category.
 Generate NEW original products with SIMILAR prints and aesthetics — DO NOT copy/paste the reference images.
 
@@ -217,16 +217,16 @@ PRODUCTS IN THIS CATEGORY: ${productNames || category.name}
 
 LAYOUT & COMPOSITION:
 - Show 5-7 DIFFERENT products from the "${catName}" category
-- Each product displayed on a beautiful South Asian female model with an elegant decorative arch/frame as a BACKGROUND ELEMENT
-- CRITICAL: Models and their clothing must OVERFLOW and EXTEND BEYOND the arch frame borders — the frame is decorative backdrop only, NOT a clipping mask
-- The FULL outfit including all prints, embroidery, and design details must be completely visible — NOTHING should be cut off or hidden by the frame
-- Models should appear to "pop out" of the frames — giving a 3D layered effect
-- Arrange the product frames in a visually pleasing grid/catalog layout across the banner
+- Each product displayed on a beautiful South Asian female model with a soft round/oval spotlight glow (delicate gold floral border, NO architectural arch/window/doorway/building shape) as a BACKGROUND ELEMENT
+- CRITICAL: Models and their clothing must OVERFLOW and EXTEND BEYOND the spotlight panel borders — the panel is decorative backdrop only, NOT a clipping mask
+- The FULL outfit including all prints, embroidery, and design details must be completely visible — NOTHING should be cut off or hidden by the panel
+- Models should appear to "pop out" of the panels — giving a 3D layered effect
+- Arrange the product panels in a visually pleasing grid/catalog layout across the banner
 - Each model/product should show a DIFFERENT design, print, or color variation
 
 DESIGN & AESTHETICS:
 - Background: soft, luxurious gradient blending antique gold (${brandColor}) and deep maroon/burgundy (${accentColor}) with cream and warm neutrals — an elegant, premium South Asian fashion palette. Use the maroon as a rich accent (borders, decorative panels, shadow depth) and the gold as the dominant warm tone; never use flat green or navy.
-- Decorative botanical, floral, or geometric accents between the product frames
+- Decorative botanical, floral, or geometric accents between the product panels — NEVER a repeating arch, window, or house/haveli-like silhouette anywhere in the composition
 - The prints, patterns, and fabric designs on the clothing MUST match what "${catName}" category actually sells
 - If reference images are provided below, study them to understand the EXACT prints, patterns, textures, and design language — then create NEW original products with SIMILAR aesthetics
 - DO NOT copy/paste/collage the reference images — create completely original products inspired by the same design style
@@ -236,12 +236,12 @@ ${brandingInstructions}
 
 ABSOLUTE RULES:
 - Must show 5-7 DISTINCT products/models — not just one
-- Each product in its own elegant frame/arch (as BACKGROUND only)
+- Each product in its own soft spotlight panel (as BACKGROUND only) — NEVER an arch or house/haveli-shaped frame
 - Clothing type MUST match "${catName}" exactly
 - Prints and designs must be realistic and match the category's actual product style
 - NO product cutout collages — this should look like a professionally designed catalog banner
-- NEVER clip or crop any part of the dress, print, or model inside frames — frames are decorative ONLY
-- Models must overflow frame boundaries — full outfit visibility is mandatory`;
+- NEVER clip or crop any part of the dress, print, or model inside panels — panels are decorative ONLY
+- Models must overflow panel boundaries — full outfit visibility is mandatory`;
 
     console.log("Calling image generation API for", banner_type, "banner, category:", catName, "with", productImageUrls.length, "product image refs");
 

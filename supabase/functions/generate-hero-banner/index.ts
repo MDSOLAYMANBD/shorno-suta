@@ -149,7 +149,7 @@ serve(async (req) => {
 
 ${custom_prompt}
 
-LAYOUT: Show 5-7 different products/models in an elegant catalog layout spread across the wide panoramic frame. Use decorative arch frames as BACKGROUND elements only — models/products must OVERFLOW and extend BEYOND the frame borders.
+LAYOUT: Show 5-7 different products/models in an elegant catalog layout spread across the wide panoramic frame. Use soft round/oval spotlight glows with a delicate gold floral border as BACKGROUND elements only (NO architectural shapes — no arches, windows, doorways, or building/haveli silhouettes) — models/products must OVERFLOW and extend BEYOND the panel borders.
 Study the reference images below to understand the product style.
 
 BRAND: "${storeNameBn}" (${storeName})
@@ -169,15 +169,15 @@ CATEGORIES: ${catNames}
 
 LAYOUT & COMPOSITION:
 - Show 5-7 DIFFERENT best-selling products from various categories
-- Each product on a beautiful South Asian female model with decorative arch/frame as BACKGROUND ELEMENT
-- Models and clothing must OVERFLOW and EXTEND BEYOND the arch frame borders — frames are decorative backdrop only
+- Each product on a beautiful South Asian female model with a soft round/oval spotlight glow (delicate gold floral border, NO architectural arch/window/doorway/building shape) as BACKGROUND ELEMENT
+- Models and clothing must OVERFLOW and EXTEND BEYOND the spotlight panel borders — panels are decorative backdrop only
 - Full outfit including prints, embroidery, and details must be completely visible
-- Models should "pop out" of frames — 3D layered effect
+- Models should "pop out" of the panels — 3D layered effect
 - Arrange in a visually pleasing catalog layout SPREAD HORIZONTALLY across the ultra-wide banner
 
 DESIGN & AESTHETICS:
 - Background: soft, luxurious gradient blending antique gold (${brandColor}) and deep maroon/burgundy (${accentColor}) with cream and warm neutrals — an elegant, premium South Asian fashion palette. Use the maroon as a rich accent (borders, decorative panels, shadow depth) and the gold as the dominant warm tone; never use flat green or navy.
-- Decorative botanical, floral, or geometric accents between product frames
+- Decorative botanical, floral, or geometric accents between product panels — NEVER a repeating arch, window, or house/haveli-like silhouette anywhere in the composition
 - Overall look: premium fashion catalog / lookbook spread — aspirational and purchase-driving
 
 BRAND: "${storeNameBn}" (${storeName})
@@ -196,7 +196,8 @@ RULES:
 - Must show 5-7 DISTINCT products/models spread across the wide frame
 - Clothing MUST be realistic Bangladeshi fashion
 - NO product cutout collages — professionally designed catalog banner
-- NEVER clip or crop any part of the dress inside frames`;
+- NEVER clip or crop any part of the dress inside panels
+- NEVER draw a repeating arch, window, doorway, or house/haveli-shaped frame anywhere — use only soft round/oval spotlight glows`;
 
     // Build multimodal content (text + reference product images)
     const contentParts: any[] = [{ type: "text", text: imagePrompt }];

@@ -346,6 +346,7 @@ Deno.serve(async (req) => {
         address: kb.settings.office_address || "",
         hours: kb.settings.office_hours || "",
         pickup: kb.settings.showroom_pickup_enabled === "true",
+        map_link: "https://maps.app.goo.gl/6yTAKU5mCaJ8ajYH9",
       };
     }
 

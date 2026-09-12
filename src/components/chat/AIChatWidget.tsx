@@ -989,6 +989,16 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
           {meta.address_card.pickup && (
             <div className="text-[10px] text-emerald-700 dark:text-emerald-300 italic">✓ অফিস থেকে সরাসরি পিকআপ সুবিধা আছে</div>
           )}
+          {meta.address_card.map_link && (
+            <a
+              href={meta.address_card.map_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 font-medium underline underline-offset-2"
+            >
+              🗺️ গুগল ম্যাপে দেখুন
+            </a>
+          )}
         </div>
       )}
 
