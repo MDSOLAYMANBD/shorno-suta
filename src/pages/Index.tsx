@@ -126,8 +126,8 @@ const Index = () => {
         // entity understanding surface this as *the* result for any of them,
         // not just the one canonical spelling.
         alternateName: ['স্বর্ণ সুতা', 'Sorno Suta'],
-        url: 'https://shorno-suta.vercel.app',
-        logo: 'https://shorno-suta.vercel.app/pwa-512x512.png',
+        url: 'https://www.shornosuta.com',
+        logo: 'https://www.shornosuta.com/pwa-512x512.png',
         contactPoint: { '@type': 'ContactPoint', telephone: '+8801843711211', contactType: 'customer service' },
         sameAs: ['https://www.facebook.com/shornosuta'],
       },
@@ -135,14 +135,14 @@ const Index = () => {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'Shorno Suta',
-        url: 'https://shorno-suta.vercel.app',
-        potentialAction: { '@type': 'SearchAction', target: 'https://shorno-suta.vercel.app/shop?q={search_term_string}', 'query-input': 'required name=search_term_string' },
+        url: 'https://www.shornosuta.com',
+        potentialAction: { '@type': 'SearchAction', target: 'https://www.shornosuta.com/shop?q={search_term_string}', 'query-input': 'required name=search_term_string' },
       },
       {
         '@context': 'https://schema.org',
         '@type': 'WebPage',
         name: 'স্বর্ণ সুতা | বাংলাদেশের সেরা অনলাইন শপ',
-        url: 'https://shorno-suta.vercel.app',
+        url: 'https://www.shornosuta.com',
         description: 'স্বর্ণ সুতা থেকে সেরা মানের পোশাক কিনুন। ঢাকায় ২৪ ঘণ্টায় ডেলিভারি, সারাদেশে ক্যাশ অন ডেলিভারি।',
       },
     ];
@@ -158,7 +158,7 @@ const Index = () => {
         itemListElement: productList.slice(0, 20).map((p: any, i: number) => ({
           '@type': 'ListItem',
           position: i + 1,
-          url: `https://shorno-suta.vercel.app/product/${p.slug}`,
+          url: `https://www.shornosuta.com/product/${p.slug}`,
           name: p.name_bn || p.name,
           image: p.images?.[0],
         })),

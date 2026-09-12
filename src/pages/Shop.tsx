@@ -241,8 +241,8 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
     const schemas: Record<string, any>[] = [];
     // BreadcrumbList
     const breadcrumbItems: any[] = [
-      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://shorno-suta.vercel.app/' },
-      { '@type': 'ListItem', position: 2, name: 'শপ', item: 'https://shorno-suta.vercel.app/shop' },
+      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://www.shornosuta.com/' },
+      { '@type': 'ListItem', position: 2, name: 'শপ', item: 'https://www.shornosuta.com/shop' },
     ];
     if (currentCategory) {
       breadcrumbItems.push({ '@type': 'ListItem', position: 3, name: currentCategory.name_bn || currentCategory.name });
@@ -259,7 +259,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
         itemListElement: filtered.slice(0, 20).map((p: any, i: number) => ({
           '@type': 'ListItem',
           position: i + 1,
-          url: `https://shorno-suta.vercel.app/product/${p.slug}`,
+          url: `https://www.shornosuta.com/product/${p.slug}`,
           name: p.name_bn || p.name,
           image: p.images?.[0],
         })),
@@ -272,7 +272,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: currentCategory.name_bn || currentCategory.name,
-        url: `https://shorno-suta.vercel.app/shop/${currentCategory.slug}`,
+        url: `https://www.shornosuta.com/shop/${currentCategory.slug}`,
         description: shopDesc,
       });
     }

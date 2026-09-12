@@ -1736,7 +1736,7 @@ export default function AdminProductEditor() {
                   <div className="border border-border rounded-lg p-3 bg-muted/50">
                     <p className="text-xs text-muted-foreground mb-1">Google প্রিভিউ</p>
                     <p className="text-sm text-primary font-medium truncate">{form.seo_title || form.name || 'পেজ টাইটেল'}</p>
-                    <p className="text-xs text-muted-foreground truncate">shorno-suta.vercel.app/product/{form.slug || 'slug'}</p>
+                    <p className="text-xs text-muted-foreground truncate">shornosuta.com/product/{form.slug || 'slug'}</p>
                     <p className="text-xs text-muted-foreground/80 line-clamp-2">{form.seo_description || form.description || 'কোনো বিবরণ নেই'}</p>
                   </div>
                 </CardContent>

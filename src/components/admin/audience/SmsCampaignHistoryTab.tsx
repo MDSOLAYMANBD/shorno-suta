@@ -338,7 +338,7 @@ function CampaignDetail({ campaign, onClose, onFollowup }: {
 
   // ─── Retry Failed / Resend Campaign ────────────────────────────────
   const shortBase: string =
-    (settings as any)?.sms_short_link_base || 'https://shorno-suta.vercel.app/s';
+    (settings as any)?.sms_short_link_base || 'https://www.shornosuta.com/s';
   const expiryDays = Number((settings as any)?.sms_short_link_default_expiry_days || 30);
 
   const sendToRecipients = async (

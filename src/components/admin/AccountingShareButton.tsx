@@ -17,12 +17,12 @@ interface Props {
   className?: string;
 }
 
-const BASE_ORIGIN = 'https://shorno-suta.vercel.app';
+const BASE_ORIGIN = 'https://www.shornosuta.com';
 
 function buildHishabUrl(p: Props): string {
   const origin = p.origin || (typeof window !== 'undefined' ? window.location.origin : BASE_ORIGIN);
   // Always use production domain for shareable links so they don't break across previews
-  const shareOrigin = origin.includes('shorno-suta.vercel.app') ? origin : BASE_ORIGIN;
+  const shareOrigin = (origin.includes('shornosuta.com') || origin.includes('shorno-suta.vercel.app')) ? origin : BASE_ORIGIN;
   if (p.entityType === 'unit-module' && p.extraPath) {
     return `${shareOrigin}/hishab/unit-module/${p.entityId}/${p.extraPath}`;
   }

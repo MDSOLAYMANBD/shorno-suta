@@ -440,7 +440,7 @@ export default function ProductDetail() {
       itemCondition: 'https://schema.org/NewCondition',
       offers: {
         '@type': 'Offer',
-        url: `https://shorno-suta.vercel.app/product/${product.slug}`,
+        url: `https://www.shornosuta.com/product/${product.slug}`,
         priceCurrency: 'BDT',
         price: displaySalePrice || displayPrice,
         ...(displaySalePrice && { priceValidUntil: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0] }),
@@ -480,13 +480,13 @@ export default function ProductDetail() {
   const breadcrumbJsonLd = useMemo(() => {
     if (!product) return null;
     const items: any[] = [
-      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://shorno-suta.vercel.app/' },
+      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://www.shornosuta.com/' },
     ];
     if (categoryName && categorySlug) {
-      items.push({ '@type': 'ListItem', position: 2, name: categoryName, item: `https://shorno-suta.vercel.app/shop/${categorySlug}` });
+      items.push({ '@type': 'ListItem', position: 2, name: categoryName, item: `https://www.shornosuta.com/shop/${categorySlug}` });
       items.push({ '@type': 'ListItem', position: 3, name: product.name_bn || product.name });
     } else {
-      items.push({ '@type': 'ListItem', position: 2, name: 'শপ', item: 'https://shorno-suta.vercel.app/shop' });
+      items.push({ '@type': 'ListItem', position: 2, name: 'শপ', item: 'https://www.shornosuta.com/shop' });
       items.push({ '@type': 'ListItem', position: 3, name: product.name_bn || product.name });
     }
     return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items };

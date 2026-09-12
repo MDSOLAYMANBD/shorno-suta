@@ -120,8 +120,7 @@ Deno.serve(async (req) => {
     });
 
     // Callback URL hardcoded — same open-redirect protection as UddoktaPay.
-    // TODO: update to the real domain once one is set (currently the Vercel placeholder).
-    const callbackURL = "https://shorno-suta.vercel.app/payment-result";
+    const callbackURL = "https://www.shornosuta.com/payment-result";
 
     // bKash's own official sample (createPayment.js) generates a fresh,
     // unique merchantInvoiceNumber on every single Create Payment call

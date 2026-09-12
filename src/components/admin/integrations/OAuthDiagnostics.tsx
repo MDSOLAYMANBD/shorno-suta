@@ -146,7 +146,7 @@ export function OAuthDiagnostics({ onOpenSetup }: { onOpenSetup: () => void }) {
             <Row ok={data.whatsapp_config_id_set} label="WhatsApp Embedded Signup Config ID" hint="WhatsApp connect-এর জন্য দরকার" />
             <Row ok={!!data.messenger_config_id_set} label="Messenger FB-Login-for-Business Config ID" hint="Optional — enables config_id flow for Messenger" />
             <Row ok={data.app_type === 'BUSINESS'} label={`App type: ${data.app_type || 'unknown'}`} hint={data.app_type_error || 'Meta requires Business type for FB Login for Business'} />
-            <Row ok={!!data.redirect_host_in_app_domains} label="redirect_uri host whitelisted in App Domains" hint="Add shorno-suta.vercel.app under App Settings → Basic → App Domains" />
+            <Row ok={!!data.redirect_host_in_app_domains} label="redirect_uri host whitelisted in App Domains" hint="Add shornosuta.com under App Settings → Basic → App Domains" />
             {data.fb_login_for_business_setup_url && (
               <Button size="sm" variant="outline" className="w-full" asChild>
                 <a href={data.fb_login_for_business_setup_url} target="_blank" rel="noopener">

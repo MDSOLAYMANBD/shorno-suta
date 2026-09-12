@@ -65,8 +65,7 @@ Deno.serve(async (req) => {
     }
 
     // Defense in depth: only accept the canonical redirect_uri.
-    // TODO: update to the real domain once one is set (currently the Vercel placeholder).
-    const CANONICAL_REDIRECT = "https://shorno-suta.vercel.app/admin/oauth/callback";
+    const CANONICAL_REDIRECT = "https://www.shornosuta.com/admin/oauth/callback";
     if (code && redirectUri && redirectUri !== CANONICAL_REDIRECT) {
       return new Response(JSON.stringify({ error: `redirect_uri must be exactly ${CANONICAL_REDIRECT}` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }

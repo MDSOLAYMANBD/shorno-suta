@@ -6,4 +6,4 @@ Disallow: /cart
 Disallow: /thank-you
 Disallow: /payment-result
 
-Sitemap: https://shorno-suta.vercel.app/sitemap.xml
+Sitemap: https://www.shornosuta.com/sitemap.xml

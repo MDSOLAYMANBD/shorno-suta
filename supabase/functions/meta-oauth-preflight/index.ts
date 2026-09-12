@@ -15,9 +15,8 @@ const META_VERIFY_TOKEN = Deno.env.get("META_VERIFY_TOKEN");
 
 const SUPABASE_REF = (SUPABASE_URL || "").match(/https:\/\/([^.]+)/)?.[1] || "";
 const WEBHOOK_URL = `https://${SUPABASE_REF}.supabase.co/functions/v1/meta-webhook`;
-// TODO: update to the real domain once one is set (currently the Vercel placeholder).
-const REDIRECT_URI = "https://shorno-suta.vercel.app/admin/oauth/callback";
-const APP_DOMAINS = ["shorno-suta.vercel.app"];
+const REDIRECT_URI = "https://www.shornosuta.com/admin/oauth/callback";
+const APP_DOMAINS = ["shornosuta.com", "shorno-suta.vercel.app"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

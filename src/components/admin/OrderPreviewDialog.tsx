@@ -332,7 +332,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
     })();
   }, [open, order?.id, order?.courier_consignment_id, order?.courier_status]);
 
-  const getMemoUrl = () => `https://shorno-suta.vercel.app/memo/${order?.order_number}`;
+  const getMemoUrl = () => `https://www.shornosuta.com/memo/${order?.order_number}`;
 
   const getShareText = () => `স্বর্ণ সুতা ❤️\n\nআপনার অর্ডার কনফার্ম করা হয়েছে!\n\nঅর্ডার আইডি: ${order?.order_number}\nমোট: ৳${order?.total}\n\nঅর্ডার বিস্তারিত দেখুন:\n${getMemoUrl()}`;
 

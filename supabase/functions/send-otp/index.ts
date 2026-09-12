@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     }
 
     // Send SMS
-    const message = `স্বর্ণ সুতা ❤️\nআপনার কোড: (${code})\nকোড ৫ মিনিট মেয়াদ।\nshorno-suta.vercel.app`;
+    const message = `স্বর্ণ সুতা ❤️\nআপনার কোড: (${code})\nকোড ৫ মিনিট মেয়াদ।\nshornosuta.com`;
     const sent = await sendSms(supabase, cleanPhone, message);
 
     if (!sent) {

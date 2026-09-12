@@ -2,9 +2,8 @@ import { AlertTriangle, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-// TODO: update to the real domain once one is set (currently the Vercel placeholder).
-const REDIRECT_URI = 'https://shorno-suta.vercel.app/admin/oauth/callback';
-const APP_DOMAINS = 'shorno-suta.vercel.app';
+const REDIRECT_URI = 'https://www.shornosuta.com/admin/oauth/callback';
+const APP_DOMAINS = 'shornosuta.com';
 
 export type ParsedError = {
   title: string;

@@ -11,9 +11,9 @@ const CONTACT_JSONLD = {
   '@type': 'LocalBusiness',
   name: 'স্বর্ণ সুতা',
   alternateName: 'Shorno Suta',
-  url: 'https://shorno-suta.vercel.app/contact',
+  url: 'https://www.shornosuta.com/contact',
   telephone: '+8801843711211',
-  image: 'https://shorno-suta.vercel.app/pwa-512x512.png',
+  image: 'https://www.shornosuta.com/pwa-512x512.png',
   address: {
     '@type': 'PostalAddress',
     addressCountry: 'BD',
@@ -153,8 +153,8 @@ export default function Contact() {
             <CardHeader><CardTitle className="flex items-center gap-2 text-xl"><Globe className="h-5 w-5 text-primary" /> 🌐 Online Presence</CardTitle></CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a href="https://shorno-suta.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
-                  <Globe className="h-5 w-5 text-primary flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Website</p><p className="text-sm font-medium text-foreground">shorno-suta.vercel.app</p></div>
+                <a href="https://www.shornosuta.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
+                  <Globe className="h-5 w-5 text-primary flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Website</p><p className="text-sm font-medium text-foreground">shornosuta.com</p></div>
                 </a>
                 <a href="https://www.facebook.com/shornosuta/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors">
                   <Facebook className="h-5 w-5 text-[#1877F2] flex-shrink-0" /><div><p className="text-sm text-muted-foreground">Facebook</p><p className="text-sm font-medium text-foreground">shornosuta</p></div>

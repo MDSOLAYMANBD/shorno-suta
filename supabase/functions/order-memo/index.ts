@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
         phone: invoiceConfig.phone || '',
         whatsapp: invoiceConfig.whatsapp || '',
         address: invoiceConfig.address || '',
-        website: 'https://shorno-suta.vercel.app',
+        website: 'https://www.shornosuta.com',
         footer_message: invoiceConfig.footer_message || '',
         facebook: footerConfig.facebook || footerConfig.facebook_url || '',
         youtube: footerConfig.youtube || footerConfig.youtube_url || '',

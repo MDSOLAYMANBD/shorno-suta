@@ -7,8 +7,8 @@ const VISITOR_COOKIE = 'sms_visitor';
 /**
  * Automas accepts the same payload shape for order/test/campaign sends, but
  * campaign short links were the first byte-level message-body difference:
- * `https://shorno-suta.vercel.app/...` vs the working order SMS
- * `shorno-suta.vercel.app/...`. Keep campaign links clickable while matching the
+ * `https://www.shornosuta.com/...` vs the working order SMS
+ * `shornosuta.com/...`. Keep campaign links clickable while matching the
  * provider-accepted order-confirmation URL format.
  */
 export function formatSmsUrlForProvider(url: string): string {
@@ -46,7 +46,7 @@ export async function rewriteBodyForRecipient(opts: {
   campaignId: string;
   recipientId: string;
   body: string;
-  base: string; // e.g. https://shorno-suta.vercel.app/s
+  base: string; // e.g. https://www.shornosuta.com/s
   expiresAt?: string | null;
   forceNew?: boolean;
 }): Promise<string> {

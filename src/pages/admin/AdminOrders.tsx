@@ -1929,7 +1929,7 @@ export default function AdminOrders() {
                             <p className="text-xs font-semibold text-muted-foreground px-2 py-1">মেমো শেয়ার</p>
                             <button
                               onClick={() => {
-                                const memoUrl = `https://shorno-suta.vercel.app/memo/${o.order_number}`;
+                                const memoUrl = `https://www.shornosuta.com/memo/${o.order_number}`;
                                 const shareText = `স্বর্ণ সুতা ❤️\n\nআপনার অর্ডার কনফার্ম করা হয়েছে!\n\nঅর্ডার আইডি: ${o.order_number}\nমোট: ৳${o.total}\n\nঅর্ডার বিস্তারিত দেখুন:\n${memoUrl}`;
                                 navigator.clipboard.writeText(shareText);
                                 toast.success('লিংক কপি হয়েছে!');
@@ -1941,7 +1941,7 @@ export default function AdminOrders() {
                             </button>
                             <button
                               onClick={() => {
-                                const memoUrl = `https://shorno-suta.vercel.app/memo/${o.order_number}`;
+                                const memoUrl = `https://www.shornosuta.com/memo/${o.order_number}`;
                                 const text = `স্বর্ণ সুতা ❤️\n\nআপনার অর্ডার কনফার্ম করা হয়েছে!\n\nঅর্ডার আইডি: ${o.order_number}\nমোট: ৳${o.total}\n\nঅর্ডার বিস্তারিত দেখুন:\n${memoUrl}`;
                                 const phone = o.customer_phone?.replace(/[^0-9]/g, '');
                                 const waPhone = phone?.startsWith('0') ? `88${phone}` : phone;
@@ -1953,7 +1953,7 @@ export default function AdminOrders() {
                               WhatsApp-এ পাঠান
                             </button>
                             <button
-                              onClick={() => window.open(`https://shorno-suta.vercel.app/memo/${o.order_number}`, '_blank')}
+                              onClick={() => window.open(`https://www.shornosuta.com/memo/${o.order_number}`, '_blank')}
                               className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded hover:bg-muted text-left"
                             >
                               <Eye className="h-4 w-4" />
@@ -2181,7 +2181,7 @@ export default function AdminOrders() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const memoUrl = `https://shorno-suta.vercel.app/memo/${o.order_number}`;
+                              const memoUrl = `https://www.shornosuta.com/memo/${o.order_number}`;
                               const shareText = `স্বর্ণ সুতা ❤️\n\nআপনার অর্ডার কনফার্ম করা হয়েছে!\n\nঅর্ডার আইডি: ${o.order_number}\nমোট: ৳${o.total}\n\nঅর্ডার বিস্তারিত দেখুন:\n${memoUrl}`;
                               navigator.clipboard.writeText(shareText);
                               toast.success('লিংক কপি হয়েছে!');
@@ -2194,7 +2194,7 @@ export default function AdminOrders() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const memoUrl = `https://shorno-suta.vercel.app/memo/${o.order_number}`;
+                              const memoUrl = `https://www.shornosuta.com/memo/${o.order_number}`;
                               const text = `স্বর্ণ সুতা ❤️\n\nআপনার অর্ডার কনফার্ম করা হয়েছে!\n\nঅর্ডার আইডি: ${o.order_number}\nমোট: ৳${o.total}\n\nঅর্ডার বিস্তারিত দেখুন:\n${memoUrl}`;
                               const phone = o.customer_phone?.replace(/[^0-9]/g, '');
                               const waPhone = phone?.startsWith('0') ? `88${phone}` : phone;
@@ -2208,7 +2208,7 @@ export default function AdminOrders() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.open(`https://shorno-suta.vercel.app/memo/${o.order_number}`, '_blank');
+                              window.open(`https://www.shornosuta.com/memo/${o.order_number}`, '_blank');
                             }}
                             className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded hover:bg-muted text-left"
                           >

@@ -12,7 +12,7 @@ if (existsSync(resolve(".env"))) {
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const SITE_URL = "https://shorno-suta.vercel.app";
+const SITE_URL = "https://www.shornosuta.com";
 
 async function generateSitemap() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

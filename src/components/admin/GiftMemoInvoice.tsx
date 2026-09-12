@@ -37,7 +37,7 @@ const GiftMemoInvoice = forwardRef<HTMLDivElement, GiftMemoProps>(({ order, item
   const giftColor = '#d81b60';
   const giftColorSoft = '#f8bbd0';
   const giftColorLight = '#fce4ec';
-  const websiteUrl = 'https://shorno-suta.vercel.app';
+  const websiteUrl = 'https://www.shornosuta.com';
   const waUrl = `https://wa.me/${config.whatsapp?.replace(/[^0-9]/g, '')}`;
   const qrUrl = config.qr_target === 'whatsapp'
     ? waUrl
@@ -211,7 +211,7 @@ const GiftMemoInvoice = forwardRef<HTMLDivElement, GiftMemoProps>(({ order, item
               </div>
               {/* QR */}
               <div className="shrink-0 text-center flex flex-col items-center">
-                <QRCodeSVG value="https://shorno-suta.vercel.app/giveaway" size={48} />
+                <QRCodeSVG value="https://www.shornosuta.com/giveaway" size={48} />
                 <p className="text-[6px] text-gray-600 mt-0.5 max-w-[52px] leading-tight">সকল বিজয়ী দেখুন</p>
               </div>
             </div>

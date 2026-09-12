@@ -7,8 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// TODO: update to the real domain once one is set (currently the Vercel placeholder).
-const SITE_URL = "https://shorno-suta.vercel.app";
+const SITE_URL = "https://www.shornosuta.com";
 const BRAND_COLOR = "#1a1a2e";
 const ACCENT_COLOR = "#e94560";
 
@@ -47,7 +46,7 @@ function emailWrapper(content: string): string {
 ${content}
 <div class="footer">
   <p>স্বর্ণ সুতা ❤️</p>
-  <p><a href="${SITE_URL}">shorno-suta.vercel.app</a> | <a href="mailto:support@shorno-suta.example">support@shorno-suta.example</a></p>
+  <p><a href="${SITE_URL}">shornosuta.com</a> | <a href="mailto:support@shorno-suta.example">support@shorno-suta.example</a></p>
   <p style="margin-top:8px;font-size:11px;color:#adb5bd">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে।</p>
 </div>
 </div>
@@ -358,10 +357,10 @@ Deno.serve(async (req) => {
 
       const phone = order.customer_phone.startsWith("88") ? order.customer_phone : `88${order.customer_phone}`;
       const defaultSmsContent = type === "payment"
-        ? `স্বর্ণ সুতা ❤️\nপেমেন্ট সফল হয়েছে!\nঅর্ডার: ${order.order_number}\n৳${order.total} পরিশোধ সম্পন্ন।\nshorno-suta.vercel.app/memo/${order.order_number}`
+        ? `স্বর্ণ সুতা ❤️\nপেমেন্ট সফল হয়েছে!\nঅর্ডার: ${order.order_number}\n৳${order.total} পরিশোধ সম্পন্ন।\nshornosuta.com/memo/${order.order_number}`
         : type === "delivered"
-        ? `স্বর্ণ সুতা ❤️ ধন্যবাদ! আবার কেনাকাটা করুন shorno-suta.vercel.app`
-        : `স্বর্ণ সুতা ❤️\nঅর্ডার: ${order.order_number}\n৳${order.total}\nshorno-suta.vercel.app/memo/${order.order_number}`;
+        ? `স্বর্ণ সুতা ❤️ ধন্যবাদ! আবার কেনাকাটা করুন shornosuta.com`
+        : `স্বর্ণ সুতা ❤️\nঅর্ডার: ${order.order_number}\n৳${order.total}\nshornosuta.com/memo/${order.order_number}`;
       const smsContent = smsTpl?.sms_content?.trim() || defaultSmsContent;
       const smsMessage = processSmsTemplate(smsContent, order);
 

@@ -165,8 +165,8 @@ export default function TermsAndConditions() {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://shorno-suta.vercel.app/' },
-      { '@type': 'ListItem', position: 2, name: 'Terms & Conditions', item: 'https://shorno-suta.vercel.app/terms-and-conditions' },
+      { '@type': 'ListItem', position: 1, name: 'হোম', item: 'https://www.shornosuta.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Terms & Conditions', item: 'https://www.shornosuta.com/terms-and-conditions' },
     ],
   };
 
@@ -382,7 +382,7 @@ export default function TermsAndConditions() {
                   </Button>
                 </div>
                 <div className="text-center text-xs text-muted-foreground pt-2">
-                  🌐 <a href="https://shorno-suta.vercel.app" className="text-primary hover:underline">shorno-suta.vercel.app</a>
+                  🌐 <a href="https://www.shornosuta.com" className="text-primary hover:underline">shornosuta.com</a>
                 </div>
               </div>
             </div>

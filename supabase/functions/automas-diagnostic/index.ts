@@ -307,9 +307,9 @@ Deno.serve(async (req) => {
       "must concatenate it into multiple SMS parts. Verifying multipart delivery behavior now.";
     const defaultTests: { label: string; message: string }[] = [
       { label: "1_plain", message: "Shadamon test 1: plain text only." },
-      { label: "2_plain_url", message: "Shadamon test 2: visit https://shorno-suta.vercel.app" },
+      { label: "2_plain_url", message: "Shadamon test 2: visit https://www.shornosuta.com" },
       { label: "3_long_multipart", message: longBody },
-      { label: "4_long_multipart_url", message: longBody + " More info: https://shorno-suta.vercel.app/s/test123" },
+      { label: "4_long_multipart_url", message: longBody + " More info: https://www.shornosuta.com/s/test123" },
     ];
     const tests = Array.isArray(body.tests) && body.tests.length
       ? body.tests.filter((t: any) => t?.label && typeof t.message === "string")

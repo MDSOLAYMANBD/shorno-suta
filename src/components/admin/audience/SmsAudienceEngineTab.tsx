@@ -380,7 +380,7 @@ const SmsAudienceEngineTab = forwardRef<SmsAudienceEngineHandle, Props>(function
       }).eq('id', campaignId);
 
       const shortBase: string =
-        (settings as any)?.sms_short_link_base || 'https://shorno-suta.vercel.app/s';
+        (settings as any)?.sms_short_link_base || 'https://www.shornosuta.com/s';
       const expiryDays = Number((settings as any)?.sms_short_link_default_expiry_days || 30);
       const expiresAt = new Date(Date.now() + expiryDays * 86400_000).toISOString();
       const hasUrls = extractUrls(body).length > 0;

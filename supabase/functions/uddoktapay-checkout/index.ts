@@ -96,8 +96,7 @@ Deno.serve(async (req) => {
     }
 
     // Build redirect URL — hardcoded to prevent open redirect attacks
-    // TODO: update to the real domain once one is set (currently the Vercel placeholder).
-    const siteUrl = "https://shorno-suta.vercel.app";
+    const siteUrl = "https://www.shornosuta.com";
     const redirectUrl = `${siteUrl}/payment-result`;
     const cancelUrl = `${siteUrl}/payment-result?status=cancelled`;
 

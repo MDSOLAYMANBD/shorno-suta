@@ -17,7 +17,7 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
   const navbar = { ...DEFAULT_NAVBAR_CONFIG, ...navbarConfig };
 
   const brandColor = config.brand_color || '#16a34a';
-  const websiteUrl = 'https://shorno-suta.vercel.app';
+  const websiteUrl = 'https://www.shornosuta.com';
   const waUrl = `https://wa.me/${config.whatsapp?.replace(/[^0-9]/g, '')}`;
   const qrUrl = config.qr_target === 'whatsapp'
     ? waUrl
@@ -362,7 +362,7 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
             </div>
             <div className="px-4 py-1 text-center" style={{ backgroundColor: `${brandColor}10` }}>
               <p className="text-[8px] text-gray-500">
-                shorno-suta.vercel.app ❤️
+                shornosuta.com ❤️
               </p>
             </div>
           </div>
