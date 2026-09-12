@@ -4,8 +4,8 @@
   "description": "Best online shop in Bangladesh",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#429B39",
-  "theme_color": "#429B39",
+  "background_color": "#FFFFFF",
+  "theme_color": "#8C6A1A",
   "orientation": "portrait-primary",
   "icons": [
     {
