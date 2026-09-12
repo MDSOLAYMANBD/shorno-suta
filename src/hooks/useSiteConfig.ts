@@ -131,7 +131,7 @@ export const DEFAULT_NAVBAR_CONFIG = {
 };
 
 export const DEFAULT_INVOICE_CONFIG = {
-  brand_color: '#16a34a',
+  brand_color: '#8C6A1A',
   business_name: 'SHORNO SUTA',
   logo_url: '',
   phone: '+8801843-711211',

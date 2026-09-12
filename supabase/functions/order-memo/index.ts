@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
         brand_name: navbarConfig.brand_name || settingsMap.store_name_bn || 'Store',
         brand_name_en: navbarConfig.brand_name_en || settingsMap.store_name || '',
         logo_url: invoiceConfig.logo_url || '',
-        brand_color: invoiceConfig.brand_color || '#16a34a',
+        brand_color: invoiceConfig.brand_color || '#8C6A1A',
         phone: invoiceConfig.phone || '',
         whatsapp: invoiceConfig.whatsapp || '',
         address: invoiceConfig.address || '',

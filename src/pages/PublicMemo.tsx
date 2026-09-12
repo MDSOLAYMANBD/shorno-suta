@@ -46,7 +46,7 @@ export default function PublicMemo() {
   }
 
   const { order, items, branding } = data;
-  const brandColor = branding.brand_color || '#16a34a';
+  const brandColor = branding.brand_color || '#8C6A1A';
   const discount = getOrderDiscount(order);
   const orderDate = new Date(order.created_at).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',

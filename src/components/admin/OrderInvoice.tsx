@@ -16,7 +16,7 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
   const config = { ...DEFAULT_INVOICE_CONFIG, ...savedConfig };
   const navbar = { ...DEFAULT_NAVBAR_CONFIG, ...navbarConfig };
 
-  const brandColor = config.brand_color || '#16a34a';
+  const brandColor = config.brand_color || '#8C6A1A';
   const websiteUrl = 'https://www.shornosuta.com';
   const waUrl = `https://wa.me/${config.whatsapp?.replace(/[^0-9]/g, '')}`;
   const qrUrl = config.qr_target === 'whatsapp'

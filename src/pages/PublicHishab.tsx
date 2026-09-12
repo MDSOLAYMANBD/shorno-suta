@@ -55,7 +55,7 @@ export default function PublicHishab({ kind }: Props) {
   }
 
   const { entity, ledger, summary, branding } = data;
-  const brandColor = branding.brand_color || '#16a34a';
+  const brandColor = branding.brand_color || '#8C6A1A';
 
   const kindLabel = entity.kind === 'person'
     ? 'ব্যক্তির হিসাব'

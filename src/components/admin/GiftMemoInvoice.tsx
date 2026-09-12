@@ -33,7 +33,7 @@ const GiftMemoInvoice = forwardRef<HTMLDivElement, GiftMemoProps>(({ order, item
   const config = { ...DEFAULT_INVOICE_CONFIG, ...savedConfig };
   const navbar = { ...DEFAULT_NAVBAR_CONFIG, ...navbarConfig };
 
-  const brandColor = config.brand_color || '#16a34a';
+  const brandColor = config.brand_color || '#8C6A1A';
   const giftColor = '#d81b60';
   const giftColorSoft = '#f8bbd0';
   const giftColorLight = '#fce4ec';
