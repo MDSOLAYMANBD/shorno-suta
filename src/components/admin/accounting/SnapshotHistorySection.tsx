@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSnapshots, useStartNewSnapshot, useDeleteSnapshot } from '@/hooks/useSnapshots';
+import { useAccountingFinancials } from '@/hooks/useAccounting';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +15,30 @@ const fmt = (n: number) => `৳${n.toLocaleString('bn-BD')}`;
 
 export default function SnapshotHistorySection() {
   const { data: snapshots = [] } = useSnapshots();
+  const { data: financials } = useAccountingFinancials();
   const startNew = useStartNewSnapshot();
   const deleteSnapshot = useDeleteSnapshot();
+
+  // For each entry: total বিক্রি/খরচ recorded strictly after the previous
+  // entry's date, up to and including this one's — the activity that
+  // happened *during* this reconciliation period, shown alongside নীট
+  // সম্পদ so the profit/loss figure isn't a black box.
+  const periodStats = useMemo(() => {
+    const changes = financials?.dailyChanges || {};
+    const map: Record<string, { sales: number; expenses: number }> = {};
+    snapshots.forEach((s, i) => {
+      const prevDate = i > 0 ? snapshots[i - 1].snapshot_date : null;
+      let sales = 0, expenses = 0;
+      for (const d of Object.keys(changes)) {
+        if (d <= s.snapshot_date && (prevDate === null || d > prevDate)) {
+          sales += changes[d].sales || 0;
+          expenses += changes[d].expenses || 0;
+        }
+      }
+      map[s.id] = { sales, expenses };
+    });
+    return map;
+  }, [snapshots, financials]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -84,6 +107,12 @@ export default function SnapshotHistorySection() {
                         <div className="rounded bg-muted/50 p-2"><div className="text-muted-foreground">স্টক মূল্য ({s.stock_items.length} পণ্য)</div><div className="font-medium">{fmt(s.stock_value)}</div></div>
                         <div className="rounded bg-muted/50 p-2"><div className="text-muted-foreground">মোট দেনা</div><div className="font-medium text-red-600">{fmt(s.total_party_dues + s.total_loan_dues)}</div></div>
                       </div>
+                      {(periodStats[s.id]?.sales > 0 || periodStats[s.id]?.expenses > 0) && (
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="rounded bg-emerald-500/10 p-2"><div className="text-muted-foreground">এই সময়ে বিক্রি</div><div className="font-medium text-emerald-700">{fmt(periodStats[s.id]?.sales || 0)}</div></div>
+                          <div className="rounded bg-red-500/10 p-2"><div className="text-muted-foreground">এই সময়ে খরচ</div><div className="font-medium text-red-600">{fmt(periodStats[s.id]?.expenses || 0)}</div></div>
+                        </div>
+                      )}
                       {s.party_dues.length > 0 && (
                         <div>
                           <div className="font-medium text-muted-foreground mb-1">পার্টি-দেনা</div>

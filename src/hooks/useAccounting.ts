@@ -69,6 +69,108 @@ export interface UnitFixedExpense {
   created_at: string;
 }
 
+const FINANCIALS_DEBIT_TYPES = ['salary', 'production_payment', 'party_payment', 'expense', 'advance', 'bonus'];
+
+export interface AccountingFinancials {
+  totalReceivable: number;
+  totalBank: number;
+  totalCash: number;
+  totalExpenses: number;
+  cashExpenses: number;
+  bankExpenses: number;
+  transferOutBank: number;
+  transferOutCash: number;
+  officeSellCash: number;
+  officeSellBank: number;
+  depositCash: number;
+  depositBank: number;
+  /** Per-day (YYYY-MM-DD local date) breakdown — sum a date range for period sales/expenses/etc. */
+  dailyChanges: Record<string, { bankChange: number; cashChange: number; sales: number; expenses: number; withdrawals: number }>;
+}
+
+/**
+ * Shared source of truth for the accounting dashboard's sales/expenses/
+ * balance figures (queryKey 'accounting-financials', invalidated from many
+ * places — loans, transactions, courier payments, etc). Originally lived
+ * only inside AdminAccounting.tsx; extracted so other admin pages (e.g. the
+ * হিসাব মিলান reconciliation) can pull the same period-accurate sales/
+ * expense totals via dailyChanges instead of re-deriving their own.
+ */
+export function useAccountingFinancials() {
+  return useQuery({
+    queryKey: ['accounting-financials'],
+    queryFn: async (): Promise<AccountingFinancials> => {
+      const { data: cpData, error: cpErr } = await supabase.from('courier_payments').select('receivable_amount, bank_amount, cash_amount, receive_method, date, created_at');
+      if (cpErr) throw cpErr;
+      const withMethod = (cpData || []).filter((r: any) => r.receive_method);
+      const COURIER_PAYMENT_CUTOFF = '2026-03-17';
+      const withMethodCounted = withMethod.filter((r: any) => ((r.date || r.created_at || '') >= COURIER_PAYMENT_CUTOFF));
+      const totalReceivable = withMethodCounted.reduce((s: number, r: any) => s + (Number(r.receivable_amount) || 0), 0);
+      const totalBank = withMethodCounted.reduce((s: number, r: any) => s + (Number(r.bank_amount) || 0), 0);
+      const totalCash = withMethodCounted.reduce((s: number, r: any) => s + (Number(r.cash_amount) || 0), 0);
+
+      const cashAccId = '266fdf05-43ef-4dc6-8660-842a958df62e';
+      const bankAccId = 'c0831bd8-c223-4663-a051-5b923bdb4256';
+      const txs = await fetchAllRows<{ type: string; amount: number; source: string | null; account_id: string; created_at: string }>(
+        () => (supabase.from('acc_transactions' as any) as any).select('type, amount, source, account_id, created_at')
+      );
+      let totalExpenses = 0, cashExpenses = 0, bankExpenses = 0;
+      let transferOutBank = 0, transferOutCash = 0;
+      let officeSellCash = 0, officeSellBank = 0;
+      let depositCash = 0, depositBank = 0;
+      const OFFICE_SELL_CUTOFF = '2026-03-17T00:00:00';
+
+      const resolveSource = (tx: { source: string | null; account_id: string }) => {
+        if (tx.account_id === bankAccId) return 'bank';
+        if (tx.source === 'bank') return 'bank';
+        if (tx.source === 'cash') return 'cash';
+        return 'cash';
+      };
+
+      const dailyChanges: AccountingFinancials['dailyChanges'] = {};
+      const ensureDay = (d: string) => { if (!dailyChanges[d]) dailyChanges[d] = { bankChange: 0, cashChange: 0, sales: 0, expenses: 0, withdrawals: 0 }; };
+      const toLocalDate = (iso: string) => {
+        const dt = new Date(iso);
+        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      };
+
+      for (const tx of txs) {
+        const amt = Number(tx.amount);
+        const day = toLocalDate(tx.created_at);
+        const src = resolveSource(tx);
+        ensureDay(day);
+        if (FINANCIALS_DEBIT_TYPES.includes(tx.type)) {
+          totalExpenses += amt;
+          dailyChanges[day].expenses += amt;
+          if (src === 'cash') { cashExpenses += amt; dailyChanges[day].cashChange -= amt; }
+          else { bankExpenses += amt; dailyChanges[day].bankChange -= amt; }
+        } else if (tx.type === 'courier_withdrawal') {
+          dailyChanges[day].withdrawals += amt;
+          if (src === 'bank') { transferOutBank += amt; dailyChanges[day].bankChange -= amt; dailyChanges[day].cashChange += amt; }
+          else { transferOutCash += amt; dailyChanges[day].cashChange -= amt; dailyChanges[day].bankChange += amt; }
+        } else if (tx.type === 'sale' && tx.created_at >= OFFICE_SELL_CUTOFF) {
+          dailyChanges[day].sales += amt;
+          if (src === 'bank') { officeSellBank += amt; dailyChanges[day].bankChange += amt; }
+          else { officeSellCash += amt; dailyChanges[day].cashChange += amt; }
+        } else if (tx.type === 'deposit') {
+          if (src === 'bank') { depositBank += amt; dailyChanges[day].bankChange += amt; }
+          else { depositCash += amt; dailyChanges[day].cashChange += amt; }
+        }
+      }
+
+      for (const cp of withMethodCounted) {
+        const day = toLocalDate(cp.date || cp.created_at || '');
+        ensureDay(day);
+        dailyChanges[day].bankChange += Number(cp.bank_amount || 0);
+        dailyChanges[day].cashChange += Number(cp.cash_amount || 0);
+        dailyChanges[day].sales += Number(cp.receivable_amount || 0);
+      }
+
+      return { totalReceivable, totalBank, totalCash, totalExpenses, cashExpenses, bankExpenses, transferOutBank, transferOutCash, officeSellCash, officeSellBank, depositCash, depositBank, dailyChanges };
+    },
+  });
+}
+
 export function useAccounts() {
   return useQuery({
     queryKey: ['acc-accounts'],

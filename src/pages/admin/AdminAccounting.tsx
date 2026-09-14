@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { backfillPaidOrderSaleEntries } from '@/lib/officeSellSaleEntry';
 import { useAllSettings } from '@/hooks/useAllSettings';
-import { useAccounts, useCreateTransaction, useDeleteTransaction, useUpdateTransaction, useTransactionSummary, type AccTransaction } from '@/hooks/useAccounting';
+import { useAccounts, useCreateTransaction, useDeleteTransaction, useUpdateTransaction, useTransactionSummary, useAccountingFinancials, type AccTransaction } from '@/hooks/useAccounting';
 import { useUnits } from '@/hooks/useAccounting';
 import { usePersons } from '@/hooks/usePersons';
 import { allocatePaymentToRentRecords } from '@/hooks/useRent';
@@ -108,91 +108,8 @@ export default function AdminAccounting() {
     },
   });
 
-  // Courier payment totals + expense source totals
-  const { data: financials } = useQuery({
-    queryKey: ['accounting-financials'],
-    queryFn: async () => {
-      // Get courier payments with method set
-      const { data: cpData, error: cpErr } = await supabase.from('courier_payments').select('receivable_amount, bank_amount, cash_amount, receive_method, date, created_at');
-      if (cpErr) throw cpErr;
-      const withMethod = (cpData || []).filter(r => r.receive_method);
-      // Cutoff: পুরনো courier invoice গুলো ইতিমধ্যে real bank এ ধরা আছে — accounting এ count করব না
-      const COURIER_PAYMENT_CUTOFF = '2026-03-17';
-      const withMethodCounted = withMethod.filter(r => ((r.date || r.created_at || '') >= COURIER_PAYMENT_CUTOFF));
-      const totalReceivable = withMethodCounted.reduce((s, r) => s + (Number(r.receivable_amount) || 0), 0);
-      const totalBank = withMethodCounted.reduce((s, r) => s + (Number(r.bank_amount) || 0), 0);
-      const totalCash = withMethodCounted.reduce((s, r) => s + (Number(r.cash_amount) || 0), 0);
-
-      // Get expense + transfer totals by source
-      // Fetch account_id too so we can use it as a stronger signal than source
-      const cashAccId = '266fdf05-43ef-4dc6-8660-842a958df62e';
-      const bankAccId = 'c0831bd8-c223-4663-a051-5b923bdb4256';
-      const txs = await fetchAllRows<{ type: string; amount: number; source: string | null; account_id: string; created_at: string }>(
-        () => (supabase.from('acc_transactions' as any) as any).select('type, amount, source, account_id, created_at')
-      );
-      let totalExpenses = 0, cashExpenses = 0, bankExpenses = 0;
-      let transferOutBank = 0, transferOutCash = 0;
-      let officeSellCash = 0, officeSellBank = 0;
-      let depositCash = 0, depositBank = 0;
-      const OFFICE_SELL_CUTOFF = '2026-03-17T00:00:00';
-
-      // Resolve source using both account_id and source column for maximum reliability
-      const resolveSource = (tx: { source: string | null; account_id: string }) => {
-        // account_id pointing to bank is strongest signal (set by edit handler)
-        if (tx.account_id === bankAccId) return 'bank';
-        // source column is next (set at creation time, reflects user intent)
-        if (tx.source === 'bank') return 'bank';
-        if (tx.source === 'cash') return 'cash';
-        // Default: if account_id is cash or unknown, assume cash
-        return 'cash';
-      };
-
-      // Daily changes tracking for running balance + monthly breakdown
-      const dailyChanges: Record<string, { bankChange: number; cashChange: number; sales: number; expenses: number; withdrawals: number }> = {};
-      const ensureDay = (d: string) => { if (!dailyChanges[d]) dailyChanges[d] = { bankChange: 0, cashChange: 0, sales: 0, expenses: 0, withdrawals: 0 }; };
-      const toLocalDate = (iso: string) => {
-        const dt = new Date(iso);
-        return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-      };
-
-      for (const tx of txs) {
-        const amt = Number(tx.amount);
-        const day = toLocalDate(tx.created_at);
-        const src = resolveSource(tx);
-        ensureDay(day);
-        if (DEBIT_TYPES.includes(tx.type)) {
-          totalExpenses += amt;
-          dailyChanges[day].expenses += amt;
-          if (src === 'cash') { cashExpenses += amt; dailyChanges[day].cashChange -= amt; }
-          else { bankExpenses += amt; dailyChanges[day].bankChange -= amt; }
-        } else if (tx.type === 'courier_withdrawal') {
-          dailyChanges[day].withdrawals += amt;
-          // Transfer between bank<->cash
-          if (src === 'bank') { transferOutBank += amt; dailyChanges[day].bankChange -= amt; dailyChanges[day].cashChange += amt; }
-          else { transferOutCash += amt; dailyChanges[day].cashChange -= amt; dailyChanges[day].bankChange += amt; }
-        } else if (tx.type === 'sale' && tx.created_at >= OFFICE_SELL_CUTOFF) {
-          dailyChanges[day].sales += amt;
-          if (src === 'bank') { officeSellBank += amt; dailyChanges[day].bankChange += amt; }
-          else { officeSellCash += amt; dailyChanges[day].cashChange += amt; }
-        } else if (tx.type === 'deposit') {
-          if (src === 'bank') { depositBank += amt; dailyChanges[day].bankChange += amt; }
-          else { depositCash += amt; dailyChanges[day].cashChange += amt; }
-        }
-      }
-
-      // Courier payment daily changes (bank/cash splits from courier settlements) — cutoff applied
-      for (const cp of withMethodCounted) {
-        const day = toLocalDate(cp.date || cp.created_at || '');
-        ensureDay(day);
-        dailyChanges[day].bankChange += Number(cp.bank_amount || 0);
-        dailyChanges[day].cashChange += Number(cp.cash_amount || 0);
-        dailyChanges[day].sales += Number(cp.receivable_amount || 0);
-      }
-
-      return { totalReceivable, totalBank, totalCash, totalExpenses, cashExpenses, bankExpenses, transferOutBank, transferOutCash, officeSellCash, officeSellBank, depositCash, depositBank, dailyChanges };
-
-    },
-  });
+  // Courier payment totals + expense source totals — shared with হিসাব মিলান via useAccountingFinancials
+  const { data: financials } = useAccountingFinancials();
 
   // Sales history query (courier_payments + acc_transactions type='sale')
   const { data: salesHistory = [] } = useQuery({
