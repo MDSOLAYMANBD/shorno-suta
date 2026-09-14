@@ -58,7 +58,11 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true,
+    // Disabled: the app's own AuthCallback/AdminOAuthCallback pages call
+    // exchangeCodeForSession manually. Leaving this on races the client's
+    // automatic exchange against that manual call for the same one-time
+    // PKCE code, so the manual call always fails with a false "login failed" toast.
+    detectSessionInUrl: false,
     flowType: 'pkce',
     lock: inProcessLock,
     lockAcquireTimeout: 15000,
