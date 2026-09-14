@@ -58,32 +58,35 @@ const normalizeMessengerLink = (value?: string | null) => {
 };
 
 // Customer-support agent icon (face + headset + boom mic) for the floating
-// launcher — a plain mic glyph alone read as "record audio", not "talk to
-// support", so this draws the classic call-center headset silhouette instead.
+// launcher — flat, filled illustration style (per client reference), not a
+// line-art glyph: hair, skin, headset and collar each get their own fill so
+// it reads as a little support-agent avatar rather than an abstract symbol.
 function SupportHeadsetIcon({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      {/* Hair flowing past the head, kept clear of the face outline */}
-      <path d="M8.3 8c-1.5 3-1.4 7-.1 10" />
-      <path d="M15.7 8c1.5 3 1.4 7 .1 10" />
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      {/* Shirt / shoulders */}
+      <path d="M3.4 24c0-4.6 3.9-7.2 8.6-7.2s8.6 2.6 8.6 7.2Z" fill="#FFF6E9" />
+      {/* Neck */}
+      <rect x="10.3" y="14.3" width="3.4" height="2.8" rx="1" fill="#F3CFA3" />
+      {/* Hair (back layer — peeks out around the face and down the sides) */}
+      <path
+        d="M12 3.4c-3.6 0-6.1 2.7-6.1 6.6 0 1.9.35 4.6 1 6.9.16.55.9.55 1.05 0 .35-1.3.5-2.7.5-3.7v-.9c0-.7.5-1.2 1.2-1.2h4.7c.7 0 1.2.5 1.2 1.2v.9c0 1 .15 2.4.5 3.7.15.55.9.55 1.05 0 .65-2.3 1-5 1-6.9 0-3.9-2.5-6.6-6.1-6.6Z"
+        fill="#6B1E2B"
+      />
       {/* Face */}
-      <circle cx="12" cy="9.8" r="4" />
-      {/* Headset band, arcing above the head */}
-      <path d="M8.1 8.3C8.3 4.6 9.9 2.9 12 2.9s3.7 1.7 3.9 5.4" />
-      {/* Ear cup */}
-      <circle cx="16" cy="9.8" r="1.15" />
+      <ellipse cx="12" cy="10.9" rx="4.05" ry="4.35" fill="#F3CFA3" />
+      {/* Eyes + smile */}
+      <circle cx="10.35" cy="10.6" r="0.5" fill="#4A2E1E" />
+      <circle cx="13.65" cy="10.6" r="0.5" fill="#4A2E1E" />
+      <path d="M10.4 12.6c.5.55 2.7.55 3.2 0" stroke="#4A2E1E" strokeWidth="0.55" strokeLinecap="round" fill="none" />
+      {/* Headset band */}
+      <path d="M6.6 9.6C6.75 5.1 8.85 2.6 12 2.6s5.25 2.5 5.4 7" stroke="#C79A3E" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+      {/* Ear cups */}
+      <circle cx="6.9" cy="10.6" r="1.5" fill="#8C6A1A" />
+      <circle cx="17.1" cy="10.6" r="1.5" fill="#8C6A1A" />
       {/* Boom mic curving toward the mouth */}
-      <path d="M16.3 10.9c.4 1.6-.9 2.8-2.7 3" />
-      <circle cx="13.2" cy="14" r="0.75" fill="currentColor" stroke="none" />
+      <path d="M17.6 11.9c.4 1.75-1 2.95-2.85 3.15" stroke="#8C6A1A" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+      <circle cx="14.4" cy="15.15" r="0.85" fill="#6B1E2B" />
     </svg>
   );
 }
