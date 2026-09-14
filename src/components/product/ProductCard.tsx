@@ -242,7 +242,7 @@ const ProductCard = memo(function ProductCard({ slug, name, name_bn, price, orig
                 );
               })() : null}
             </div>
-            {((totalViews && totalViews >= 1) || (totalSold && totalSold >= 1)) && (
+            {((totalViews ?? 0) >= 1 || (totalSold ?? 0) >= 1) && (
               <div className="flex items-center gap-1.5 mt-1 text-[9px] text-muted-foreground overflow-hidden whitespace-nowrap">
                 {totalViews && totalViews >= 1 ? (
                   <span className="flex items-center gap-0.5">
