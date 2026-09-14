@@ -50,6 +50,20 @@ export function useMarketingScripts() {
     return () => { tags.forEach(t => t.remove()); };
   }, [settings]);
 
+  // Live browser-tab favicon from the admin's master logo, if set. This only
+  // reaches browsers that execute JS — Google Search's cached favicon and the
+  // installed-PWA icon are separate static files (public/favicon.ico,
+  // pwa-192x192.png/pwa-512x512.png) baked in at build time and unaffected.
+  useEffect(() => {
+    const url = settings?.master_logo_url;
+    if (!url) return;
+    const icon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+    if (!icon) return;
+    const prevHref = icon.href;
+    icon.href = url;
+    return () => { icon.href = prevHref; };
+  }, [settings?.master_logo_url]);
+
   useEffect(() => {
     if (!settings) return;
 

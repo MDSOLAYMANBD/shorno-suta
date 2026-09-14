@@ -107,6 +107,7 @@ const AdminSiteEditor = lazy(() => lazyRetry(() => import("./pages/admin/AdminSi
 const AdminThemeSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminThemeSettings")));
 const AdminCheckoutSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminCheckoutSettings")));
 const AdminInvoiceSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminInvoiceSettings")));
+const AdminBrandingSeo = lazy(() => lazyRetry(() => import("./pages/admin/AdminBrandingSeo")));
 const AdminStoreInfoSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminStoreInfoSettings")));
 const AdminLiveChatSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminLiveChatSettings")));
 const AdminLoyaltyBadges = lazy(() => lazyRetry(() => import("./pages/admin/AdminLoyaltyBadges")));
@@ -330,6 +331,7 @@ const App = () => (
                 <Route path="site-editor/theme" element={<AdminThemeSettings />} />
                 <Route path="site-editor/checkout" element={<AdminCheckoutSettings />} />
                 <Route path="site-editor/invoice" element={<AdminInvoiceSettings />} />
+                <Route path="site-editor/branding" element={<AdminBrandingSeo />} />
                 <Route path="site-editor/store-info" element={<AdminStoreInfoSettings />} />
                 <Route path="live-chat/settings" element={<AdminLiveChatSettings />} />
                 <Route path="customers/loyalty-badges" element={<AdminLoyaltyBadges />} />

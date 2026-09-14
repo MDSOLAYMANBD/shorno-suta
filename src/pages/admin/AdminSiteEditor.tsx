@@ -70,6 +70,7 @@ export default function AdminSiteEditor() {
             </button>
           ))}
           {[
+            { to: '/admin/site-editor/branding', icon: '🖼️', label: 'লোগো ও SEO' },
             { to: '/admin/site-editor/theme', icon: '🎨', label: 'থিম কালার' },
             { to: '/admin/site-editor/checkout', icon: '🛒', label: 'চেকআউট ফিল্ড ও শিপিং' },
             { to: '/admin/site-editor/invoice', icon: '🧾', label: 'ইনভয়েস / ডেলিভারি মেমো' },

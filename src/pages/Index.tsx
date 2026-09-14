@@ -494,11 +494,12 @@ const Index = () => {
   return (
     <Layout>
       <SEOHead
-        title="স্বর্ণ সুতা | বাংলাদেশের সেরা অনলাইন শপ"
-        description="স্বর্ণ সুতা থেকে সেরা মানের পোশাক কিনুন। ঢাকায় ২৪ ঘণ্টায় ডেলিভারি, সারাদেশে ক্যাশ অন ডেলিভারি।"
+        title={settings?.site_seo_title || 'স্বর্ণ সুতা | বাংলাদেশের সেরা অনলাইন শপ'}
+        description={settings?.site_seo_description || 'স্বর্ণ সুতা থেকে সেরা মানের পোশাক কিনুন। ঢাকায় ২৪ ঘণ্টায় ডেলিভারি, সারাদেশে ক্যাশ অন ডেলিভারি।'}
         canonical="/"
         jsonLd={orgJsonLd}
-        keywords="স্বর্ণ সুতা, Shorno Suta, অনলাইন শপিং, বাংলাদেশ, থ্রি পিস, শাড়ি, কুর্তি, বোরকা, পাঞ্জাবি, মেয়েদের জামা, ফ্রি ডেলিভারি, কিনুন, online shopping bangladesh"
+        ogImage={settings?.site_seo_og_image || undefined}
+        keywords={settings?.site_seo_keywords || 'স্বর্ণ সুতা, Shorno Suta, অনলাইন শপিং, বাংলাদেশ, থ্রি পিস, শাড়ি, কুর্তি, বোরকা, পাঞ্জাবি, মেয়েদের জামা, ফ্রি ডেলিভারি, কিনুন, online shopping bangladesh'}
       />
       {cfg.global?.custom_css && <style dangerouslySetInnerHTML={{ __html: sanitizeCss(cfg.global.custom_css) }} />}
       {cfg.global?.custom_html && <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(cfg.global.custom_html) }} />}
