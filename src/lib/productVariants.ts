@@ -64,6 +64,20 @@ export function productCardKey(p: { id: string; linkColor?: string }): string {
   return p.linkColor ? `${p.id}::${p.linkColor}` : p.id;
 }
 
+// Resolves a card's sold/view count: if it's a color-exploded card
+// (linkColor set), reads that color's own count from the `::`-keyed map so
+// each color shows its real number instead of every card repeating the
+// whole product's combined total. Non-exploded cards use the aggregate map
+// unchanged.
+export function getVariantCount(
+  p: { id: string; linkColor?: string },
+  aggregateMap: Map<string, number> | undefined,
+  byColorMap: Map<string, number> | undefined,
+): number | undefined {
+  if (p.linkColor) return byColorMap?.get(`${p.id}::${p.linkColor}`) ?? 0;
+  return aggregateMap?.get(p.id);
+}
+
 // Short, URL-safe fingerprint of a color name — used as ?c= on product links
 // instead of the raw Bengali name in ?color=, which percent-encodes into a
 // long, unreadable string the moment anyone copies the address bar (Chrome

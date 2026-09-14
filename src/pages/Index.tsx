@@ -9,7 +9,7 @@ import ProductCard from '@/components/product/ProductCard';
 import ProductSlider from '@/components/product/ProductSlider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCategories } from '@/hooks/useCategories';
-import { useBestSellingProducts, useFeaturedProducts, useNewProducts, useHomepageAllProducts, useHomepageAllProductsCount, useProductSalesCounts, useProductViewCounts, useCategoryPreviewImages, resolveTileImages, useProductCardsByIds } from '@/hooks/useProducts';
+import { useBestSellingProducts, useFeaturedProducts, useNewProducts, useHomepageAllProducts, useHomepageAllProductsCount, useProductSalesCounts, useProductViewCounts, useProductSalesCountsByColor, useProductViewCountsByColor, useCategoryPreviewImages, resolveTileImages, useProductCardsByIds } from '@/hooks/useProducts';
 import { useStoreSettings } from '@/hooks/useStoreSettings';
 import { useSiteConfig, DEFAULT_HOMEPAGE_CONFIG } from '@/hooks/useSiteConfig';
 import { useQuery } from '@tanstack/react-query';
@@ -25,7 +25,7 @@ import { applyClearanceList } from '@/lib/clearancePrice';
 import { estimateReviewCount } from '@/lib/reviewCount';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
-import { explodeProductsByColor } from '@/lib/productVariants';
+import { explodeProductsByColor, getVariantCount } from '@/lib/productVariants';
 
 function ScrollAnimatedSection({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
@@ -52,6 +52,8 @@ const Index = () => {
   const { data: allProductsTotal } = useHomepageAllProductsCount();
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
+  const { data: salesByColorMap } = useProductSalesCountsByColor();
+  const { data: viewsByColorMap } = useProductViewCountsByColor();
 
   // Auto-scroll to #reviews — element is now always in DOM via Layout
   useEffect(() => {
@@ -382,7 +384,7 @@ const Index = () => {
                   {sectionCfg.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{sectionCfg.subheading}</p>}
                 </div>
                 {bestSellingLoading ? <ProductGridSkeleton /> : (
-                  <ProductSlider products={explodeProductsByColor(bestSelling || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+                  <ProductSlider products={explodeProductsByColor(bestSelling || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} salesByColorMap={salesByColorMap} viewsByColorMap={viewsByColorMap} />
                 )}
               </div>
             </section>
@@ -402,7 +404,7 @@ const Index = () => {
                   {sectionCfg.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{sectionCfg.subheading}</p>}
                 </div>
                 {newProductsLoading ? <ProductGridSkeleton /> : (
-                  <ProductSlider products={explodeProductsByColor(newProducts?.slice(0, sectionCfg.limit || 10) || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+                  <ProductSlider products={explodeProductsByColor(newProducts?.slice(0, sectionCfg.limit || 10) || [])} buttonConfig={buttonConfig} salesMap={salesMap} viewsMap={viewsMap} salesByColorMap={salesByColorMap} viewsByColorMap={viewsByColorMap} />
                 )}
               </div>
             </section>
@@ -418,6 +420,8 @@ const Index = () => {
             buttonConfig={buttonConfig}
             salesMap={salesMap}
             viewsMap={viewsMap}
+            salesByColorMap={salesByColorMap}
+            viewsByColorMap={viewsByColorMap}
             totalCount={allProductsTotal}
             onLoadMore={(next: number) => setAllProductsLimit(prev => Math.max(prev, next))}
             currentLimit={allProductsLimit}
@@ -558,7 +562,7 @@ function ProductGridSkeleton() {
 }
 
 /* ========== ALL PRODUCTS SECTION with sort + load more ========== */
-function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, buttonConfig, salesMap, viewsMap, totalCount, onLoadMore, currentLimit }: {
+function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, buttonConfig, salesMap, viewsMap, salesByColorMap, viewsByColorMap, totalCount, onLoadMore, currentLimit }: {
   sectionCfg: any;
   sectionStyle: React.CSSProperties;
   allProducts: any[] | undefined;
@@ -566,6 +570,8 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
   buttonConfig: any;
   salesMap: Map<string, number> | undefined;
   viewsMap: Map<string, number> | undefined;
+  salesByColorMap?: Map<string, number>;
+  viewsByColorMap?: Map<string, number>;
   totalCount?: number;
   onLoadMore?: (next: number) => void;
   currentLimit?: number;
@@ -616,7 +622,7 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6">
               {displayCards.map((p: any) => (
-                <ProductCard key={p.linkColor ? `${p.id}::${p.linkColor}` : p.id} id={p.id} slug={p.slug} name={p.name} name_bn={p.name_bn} price={p.price} original_price={p.original_price} image={p.images?.[0]} buttonConfig={buttonConfig} totalSold={salesMap?.get(p.id)} totalViews={viewsMap?.get(p.id)} hasVideo={!!p.video_url} createdAt={p.created_at} clearance_active={p.clearance_active} variant_images={p.variant_images} linkColor={p.linkColor} />
+                <ProductCard key={p.linkColor ? `${p.id}::${p.linkColor}` : p.id} id={p.id} slug={p.slug} name={p.name} name_bn={p.name_bn} price={p.price} original_price={p.original_price} image={p.images?.[0]} buttonConfig={buttonConfig} totalSold={getVariantCount(p, salesMap, salesByColorMap)} totalViews={getVariantCount(p, viewsMap, viewsByColorMap)} hasVideo={!!p.video_url} createdAt={p.created_at} clearance_active={p.clearance_active} variant_images={p.variant_images} linkColor={p.linkColor} />
               ))}
             </div>
             {hasMore && (
@@ -763,6 +769,8 @@ function ProductBlockSection({ block, sectionStyle, wrapSection, sKey }: { block
   const { data: savedBtnConfig } = useSiteConfig('buttons_config');
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
+  const { data: salesByColorMap } = useProductSalesCountsByColor();
+  const { data: viewsByColorMap } = useProductViewCountsByColor();
   const blockButtonConfig = savedBtnConfig?.product_card;
 
   const { data: products, isLoading } = useQuery({
@@ -854,7 +862,7 @@ function ProductBlockSection({ block, sectionStyle, wrapSection, sKey }: { block
           </div>
           {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{block.subheading}</p>}
         </div>
-        <ProductSlider products={explodeProductsByColor(displayProducts)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+        <ProductSlider products={explodeProductsByColor(displayProducts)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} salesByColorMap={salesByColorMap} viewsByColorMap={viewsByColorMap} />
       </div>
     </section>
   );
@@ -864,6 +872,8 @@ function StockClearanceSection({ block, sectionStyle, wrapSection, sKey }: { blo
   const { data: savedBtnConfig } = useSiteConfig('buttons_config');
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
+  const { data: salesByColorMap } = useProductSalesCountsByColor();
+  const { data: viewsByColorMap } = useProductViewCountsByColor();
   const blockButtonConfig = savedBtnConfig?.product_card;
   const ids: string[] = block.product_ids || [];
   const limit = block.limit || 10;
@@ -951,7 +961,7 @@ function StockClearanceSection({ block, sectionStyle, wrapSection, sKey }: { blo
           {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{block.subheading}</p>}
         </div>
         <div className="clearance-slider-wrap">
-          <ProductSlider products={explodeProductsByColor(display)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} />
+          <ProductSlider products={explodeProductsByColor(display)} buttonConfig={blockButtonConfig} salesMap={salesMap} viewsMap={viewsMap} salesByColorMap={salesByColorMap} viewsByColorMap={viewsByColorMap} />
         </div>
       </div>
     </section>
@@ -964,6 +974,8 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
   const { data: todaySoldProducts, isLoading } = useBestSellingProducts();
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
+  const { data: salesByColorMap } = useProductSalesCountsByColor();
+  const { data: viewsByColorMap } = useProductViewCountsByColor();
   const blockButtonConfig = savedBtnConfig?.product_card;
 
   const badgeText = block.badge_text || 'TRENDING';
@@ -1067,8 +1079,8 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
                 original_price={p.original_price}
                 image={p.images?.[0]}
                 buttonConfig={blockButtonConfig}
-                totalSold={salesMap?.get(p.id)}
-                totalViews={viewsMap?.get(p.id)}
+                totalSold={getVariantCount(p, salesMap, salesByColorMap)}
+                totalViews={getVariantCount(p, viewsMap, viewsByColorMap)}
                 hasVideo={!!p.video_url}
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}
@@ -1092,8 +1104,8 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
                 original_price={p.original_price}
                 image={p.images?.[0]}
                 buttonConfig={blockButtonConfig}
-                totalSold={salesMap?.get(p.id)}
-                totalViews={viewsMap?.get(p.id)}
+                totalSold={getVariantCount(p, salesMap, salesByColorMap)}
+                totalViews={getVariantCount(p, viewsMap, viewsByColorMap)}
                 hasVideo={!!p.video_url}
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/product/ProductCard';
-import { useProducts, useProductSalesCounts, useProductViewCounts, useCategoryPreviewImages, resolveTileImages } from '@/hooks/useProducts';
+import { useProducts, useProductSalesCounts, useProductViewCounts, useProductSalesCountsByColor, useProductViewCountsByColor, useCategoryPreviewImages, resolveTileImages } from '@/hooks/useProducts';
 import { useCategories, getCategoryTree } from '@/hooks/useCategories';
 import { cn } from '@/lib/utils';
 import { trackViewItemList } from '@/lib/ecommerceTracking';
@@ -15,7 +15,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import CategoryOrderCounter from '@/components/shop/CategoryOrderCounter';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
 import { optimizedImageUrl } from '@/lib/imageUrl';
-import { explodeProductsByColor, productCardKey } from '@/lib/productVariants';
+import { explodeProductsByColor, productCardKey, getVariantCount } from '@/lib/productVariants';
 
 function useProductsByIds(ids: string[]) {
   return useQuery({
@@ -138,6 +138,8 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
   const categoryTree = useMemo(() => getCategoryTree(categories), [categories]);
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
+  const { data: salesByColorMap } = useProductSalesCountsByColor();
+  const { data: viewsByColorMap } = useProductViewCountsByColor();
   const { data: allSettings } = useAllSettings();
   const isMobile = useIsMobile();
   const overlayConfig = useMemo(() => {
@@ -457,8 +459,8 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                     price={p.price}
                     original_price={p.original_price}
                     image={p.images?.[0]}
-                    totalSold={salesMap?.get(p.id)}
-                    totalViews={viewsMap?.get(p.id)}
+                    totalSold={getVariantCount(p, salesMap, salesByColorMap)}
+                    totalViews={getVariantCount(p, viewsMap, viewsByColorMap)}
                     hasVideo={!!p.video_url}
                     createdAt={p.created_at}
                     clearance_active={(p as any).clearance_active}

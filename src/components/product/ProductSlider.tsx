@@ -3,6 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/product/ProductCard';
+import { getVariantCount } from '@/lib/productVariants';
 
 interface Product {
   id: string;
@@ -25,9 +26,11 @@ interface ProductSliderProps {
   buttonConfig?: any;
   salesMap?: Map<string, number>;
   viewsMap?: Map<string, number>;
+  salesByColorMap?: Map<string, number>;
+  viewsByColorMap?: Map<string, number>;
 }
 
-const ProductSlider = forwardRef<HTMLDivElement, ProductSliderProps>(({ products, buttonConfig, salesMap, viewsMap }, ref) => {
+const ProductSlider = forwardRef<HTMLDivElement, ProductSliderProps>(({ products, buttonConfig, salesMap, viewsMap, salesByColorMap, viewsByColorMap }, ref) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     slidesToScroll: 1,
@@ -67,8 +70,8 @@ const ProductSlider = forwardRef<HTMLDivElement, ProductSliderProps>(({ products
                 original_price={p.original_price}
                 image={p.images?.[0]}
                 buttonConfig={buttonConfig}
-                totalSold={salesMap?.get(p.id)}
-                totalViews={viewsMap?.get(p.id)}
+                totalSold={getVariantCount(p, salesMap, salesByColorMap)}
+                totalViews={getVariantCount(p, viewsMap, viewsByColorMap)}
                 hasVideo={!!p.video_url}
                 createdAt={p.created_at}
                 clearance_active={p.clearance_active}

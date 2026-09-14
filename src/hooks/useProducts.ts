@@ -481,3 +481,50 @@ export function useProductViewCounts() {
     gcTime: 30 * 60 * 1000,
   });
 }
+
+// Per-color sold counts, keyed `${product_id}::${color}` — so a product
+// exploded into one card per color (see explodeProductsByColor) can show
+// each color's own real sold count instead of the whole product's total
+// repeated identically on every color card.
+export function useProductSalesCountsByColor() {
+  return useQuery({
+    queryKey: ['product-sales-counts-by-color'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_all_product_sales_counts_by_color' as any);
+        if (error) { console.error('[useProductSalesCountsByColor]', error); return new Map<string, number>(); }
+        const map = new Map<string, number>();
+        (data || []).forEach((item: any) => map.set(`${item.product_id}::${item.color}`, Number(item.total_sold) || 0));
+        return map;
+      } catch (e) {
+        console.error('[useProductSalesCountsByColor] unexpected', e);
+        return new Map<string, number>();
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Per-color page views, same keying as useProductSalesCountsByColor. Only
+// populated for views logged after color-aware tracking shipped (product
+// page view events now attach `{ color }` metadata) — older views aren't
+// retroactively attributable to a color, so counts start from zero and grow.
+export function useProductViewCountsByColor() {
+  return useQuery({
+    queryKey: ['product-view-counts-by-color'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_all_product_view_counts_by_color' as any);
+        if (error) { console.error('[useProductViewCountsByColor]', error); return new Map<string, number>(); }
+        const map = new Map<string, number>();
+        (data || []).forEach((item: any) => map.set(`${item.product_id}::${item.color}`, Number(item.total_views) || 0));
+        return map;
+      } catch (e) {
+        console.error('[useProductViewCountsByColor] unexpected', e);
+        return new Map<string, number>();
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}

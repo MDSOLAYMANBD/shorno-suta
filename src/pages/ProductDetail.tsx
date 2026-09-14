@@ -215,17 +215,22 @@ export default function ProductDetail() {
   // GA4: view_item + Meta: ViewContent — fire once per product, not once per
   // component lifetime (ProductDetail stays mounted across /product/:slug
   // navigations, so a plain boolean ref would only ever fire for the first
-  // product a visitor looks at in a session).
+  // product a visitor looks at in a session). For a product with colors,
+  // wait for selectedColor to resolve from the ?c= param first so the
+  // logged view is attributed to the right color from the start — the
+  // per-product-id guard below only allows a single fire, so firing early
+  // with no color would mean this view never counts toward any color.
   const viewFiredForId = useRef<string | null>(null);
   useEffect(() => {
-    if (product && viewFiredForId.current !== product.id) {
-      viewFiredForId.current = product.id;
-      trackViewItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: product.price });
-      trackMetaViewContent(product);
-      trackVisitorActivity('product_view', product.id, product.name);
-      addRecentlyViewed(product.id);
-    }
-  }, [product?.id]);
+    if (!product) return;
+    if (product.colors?.length && !selectedColor) return;
+    if (viewFiredForId.current === product.id) return;
+    viewFiredForId.current = product.id;
+    trackViewItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: product.price });
+    trackMetaViewContent(product);
+    trackVisitorActivity('product_view', product.id, product.name, selectedColor ? { color: selectedColor } : undefined);
+    addRecentlyViewed(product.id);
+  }, [product, selectedColor]);
 
   // Auto-select default (or first) size and color
   useEffect(() => {
