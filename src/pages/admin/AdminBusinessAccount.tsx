@@ -6,7 +6,6 @@ import { useAccounts } from '@/hooks/useAccounting';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -19,7 +18,9 @@ import { ArrowLeft, Plus, Landmark, Save, TrendingUp, Package, CreditCard, Dolla
 import { toLocalDateStr } from '@/lib/utils';
 import LoanCard from '@/components/admin/accounting/LoanCard';
 import PayInstallmentDialog from '@/components/admin/accounting/PayInstallmentDialog';
-import SnapshotSection from '@/components/admin/accounting/SnapshotSection';
+import SnapshotHistorySection from '@/components/admin/accounting/SnapshotHistorySection';
+import CurrentCapitalSection from '@/components/admin/accounting/CurrentCapitalSection';
+import { useLatestSnapshot } from '@/hooks/useSnapshots';
 
 export default function AdminBusinessAccount() {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export default function AdminBusinessAccount() {
   const createInvestment = useCreateInvestment();
   const { data: stockItems = [] } = useStockValuation();
   const { data: accounts = [] } = useAccounts();
+  const { data: latestSnapshot } = useLatestSnapshot();
 
   const [loanDialogOpen, setLoanDialogOpen] = useState(false);
   const [loanForm, setLoanForm] = useState({ name: '', principal_amount: '', interest_rate: '', total_installments: '', monthly_installment: '', start_date: '', interest_type: 'none' as 'none' | 'monthly_flat', monthly_interest_amount: '' });
@@ -146,8 +148,8 @@ export default function AdminBusinessAccount() {
         <Card className="bg-blue-500/10 border-blue-500/20">
           <CardContent className="p-3 text-center">
             <Package className="h-5 w-5 mx-auto text-blue-600 mb-1" />
-            <div className="text-[10px] text-muted-foreground">শুরুর স্টক মূল্য</div>
-            <div className="text-sm font-bold text-blue-700">৳{(bizConfig.initial_stock_value || 0).toLocaleString('bn-BD')}</div>
+            <div className="text-[10px] text-muted-foreground">স্টক মূল্য (সর্বশেষ হিসাব)</div>
+            <div className="text-sm font-bold text-blue-700">৳{(latestSnapshot?.stock_value || 0).toLocaleString('bn-BD')}</div>
           </CardContent>
         </Card>
       </div>
@@ -170,21 +172,14 @@ export default function AdminBusinessAccount() {
               <Input type="number" value={bizConfig.opening_balance_bank || ''} onChange={e => updateBiz({ opening_balance_bank: Number(e.target.value) || 0 })} placeholder="0" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs">শুরুর স্টক মূল্য (৳)</Label>
-              <Input type="number" value={bizConfig.initial_stock_value || ''} onChange={e => updateBiz({ initial_stock_value: Number(e.target.value) || 0 })} placeholder="0" />
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">স্টক নোট (কতো পিস প্রোডাক্ট আছে ইত্যাদি)</Label>
-            <Textarea value={bizConfig.stock_note || ''} onChange={e => updateBiz({ stock_note: e.target.value })} placeholder="যেমন: ৫০ পিস শার্ট, ৩০ পিস প্যান্ট..." rows={2} className="text-xs" />
-          </div>
           {bizDirty && (
             <Button onClick={handleSaveBizConfig} disabled={updateSetting.isPending} size="sm" className="w-full">
               <Save className="h-4 w-4 mr-1" /> {updateSetting.isPending ? 'সেভ হচ্ছে...' : 'সেভ করুন'}
             </Button>
           )}
+
+          {/* Stock / party-dues / loan — mirrors the latest হিসাব মিলান entry, editable item by item */}
+          <CurrentCapitalSection />
 
           {/* Investment list */}
           <div className="border-t border-border pt-3">
@@ -310,7 +305,7 @@ export default function AdminBusinessAccount() {
       </Card>
 
       {/* ===== হিসাব মিলান ===== */}
-      <SnapshotSection />
+      <SnapshotHistorySection />
 
       {/* New Loan Dialog */}
       <Dialog open={loanDialogOpen} onOpenChange={setLoanDialogOpen}>

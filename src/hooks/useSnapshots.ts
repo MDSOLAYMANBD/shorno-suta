@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -55,9 +56,12 @@ function computeDerived(rows: Omit<AccSnapshot, 'stock_value' | 'total_party_due
   });
 }
 
+const SNAPSHOTS_KEY = ['acc-snapshots'];
+
+/** Full history, oldest first, each with its computed net worth and profit/loss vs the one before it. */
 export function useSnapshots() {
   return useQuery({
-    queryKey: ['acc-snapshots'],
+    queryKey: SNAPSHOTS_KEY,
     queryFn: async () => {
       const { data, error } = await (supabase.from('acc_snapshots' as any) as any)
         .select('*, acc_snapshot_stock_items(*), acc_snapshot_party_dues(*), acc_snapshot_loan_dues(*)')
@@ -80,66 +84,48 @@ export function useSnapshots() {
   });
 }
 
-export interface CreateSnapshotInput {
-  snapshot_date: string;
-  label: string;
-  cash_amount: number;
-  bank_amount: number;
-  notes?: string;
-  stock_items: { product_name: string; quantity: number; unit_price: number }[];
-  party_dues: { person_id?: string | null; party_name: string; amount: number }[];
-  loan_dues: { loan_id?: string | null; loan_name: string; amount: number }[];
+/**
+ * "মূলধন" — the current capital — is simply the most recent snapshot, kept
+ * live-editable. There is no separate "current capital" table: every edit
+ * here (cash/bank/stock/party/loan) edits the latest acc_snapshots row
+ * directly, and starting a fresh reconciliation (useStartNewSnapshot) is
+ * what moves "latest" forward and gives the previous one something to be
+ * diffed against for profit/loss.
+ */
+export function useLatestSnapshot() {
+  const { data: snapshots, ...rest } = useSnapshots();
+  const latest = useMemo(() => (snapshots && snapshots.length > 0 ? snapshots[snapshots.length - 1] : undefined), [snapshots]);
+  return { data: latest, ...rest };
 }
 
-export function useCreateSnapshot() {
+function invalidate(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: SNAPSHOTS_KEY });
+}
+
+/** Starts a new dated entry (from হিসাব মিলান) with just a date + label — everything else is filled in over time from মূলধন ও বিনিয়োগ. */
+export function useStartNewSnapshot() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: CreateSnapshotInput) => {
-      const { data: snapshot, error: snapError } = await (supabase.from('acc_snapshots' as any) as any)
-        .insert({
-          snapshot_date: input.snapshot_date,
-          label: input.label,
-          cash_amount: input.cash_amount,
-          bank_amount: input.bank_amount,
-          notes: input.notes || null,
-        })
+    mutationFn: async (input: { snapshot_date: string; label: string; notes?: string }) => {
+      const { data, error } = await (supabase.from('acc_snapshots' as any) as any)
+        .insert({ snapshot_date: input.snapshot_date, label: input.label, cash_amount: 0, bank_amount: 0, notes: input.notes || null })
         .select()
         .single();
-      if (snapError) throw snapError;
-      const snapshotId = (snapshot as any).id;
-
-      const cleanupAndThrow = async (err: unknown) => {
-        await (supabase.from('acc_snapshots' as any) as any).delete().eq('id', snapshotId);
-        throw err;
-      };
-
-      const stockRows = input.stock_items
-        .filter((it) => it.product_name.trim())
-        .map((it) => ({ snapshot_id: snapshotId, product_name: it.product_name, quantity: it.quantity, unit_price: it.unit_price }));
-      if (stockRows.length > 0) {
-        const { error } = await (supabase.from('acc_snapshot_stock_items' as any) as any).insert(stockRows);
-        if (error) await cleanupAndThrow(error);
-      }
-
-      const partyRows = input.party_dues
-        .filter((d) => d.party_name.trim())
-        .map((d) => ({ snapshot_id: snapshotId, person_id: d.person_id || null, party_name: d.party_name, amount: d.amount }));
-      if (partyRows.length > 0) {
-        const { error } = await (supabase.from('acc_snapshot_party_dues' as any) as any).insert(partyRows);
-        if (error) await cleanupAndThrow(error);
-      }
-
-      const loanRows = input.loan_dues
-        .filter((d) => d.loan_name.trim())
-        .map((d) => ({ snapshot_id: snapshotId, loan_id: d.loan_id || null, loan_name: d.loan_name, amount: d.amount }));
-      if (loanRows.length > 0) {
-        const { error } = await (supabase.from('acc_snapshot_loan_dues' as any) as any).insert(loanRows);
-        if (error) await cleanupAndThrow(error);
-      }
-
-      return snapshot;
+      if (error) throw error;
+      return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['acc-snapshots'] }),
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useUpdateSnapshotCore() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: { id: string; label?: string; snapshot_date?: string; cash_amount?: number; bank_amount?: number; notes?: string }) => {
+      const { error } = await (supabase.from('acc_snapshots' as any) as any).update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
   });
 }
 
@@ -150,6 +136,111 @@ export function useDeleteSnapshot() {
       const { error } = await (supabase.from('acc_snapshots' as any) as any).delete().eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['acc-snapshots'] }),
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+// ---- Stock items ----
+
+export function useAddStockItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (row: { snapshot_id: string; product_name: string; quantity: number; unit_price: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_stock_items' as any) as any).insert(row);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useUpdateStockItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: { id: string; product_name?: string; quantity?: number; unit_price?: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_stock_items' as any) as any).update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useDeleteStockItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase.from('acc_snapshot_stock_items' as any) as any).delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+// ---- Party dues ----
+
+export function useAddPartyDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (row: { snapshot_id: string; person_id?: string | null; party_name: string; amount: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_party_dues' as any) as any).insert(row);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useUpdatePartyDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: { id: string; person_id?: string | null; party_name?: string; amount?: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_party_dues' as any) as any).update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useDeletePartyDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase.from('acc_snapshot_party_dues' as any) as any).delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+// ---- Loan dues ----
+
+export function useAddLoanDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (row: { snapshot_id: string; loan_id?: string | null; loan_name: string; amount: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_loan_dues' as any) as any).insert(row);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useUpdateLoanDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: { id: string; loan_id?: string | null; loan_name?: string; amount?: number }) => {
+      const { error } = await (supabase.from('acc_snapshot_loan_dues' as any) as any).update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useDeleteLoanDue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase.from('acc_snapshot_loan_dues' as any) as any).delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidate(qc),
   });
 }
