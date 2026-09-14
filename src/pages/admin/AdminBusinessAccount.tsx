@@ -19,6 +19,7 @@ import { ArrowLeft, Plus, Landmark, Save, TrendingUp, Package, CreditCard, Dolla
 import { toLocalDateStr } from '@/lib/utils';
 import LoanCard from '@/components/admin/accounting/LoanCard';
 import PayInstallmentDialog from '@/components/admin/accounting/PayInstallmentDialog';
+import SnapshotSection from '@/components/admin/accounting/SnapshotSection';
 
 export default function AdminBusinessAccount() {
   const navigate = useNavigate();
@@ -307,6 +308,9 @@ export default function AdminBusinessAccount() {
           )}
         </CardContent>
       </Card>
+
+      {/* ===== হিসাব মিলান ===== */}
+      <SnapshotSection />
 
       {/* New Loan Dialog */}
       <Dialog open={loanDialogOpen} onOpenChange={setLoanDialogOpen}>
