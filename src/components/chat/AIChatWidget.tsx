@@ -57,6 +57,37 @@ const normalizeMessengerLink = (value?: string | null) => {
   return `https://m.me/${raw.replace(/^@/, '')}`;
 };
 
+// Customer-support agent icon (face + headset + boom mic) for the floating
+// launcher — a plain mic glyph alone read as "record audio", not "talk to
+// support", so this draws the classic call-center headset silhouette instead.
+function SupportHeadsetIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Hair flowing past the head, kept clear of the face outline */}
+      <path d="M8.3 8c-1.5 3-1.4 7-.1 10" />
+      <path d="M15.7 8c1.5 3 1.4 7 .1 10" />
+      {/* Face */}
+      <circle cx="12" cy="9.8" r="4" />
+      {/* Headset band, arcing above the head */}
+      <path d="M8.1 8.3C8.3 4.6 9.9 2.9 12 2.9s3.7 1.7 3.9 5.4" />
+      {/* Ear cup */}
+      <circle cx="16" cy="9.8" r="1.15" />
+      {/* Boom mic curving toward the mouth */}
+      <path d="M16.3 10.9c.4 1.6-.9 2.8-2.7 3" />
+      <circle cx="13.2" cy="14" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export default function AIChatWidget() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -675,7 +706,7 @@ export default function AIChatWidget() {
         )}
         aria-label="Chat options"
       >
-        {(open || menuOpen) ? <X className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+        {(open || menuOpen) ? <X className="h-6 w-6" /> : <SupportHeadsetIcon className="h-7 w-7" />}
         {hasNewMsg && !open && !menuOpen && <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive rounded-full animate-pulse border-2 border-background" />}
         {!open && !menuOpen && !hasNewMsg && <span className="absolute inset-0 rounded-full bg-primary opacity-30 animate-ping" />}
       </button>
