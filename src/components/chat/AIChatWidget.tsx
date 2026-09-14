@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { MessageCircle, X, Send, Loader2, Sparkles, Phone, User, Mic, StopCircle, Trash2, MoreVertical, LogOut, MessageSquare } from 'lucide-react';
+import { X, Send, Loader2, Sparkles, Phone, User, Mic, StopCircle, Trash2, MoreVertical, LogOut, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -675,7 +675,7 @@ export default function AIChatWidget() {
         )}
         aria-label="Chat options"
       >
-        {(open || menuOpen) ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {(open || menuOpen) ? <X className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
         {hasNewMsg && !open && !menuOpen && <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive rounded-full animate-pulse border-2 border-background" />}
         {!open && !menuOpen && !hasNewMsg && <span className="absolute inset-0 rounded-full bg-primary opacity-30 animate-ping" />}
       </button>
