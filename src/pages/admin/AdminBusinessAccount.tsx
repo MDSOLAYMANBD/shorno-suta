@@ -20,7 +20,7 @@ import LoanCard from '@/components/admin/accounting/LoanCard';
 import PayInstallmentDialog from '@/components/admin/accounting/PayInstallmentDialog';
 import SnapshotHistorySection from '@/components/admin/accounting/SnapshotHistorySection';
 import CurrentCapitalSection from '@/components/admin/accounting/CurrentCapitalSection';
-import { useLatestSnapshot } from '@/hooks/useSnapshots';
+import { useLatestSnapshot, useUpdateSnapshotCore, useStartNewSnapshot } from '@/hooks/useSnapshots';
 
 export default function AdminBusinessAccount() {
   const navigate = useNavigate();
@@ -38,6 +38,8 @@ export default function AdminBusinessAccount() {
   const { data: stockItems = [] } = useStockValuation();
   const { data: accounts = [] } = useAccounts();
   const { data: latestSnapshot } = useLatestSnapshot();
+  const updateSnapshotCore = useUpdateSnapshotCore();
+  const startNewSnapshot = useStartNewSnapshot();
 
   const [loanDialogOpen, setLoanDialogOpen] = useState(false);
   const [loanForm, setLoanForm] = useState({ name: '', principal_amount: '', interest_rate: '', total_installments: '', monthly_installment: '', start_date: '', interest_type: 'none' as 'none' | 'monthly_flat', monthly_interest_amount: '' });
@@ -65,6 +67,14 @@ export default function AdminBusinessAccount() {
   const handleSaveBizConfig = async () => {
     try {
       await updateSetting.mutateAsync({ key: 'acc_business_config', value: JSON.stringify(bizConfig) });
+      // Keep this same cash/bank figure in sync with the হিসাব মিলান entry
+      // (মূলধন ও বিনিয়োগ = latest entry), so there's one cash/bank number,
+      // not two. Creates the very first entry here too, if none exists yet.
+      if (latestSnapshot) {
+        await updateSnapshotCore.mutateAsync({ id: latestSnapshot.id, cash_amount: bizConfig.opening_balance_cash, bank_amount: bizConfig.opening_balance_bank });
+      } else {
+        await startNewSnapshot.mutateAsync({ snapshot_date: toLocalDateStr(), label: 'ব্যবসা শুরু', cash_amount: bizConfig.opening_balance_cash, bank_amount: bizConfig.opening_balance_bank });
+      }
       toast.success('সেভ হয়েছে');
       setBizDirty(false);
     } catch (e: any) { toast.error(e.message); }
@@ -179,7 +189,7 @@ export default function AdminBusinessAccount() {
           )}
 
           {/* Stock / party-dues / loan — mirrors the latest হিসাব মিলান entry, editable item by item */}
-          <CurrentCapitalSection />
+          <CurrentCapitalSection pendingCash={bizConfig.opening_balance_cash} pendingBank={bizConfig.opening_balance_bank} />
 
           {/* Investment list */}
           <div className="border-t border-border pt-3">

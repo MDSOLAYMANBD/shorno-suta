@@ -26,7 +26,7 @@ export default function SnapshotHistorySection() {
     if (!label.trim()) { toast.error('একটা নাম দিন (যেমন: ব্যবসা শুরু)'); return; }
     try {
       await startNew.mutateAsync({ snapshot_date: snapshotDate, label: label.trim() });
-      toast.success('নতুন হিসাব মিলান শুরু হয়েছে — উপরে "মূলধন ও বিনিয়োগ" সেকশনে গিয়ে item যোগ করো');
+      toast.success('নতুন হিসাব মিলান শুরু হয়েছে — এখন উপরের "মূলধন ও বিনিয়োগ" সেকশনে যা যোগ/পরিবর্তন করবে তা এই নতুন হিসাবে যাবে');
       setDialogOpen(false);
       setLabel('');
       setSnapshotDate(toLocalDateStr());
@@ -49,7 +49,7 @@ export default function SnapshotHistorySection() {
       </CardHeader>
       <CardContent>
         {snapshots.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-4">এখনো কোনো হিসাব মিলান নেই। শুরুর তারিখ দিয়ে প্রথমটা যোগ করুন।</p>
+          <p className="text-xs text-muted-foreground text-center py-4">এখনো কোনো হিসাব মিলান নেই। উপরে "মূলধন ও বিনিয়োগ"-এ স্টক/পার্টি/ঋণ যোগ করলে প্রথমটা automatic তৈরি হয়ে যাবে — পরে বছর শেষে বা ঈদে তুলনা করতে চাইলে এখান থেকে "নতুন মিলান" দিয়ে দ্বিতীয়টা শুরু করো।</p>
         ) : (
           <div className="space-y-2">
             {[...snapshots].reverse().map(s => {

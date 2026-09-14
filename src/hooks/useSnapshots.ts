@@ -106,13 +106,13 @@ function invalidate(qc: ReturnType<typeof useQueryClient>) {
 export function useStartNewSnapshot() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { snapshot_date: string; label: string; notes?: string }) => {
+    mutationFn: async (input: { snapshot_date: string; label: string; notes?: string; cash_amount?: number; bank_amount?: number }) => {
       const { data, error } = await (supabase.from('acc_snapshots' as any) as any)
-        .insert({ snapshot_date: input.snapshot_date, label: input.label, cash_amount: 0, bank_amount: 0, notes: input.notes || null })
+        .insert({ snapshot_date: input.snapshot_date, label: input.label, cash_amount: input.cash_amount || 0, bank_amount: input.bank_amount || 0, notes: input.notes || null })
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as { id: string };
     },
     onSuccess: () => invalidate(qc),
   });

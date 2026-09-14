@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  useLatestSnapshot, useAddStockItem, useUpdateStockItem, useDeleteStockItem,
+  useLatestSnapshot, useStartNewSnapshot, useAddStockItem, useUpdateStockItem, useDeleteStockItem,
   useAddPartyDue, useUpdatePartyDue, useDeletePartyDue,
   useAddLoanDue, useUpdateLoanDue, useDeleteLoanDue,
   type AccSnapshotStockItem, type AccSnapshotPartyDue, type AccSnapshotLoanDue,
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Pencil, Check, X, Package, Users, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+import { toLocalDateStr } from '@/lib/utils';
 
 const MANUAL = '__manual__';
 const fmt = (n: number) => `৳${n.toLocaleString('bn-BD')}`;
@@ -49,12 +50,13 @@ function StockRow({ item }: { item: AccSnapshotStockItem }) {
   );
 }
 
-function AddStockRow({ snapshotId }: { snapshotId: string }) {
+function AddStockRow({ snapshotId, ensureSnapshotId }: { snapshotId?: string; ensureSnapshotId: () => Promise<string> }) {
   const [form, setForm] = useState({ product_name: '', quantity: '', unit_price: '' });
   const add = useAddStockItem();
-  const submit = () => {
+  const submit = async () => {
     if (!form.product_name.trim()) { toast.error('পণ্যের নাম দিন'); return; }
-    add.mutate({ snapshot_id: snapshotId, product_name: form.product_name.trim(), quantity: Number(form.quantity) || 0, unit_price: Number(form.unit_price) || 0 }, {
+    const id = snapshotId ?? await ensureSnapshotId();
+    add.mutate({ snapshot_id: id, product_name: form.product_name.trim(), quantity: Number(form.quantity) || 0, unit_price: Number(form.unit_price) || 0 }, {
       onSuccess: () => setForm({ product_name: '', quantity: '', unit_price: '' }),
     });
   };
@@ -96,7 +98,7 @@ function PartyRow({ row }: { row: AccSnapshotPartyDue }) {
   );
 }
 
-function AddPartyRow({ snapshotId }: { snapshotId: string }) {
+function AddPartyRow({ snapshotId, ensureSnapshotId }: { snapshotId?: string; ensureSnapshotId: () => Promise<string> }) {
   const { data: persons = [] } = usePersons();
   const [personId, setPersonId] = useState(MANUAL);
   const [partyName, setPartyName] = useState('');
@@ -109,9 +111,10 @@ function AddPartyRow({ snapshotId }: { snapshotId: string }) {
     else setPartyName('');
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!partyName.trim()) { toast.error('পার্টির নাম দিন'); return; }
-    add.mutate({ snapshot_id: snapshotId, person_id: personId === MANUAL ? null : personId, party_name: partyName.trim(), amount: Number(amount) || 0 }, {
+    const id = snapshotId ?? await ensureSnapshotId();
+    add.mutate({ snapshot_id: id, person_id: personId === MANUAL ? null : personId, party_name: partyName.trim(), amount: Number(amount) || 0 }, {
       onSuccess: () => { setPersonId(MANUAL); setPartyName(''); setAmount(''); },
     });
   };
@@ -160,7 +163,7 @@ function LoanRow({ row }: { row: AccSnapshotLoanDue }) {
   );
 }
 
-function AddLoanRow({ snapshotId }: { snapshotId: string }) {
+function AddLoanRow({ snapshotId, ensureSnapshotId }: { snapshotId?: string; ensureSnapshotId: () => Promise<string> }) {
   const { data: loans = [] } = useLoans({ unitId: null });
   const { data: loanPaymentCounts = {} } = useAllLoanPaymentCounts();
   const [loanId, setLoanId] = useState(MANUAL);
@@ -177,9 +180,10 @@ function AddLoanRow({ snapshotId }: { snapshotId: string }) {
     setAmount(String(Math.max(0, Number(loan?.principal_amount || 0) - paid)));
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!loanName.trim()) { toast.error('ঋণের নাম দিন'); return; }
-    add.mutate({ snapshot_id: snapshotId, loan_id: loanId === MANUAL ? null : loanId, loan_name: loanName.trim(), amount: Number(amount) || 0 }, {
+    const id = snapshotId ?? await ensureSnapshotId();
+    add.mutate({ snapshot_id: id, loan_id: loanId === MANUAL ? null : loanId, loan_name: loanName.trim(), amount: Number(amount) || 0 }, {
       onSuccess: () => { setLoanId(MANUAL); setLoanName(''); setAmount(''); },
     });
   };
@@ -202,40 +206,51 @@ function AddLoanRow({ snapshotId }: { snapshotId: string }) {
 
 // ===================== Main section =====================
 
-export default function CurrentCapitalSection() {
+export default function CurrentCapitalSection({ pendingCash = 0, pendingBank = 0 }: { pendingCash?: number; pendingBank?: number }) {
   const { data: latest, isLoading } = useLatestSnapshot();
+  const startNew = useStartNewSnapshot();
 
   if (isLoading) return null;
 
-  if (!latest) {
-    return (
-      <div className="rounded-lg border border-dashed border-border p-4 text-center">
-        <p className="text-xs text-muted-foreground">এখনো কোনো স্টক/পার্টি-দেনা/ঋণ যোগ করা হয়নি।</p>
-        <p className="text-xs text-muted-foreground mt-1">নিচে <span className="font-medium">"হিসাব মিলান"</span> সেকশনে গিয়ে <span className="font-medium">"নতুন মিলান"</span> দিয়ে প্রথম হিসাব শুরু করুন — তারপর এখানে item যোগ করা যাবে।</p>
-      </div>
-    );
-  }
+  // No হিসাব মিলান entry exists yet — the first item added here creates
+  // one transparently (labeled "ব্যবসা শুরু"), seeded with whatever cash/bank
+  // is currently set above, so there's no separate "start" step before you
+  // can record your starting stock/dues.
+  const ensureSnapshotId = async (): Promise<string> => {
+    const created = await startNew.mutateAsync({ snapshot_date: toLocalDateStr(), label: 'ব্যবসা শুরু', cash_amount: pendingCash, bank_amount: pendingBank });
+    return created.id;
+  };
+
+  const stockItems = latest?.stock_items ?? [];
+  const partyDues = latest?.party_dues ?? [];
+  const loanDues = latest?.loan_dues ?? [];
+  const stockValue = latest?.stock_value ?? 0;
+  const netWorth = latest?.net_worth ?? 0;
 
   return (
     <div className="space-y-4 border-t border-border pt-3">
-      <p className="text-[11px] text-muted-foreground -mt-1">সর্বশেষ হিসাব: <span className="font-medium text-foreground">{latest.label}</span> ({new Date(latest.snapshot_date).toLocaleDateString('bn-BD')}) — এখানে যা যোগ করবে তা সাথে সাথে সেভ হয়ে যাবে, একদিনে সব দিতে হবে না।</p>
+      {latest ? (
+        <p className="text-[11px] text-muted-foreground -mt-1">সর্বশেষ হিসাব: <span className="font-medium text-foreground">{latest.label}</span> ({new Date(latest.snapshot_date).toLocaleDateString('bn-BD')}) — এখানে যা যোগ করবে তা সাথে সাথে সেভ হয়ে যাবে, একদিনে সব দিতে হবে না।</p>
+      ) : (
+        <p className="text-[11px] text-muted-foreground -mt-1">নিচে স্টক/পার্টি-দেনা/ঋণ যোগ করা শুরু করো — যা যা দেবে তা সাথে সাথে সেভ হয়ে যাবে, একদিনে সব দিতে হবে না।</p>
+      )}
 
       {/* Stock */}
       <div>
         <Label className="text-xs font-semibold flex items-center gap-1.5"><Package className="h-3.5 w-3.5 text-blue-600" /> স্টক (প্রতিটা প্রোডাক্ট আলাদা লাইনে)</Label>
         <div className="mt-1.5">
-          {latest.stock_items.map(item => <StockRow key={item.id} item={item} />)}
-          <AddStockRow snapshotId={latest.id} />
+          {stockItems.map(item => <StockRow key={item.id} item={item} />)}
+          <AddStockRow snapshotId={latest?.id} ensureSnapshotId={ensureSnapshotId} />
         </div>
-        {latest.stock_items.length > 0 && <p className="text-[11px] text-right text-muted-foreground mt-1">মোট স্টক মূল্য: <span className="font-medium text-foreground">{fmt(latest.stock_value)}</span></p>}
+        {stockItems.length > 0 && <p className="text-[11px] text-right text-muted-foreground mt-1">মোট স্টক মূল্য: <span className="font-medium text-foreground">{fmt(stockValue)}</span></p>}
       </div>
 
       {/* Party dues */}
       <div>
         <Label className="text-xs font-semibold flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-orange-600" /> পার্টি-দেনা (যাদের টাকা দিতে হবে)</Label>
         <div className="mt-1.5">
-          {latest.party_dues.map(row => <PartyRow key={row.id} row={row} />)}
-          <AddPartyRow snapshotId={latest.id} />
+          {partyDues.map(row => <PartyRow key={row.id} row={row} />)}
+          <AddPartyRow snapshotId={latest?.id} ensureSnapshotId={ensureSnapshotId} />
         </div>
       </div>
 
@@ -243,15 +258,15 @@ export default function CurrentCapitalSection() {
       <div>
         <Label className="text-xs font-semibold flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5 text-red-600" /> ঋণ</Label>
         <div className="mt-1.5">
-          {latest.loan_dues.map(row => <LoanRow key={row.id} row={row} />)}
-          <AddLoanRow snapshotId={latest.id} />
+          {loanDues.map(row => <LoanRow key={row.id} row={row} />)}
+          <AddLoanRow snapshotId={latest?.id} ensureSnapshotId={ensureSnapshotId} />
         </div>
         <p className="text-[11px] text-muted-foreground mt-1">বিদ্যমান ঋণ বাছাই করলে বকেয়া টাকা automatic বসে যাবে, চাইলে বদলাতে পারবেন।</p>
       </div>
 
       <div className="rounded bg-purple-500/10 p-2.5 flex items-center justify-between text-xs">
         <span className="font-medium">নীট সম্পদ (মূলধন)</span>
-        <span className="font-bold text-purple-700">{fmt(latest.net_worth)}</span>
+        <span className="font-bold text-purple-700">{fmt(netWorth)}</span>
       </div>
     </div>
   );
