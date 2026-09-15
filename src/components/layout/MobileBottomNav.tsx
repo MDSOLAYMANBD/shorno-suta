@@ -46,7 +46,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
   const { user } = useCustomerAuth();
   const { avatarUrl } = useCustomerProfile();
 
-  const whatsappNumber = settings?.whatsapp_number || '8801843711211';
+  const whatsappNumber = settings?.whatsapp_number || '8809617356977';
   const messengerLink = settings?.messenger_link || 'https://m.me/shornosuta';
 
   const navConfig = savedBtnConfig?.bottom_nav?.items || DEFAULT_BUTTONS_CONFIG.bottom_nav.items;

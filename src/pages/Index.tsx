@@ -130,7 +130,7 @@ const Index = () => {
         alternateName: ['স্বর্ণ সুতা', 'Sorno Suta'],
         url: 'https://www.shornosuta.com',
         logo: 'https://www.shornosuta.com/pwa-512x512.png',
-        contactPoint: { '@type': 'ContactPoint', telephone: '+8801843711211', contactType: 'customer service' },
+        contactPoint: { '@type': 'ContactPoint', telephone: '+8809617356977', contactType: 'customer service' },
         sameAs: ['https://www.facebook.com/shornosuta'],
       },
       {

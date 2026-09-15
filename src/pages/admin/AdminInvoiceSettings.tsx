@@ -96,11 +96,11 @@ export default function AdminInvoiceSettings() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Phone Number</Label>
-              <Input value={invoiceForm.phone} onChange={e => setInvoiceForm(p => ({ ...p, phone: e.target.value }))} placeholder="+8801843-711211" />
+              <Input value={invoiceForm.phone} onChange={e => setInvoiceForm(p => ({ ...p, phone: e.target.value }))} placeholder="+8809617-356977" />
             </div>
             <div>
               <Label>WhatsApp Number</Label>
-              <Input value={invoiceForm.whatsapp} onChange={e => setInvoiceForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="+8801843-711211" />
+              <Input value={invoiceForm.whatsapp} onChange={e => setInvoiceForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="+8809617-356977" />
             </div>
           </div>
           <div>

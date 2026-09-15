@@ -25,7 +25,7 @@ export default function ReturnPolicy() {
             <h3 className="text-lg font-semibold text-foreground pt-4">🎥 Damage / Wrong Product Policy</h3>
             <ul className="list-disc list-inside space-y-1">
               <li>রিসিভের সময় চেক না করলে, পরে পার্সেল খোলার সময় অবশ্যই Unboxing Video/Photo রাখতে হবে</li>
-              <li>৭ দিনের মধ্যে WhatsApp করুন: +8801843711211</li>
+              <li>৭ দিনের মধ্যে WhatsApp করুন: +8809617356977</li>
               <li>প্রোডাক্ট ভাঙা, ছেঁড়া, ভুল রং/সাইজ বা ভুল প্রোডাক্ট হলে আমরা নিজ খরচে পরিবর্তন করে দেব</li>
               <li>৭ দিনের পর কোনো অভিযোগ গ্রহণযোগ্য নয়</li>
             </ul>
@@ -48,7 +48,7 @@ export default function ReturnPolicy() {
             <h3 className="text-lg font-semibold text-foreground pt-4">🎥 Damaged or Wrong Product Policy</h3>
             <ul className="list-disc list-inside space-y-1">
               <li>If the product is not checked at the time of delivery, an Unboxing video/photo is mandatory</li>
-              <li>Issues must be reported within 7 days via WhatsApp: +8801843711211</li>
+              <li>Issues must be reported within 7 days via WhatsApp: +8809617356977</li>
               <li>If the product is damaged, torn, wrong color, wrong size, or incorrect item, we will replace it at our cost</li>
               <li>Complaints after 7 days will not be accepted</li>
             </ul>

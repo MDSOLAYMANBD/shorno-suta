@@ -138,7 +138,7 @@ export default function LandingPageBrandDefaults() {
           </div>
           <div>
             <Label className="text-xs mb-1 block">হেল্পলাইন নম্বর</Label>
-            <Input value={defaults.header?.helpline || ''} onChange={e => u('header', 'helpline', e.target.value)} placeholder="01843-711211" />
+            <Input value={defaults.header?.helpline || ''} onChange={e => u('header', 'helpline', e.target.value)} placeholder="09617-356977" />
           </div>
           <div>
             <Label className="text-xs mb-1 block">CTA বাটন টেক্সট</Label>

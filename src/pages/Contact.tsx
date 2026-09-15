@@ -12,7 +12,7 @@ const CONTACT_JSONLD = {
   name: 'স্বর্ণ সুতা',
   alternateName: 'Shorno Suta',
   url: 'https://www.shornosuta.com/contact',
-  telephone: '+8801843711211',
+  telephone: '+8809617356977',
   image: 'https://www.shornosuta.com/pwa-512x512.png',
   address: {
     '@type': 'PostalAddress',
@@ -111,13 +111,13 @@ export default function Contact() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="tel:+8801843711211" className="flex items-center gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors">
+                <a href="tel:+8809617356977" className="flex items-center gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors">
                   <Phone className="h-6 w-6 text-primary flex-shrink-0" />
-                  <div><p className="text-sm text-muted-foreground">Help Line</p><p className="font-semibold text-foreground">+880 1843 711211</p></div>
+                  <div><p className="text-sm text-muted-foreground">Help Line</p><p className="font-semibold text-foreground">+880 9617 356977</p></div>
                 </a>
-                <a href="https://wa.me/8801843711211" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-colors">
+                <a href="https://wa.me/8809617356977" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-colors">
                   <MessageCircle className="h-6 w-6 text-[#25D366] flex-shrink-0" />
-                  <div><p className="text-sm text-muted-foreground">WhatsApp Support</p><p className="font-semibold text-foreground">+880 1843 711211</p></div>
+                  <div><p className="text-sm text-muted-foreground">WhatsApp Support</p><p className="font-semibold text-foreground">+880 9617 356977</p></div>
                 </a>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">

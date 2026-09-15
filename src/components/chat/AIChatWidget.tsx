@@ -38,7 +38,7 @@ interface ChatMessage {
 
 const STORAGE_KEY = 'sd_ai_chat_session';
 
-const DEFAULT_WHATSAPP_NUMBER = '8801843711211';
+const DEFAULT_WHATSAPP_NUMBER = '8809617356977';
 const DEFAULT_MESSENGER_LINK = 'https://m.me/shornosuta';
 
 const normalizeWhatsAppLink = (value?: string | null) => {

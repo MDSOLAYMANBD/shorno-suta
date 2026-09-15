@@ -987,7 +987,7 @@ export default function ProductDetail() {
                       ...(btnCfg.whatsapp_button?.text_color ? { color: btnCfg.whatsapp_button.text_color } : {}),
                     }}
                   >
-                    <a href={`https://wa.me/8801843711211?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackVisitorActivity('whatsapp_click')}>
+                    <a href={`https://wa.me/8809617356977?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackVisitorActivity('whatsapp_click')}>
                       <MessageCircle className="mr-1.5 sm:mr-2 h-4 w-4" />
                       {btnCfg.whatsapp_button?.text || 'WhatsApp'}
                     </a>
@@ -1005,7 +1005,7 @@ export default function ProductDetail() {
                       ...(btnCfg.call_button?.border_color ? { borderColor: btnCfg.call_button.border_color } : {}),
                     }}
                   >
-                    <a href="tel:+8801843711211" onClick={() => trackVisitorActivity('call_click')}>
+                    <a href="tel:+8809617356977" onClick={() => trackVisitorActivity('call_click')}>
                       <Phone className="mr-1.5 sm:mr-2 h-4 w-4" />
                       {btnCfg.call_button?.text || 'কল করুন'}
                     </a>
@@ -1127,7 +1127,7 @@ export default function ProductDetail() {
                       <ul className="space-y-1 list-disc list-inside">
                         <li>অর্ডার কনফার্ম হওয়ার আগে যেকোনো সময় ক্যানসেল করা যাবে</li>
                         <li>কনফার্ম হয়ে গেলে এবং শিপমেন্টে চলে গেলে ক্যানসেল করা যাবে না</li>
-                        <li>ক্যানসেলেশনের জন্য হটলাইনে কল করুন: 01843711211</li>
+                        <li>ক্যানসেলেশনের জন্য হটলাইনে কল করুন: 09617356977</li>
                       </ul>
                     </div>
                   </div>

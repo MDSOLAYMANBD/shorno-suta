@@ -49,9 +49,9 @@ const DEFAULT_SECTION_ORDER = ['marquee', 'header', 'hero', 'order_form', 'trust
 const DEFAULT_CONFIG = {
   marquee: {
     enabled: true,
-    text: 'স্বর্ণ সুতায় স্বাগতম • অগ্রিম টাকা লাগে না • পণ্য হাতে পেয়ে দেখে টাকা দিন • ১০০% কোয়ালিটি পণ্য • ৭ দিনের রিটার্ন/এক্সচেঞ্জ • হোম ডেলিভারি সারা বাংলাদেশে • হটলাইন: 01843711211 • হোয়াটসঅ্যাপ: 01843711211',
+    text: 'স্বর্ণ সুতায় স্বাগতম • অগ্রিম টাকা লাগে না • পণ্য হাতে পেয়ে দেখে টাকা দিন • ১০০% কোয়ালিটি পণ্য • ৭ দিনের রিটার্ন/এক্সচেঞ্জ • হোম ডেলিভারি সারা বাংলাদেশে • হটলাইন: 09617356977 • হোয়াটসঅ্যাপ: 09617356977',
   },
-  header: { brand_name: 'স্বর্ণ সুতা', helpline: '01843-711211', cta_text: 'এখনই অর্ডার করুন', brand_color: '#8C6A1A', logo_url: '' },
+  header: { brand_name: 'স্বর্ণ সুতা', helpline: '09617-356977', cta_text: 'এখনই অর্ডার করুন', brand_color: '#8C6A1A', logo_url: '' },
   hero: { cta_text: 'অর্ডার করতে নিচের ফর্মে যান', cta_color: '#6B1E2B' },
   order_form: { heading: 'অর্ডার করুন', submit_text: 'অর্ডার কনফার্ম করুন', submit_color: '#8C6A1A', show_email: false, show_order_note: false, name_placeholder: 'সম্পূর্ণ নাম', phone_placeholder: '01XXXXXXXXX', address_placeholder: 'বাড়ি নম্বর, রোড, এলাকা, থানা, জেলা' },
   trust_signals: {

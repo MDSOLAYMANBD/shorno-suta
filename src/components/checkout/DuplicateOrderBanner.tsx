@@ -66,7 +66,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
     return lines.join('\n');
   };
 
-  const waDigits = (whatsappNumber || '+8801843711211').replace(/[\s-]/g, '').replace(/^\+?88/, '');
+  const waDigits = (whatsappNumber || '+8809617356977').replace(/[\s-]/g, '').replace(/^\+?88/, '');
   const whatsappLink = `https://wa.me/88${waDigits}?text=${encodeURIComponent(buildWaMessage())}`;
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -137,10 +137,10 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
         <p className="text-xs text-orange-700 dark:text-orange-400">
           WhatsApp-এ ক্লিক করলে আপনার আগের অর্ডার এবং নতুন যোগ করতে চাওয়া পণ্যের বিস্তারিত সহ মেসেজ চলে যাবে। প্রয়োজনে হটলাইনে কল করুন:{' '}
           <a
-            href={`tel:${helplineNumber || '+8801843711211'}`}
+            href={`tel:${helplineNumber || '+8809617356977'}`}
             className="font-bold text-orange-900 dark:text-orange-200 underline underline-offset-2 hover:text-green-700"
           >
-            {helplineNumber || '+880 9617 888821'}
+            {helplineNumber || '+880 9617 356977'}
           </a>
         </p>
 
