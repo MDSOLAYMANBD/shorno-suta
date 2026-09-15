@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
         phone: invoiceConfig.phone || '',
         whatsapp: invoiceConfig.whatsapp || '',
         address: invoiceConfig.address || '',
-        website: 'https://www.shornosuta.com',
+        website: `https://www.shornosuta.com/memo/${order.order_number}`,
         footer_message: invoiceConfig.footer_message || '',
         facebook: footerConfig.facebook || footerConfig.facebook_url || '',
         youtube: footerConfig.youtube || footerConfig.youtube_url || '',
