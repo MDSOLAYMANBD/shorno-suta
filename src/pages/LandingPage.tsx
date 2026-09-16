@@ -473,7 +473,7 @@ export default function LandingPage() {
         <div className={marqueeConfig.enabled !== false ? "h-[92px] sm:h-[102px]" : "h-[60px] sm:h-[70px]"} />
       )}
       {fullSectionOrder.map(k => editWrap(k, renderSection(k)))}
-      <MobileBottomNav />
+      <MobileBottomNav matchFooterBg={footerConfig.enabled !== false} />
     </div>
   );
 }
