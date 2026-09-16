@@ -14,7 +14,7 @@ const corsHeaders = {
 };
 
 const PROMPT_VERSION = "v4-ultra";
-const DEFAULT_MODEL = "gemini-2.5-pro";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 // Allowed conceptual section types — AI must pick from these
 const ALLOWED_SECTION_TYPES = [
