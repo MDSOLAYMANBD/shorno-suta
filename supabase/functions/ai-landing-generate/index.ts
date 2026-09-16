@@ -22,7 +22,6 @@ const ALLOWED_SECTION_TYPES = [
   "usp_strip",
   "gallery",
   "benefits",
-  "variants",
   "social_proof",
   "reviews",
   "video",
@@ -163,12 +162,18 @@ SMART PAGE TITLE
 ═══════════════════════════════════════
 🏛️ BRAND HEADER STRIP — REQUIRED (top of hero section)
 ═══════════════════════════════════════
-The FIRST section (hero) MUST begin with an elegant centered brand strip BEFORE the headline:
-- A small pill or seal-style block: tiny brand mark/dot + "স্বর্ণ সুতা" wordmark in a refined display/serif weight (use \`font-family: 'Hind Siliguri', 'Noto Serif Bengali', serif; font-weight: 600; letter-spacing: 0.04em;\`)
-- Underneath, an OPTIONAL micro-tagline in 11–12px muted text: "ঐতিহ্যবাহী রুচি · প্রিমিয়াম কোয়ালিটি" OR "প্রিমিয়াম ফ্যাশন · বিশ্বস্ত ব্র্যান্ড" (generic, never invents stats)
-- A thin gradient divider line (1–2px) in brand primary with fade edges
-- Subtle fade-in entrance animation (0.5s ease-out)
-This brand block establishes premium identity instantly. NEVER skip it.
+The FIRST section (hero) MUST begin with an elegant centered brand strip BEFORE the headline — this is the first thing a visitor sees, so it must look DESIGNED, not like an afterthought line of small text:
+- A pill/seal-style badge sized to actually read as a design element, not a caption: \`font-size: 15–17px\` wordmark "স্বর্ণ সুতা" in \`font-family: 'Noto Serif Bengali', 'Hind Siliguri', serif; font-weight: 700; letter-spacing: 0.05em;\`, sitting inside a bordered/tinted pill (\`border: 1px solid {primary}33; background: {primary}0d; padding: 8px 20px; border-radius: 999px;\`) with a tiny animated spark/dot beside it.
+- Underneath, a micro-tagline in 11–12px uppercase muted text with letter-spacing 0.15em: "ঐতিহ্যবাহী রুচি · প্রিমিয়াম কোয়ালিটি" OR "প্রিমিয়াম ফ্যাশন · বিশ্বস্ত ব্র্যান্ড" (generic, never invents stats).
+- A short ornamental divider (gradient line with a diamond/dot center, or two flanking flourish strokes) — not just a bare line.
+- Entrance animation: the badge scales in from 0.9→1 with fade (0.5s ease-out), then the tagline fades up 0.15s after, then the divider draws in (width 0→100%) 0.15s after that — a staged reveal, not everything appearing at once.
+This brand block establishes premium identity instantly — it should feel like a boutique's seal, not a footnote. NEVER skip it, and never shrink it down to barely-legible size.
+
+HERO HEADLINE — must be the visual anchor of the page:
+- Large, bold, high-contrast: use the full \`clamp(28px, 7.5vw, 52px)\` range from the typography spec below — do not undersize it to fit more on one line.
+- Style at least one key word/phrase differently (serif italic, or brand primary color, or a subtle underline squiggle SVG) so the headline reads as art-directed copy, not a plain sentence.
+- Word-by-word stagger entrance (see MANDATORY ANIMATIONS) — the headline should visibly assemble itself, not just fade in as one block.
+- Pair with a supporting sub-line (16–18px, muted) directly beneath, also fading in after the headline stagger completes.
 
 ═══════════════════════════════════════
 MOBILE-FIRST DESIGN — STRICTLY ENFORCED
@@ -179,7 +184,7 @@ Design for 360–414px screens FIRST. Desktop is a bonus.
 3. IMAGES: \`width: 100%; height: auto; display: block; border-radius: 12px;\`. Galleries: \`object-fit: cover; aspect-ratio: 4/5;\`.
 4. TYPOGRAPHY (fluid): headings \`clamp(22px, 6vw, 38px); line-height: 1.2; letter-spacing: -0.01em;\` body \`clamp(14px, 4vw, 16px); line-height: 1.7;\`. Bengali font: \`'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;\`. Display headings may use \`'Noto Serif Bengali', 'Hind Siliguri', serif;\` for editorial feel.
 5. GRID/FLEX: Default single column mobile. Then \`@media (min-width: 640px) { grid-template-columns: repeat(2, 1fr); }\`. Flex rows: \`flex-wrap: wrap;\`.
-6. SPACING: Mobile padding 20–28px. The generous \`clamp(48px, 10vw, 96px)\` section-vertical rhythm is for HERO and major visual sections ONLY. For sections whose actual copy is short (usp_strip, trust_badges, a single scarcity/countdown line, a short guarantee note) use COMPACT vertical padding instead — \`clamp(20px, 5vw, 40px)\` — and group the short items into one dense row/grid rather than stacking each as its own tall section. Short labels/badges use tight \`line-height: 1.3–1.4\`, not the 1.7 body-copy value. Never inflate whitespace just to fill scroll length — a page of mostly short phrases must still read as information-dense on mobile, not sparse.
+6. SPACING: Mobile padding 20–28px. The generous \`clamp(48px, 10vw, 96px)\` section-vertical rhythm is for HERO and major visual (image-heavy) sections ONLY. Every other section type — usp_strip, trust_badges, whatsapp_cta, delivery_cod, guarantee, a single scarcity/countdown line, comparison, faq — is SHORT content and MUST use COMPACT vertical padding instead: \`clamp(20px, 5vw, 40px)\`. Default to compact; only use the generous rhythm when you can point to an actual reason (a large image, a multi-item grid that needs breathing room). A section holding one heading + one button + one line of text (like whatsapp_cta) is compact by definition — it never earns hero-level padding. Short labels/badges use tight \`line-height: 1.3–1.4\`, not the 1.7 body-copy value. Never inflate whitespace just to fill scroll length — a page of mostly short phrases must still read as information-dense on mobile, not sparse.
 7. BUTTONS/CTAs: Mobile full-width (\`width: 100%; max-width: 380px;\`), min-height 52px, font-weight 700, border-radius 999px or 14px, real shadow + glow.
 8. TABLES: Avoid. If needed: \`display: block; overflow-x: auto;\` wrapper.
 9. SCOPE CSS: Wrap EVERY selector inside a unique random root class (e.g. \`.sd-hero-x7k2p\`). Keyframe names also scoped (\`@keyframes sd-fade-x7k2p\`). Zero global leaks.
@@ -193,6 +198,8 @@ or
   <button data-scroll-to="order-form" class="cta-button">টেক্সট</button>
 No \`href="#"\`, no JS handlers, no external links. Parent intercepts and smooth-scrolls.
 
+🚫 NO REDUNDANT COLOR-SWATCH SECTION: the order form (rendered globally, right after your sections) already lets the customer pick a color/variant. NEVER create a standalone section whose main content is just color swatches ("উপলব্ধ রং", etc.) — that duplicates the order form and wastes a screen of scroll for zero new information. If colors matter, show them briefly as a small supporting row inside the "offer" or "gallery" section alongside the price/CTA, never as their own section.
+
 ═══════════════════════════════════════
 🎨 ULTRA-PREMIUM VISUAL LANGUAGE
 ═══════════════════════════════════════
@@ -204,6 +211,7 @@ PALETTE DISCIPLINE:
 - Text: near-black (\`#181818\`), muted gray (\`#6B6B6B\`), and brand primary for accent words.
 - Optional luxury gold accent: \`#C9A86A\` for ornament/divider strokes on premium themes.
 - Use 1 hero section dark + light alternating rhythm — never 6 white sections in a row.
+- 🚫 GREEN IS BANNED, NO EXCEPTIONS — including on the \`whatsapp_cta\` section. Do NOT reach for WhatsApp's real-world brand green (\`#25D366\` or any other green) just because a button says "WhatsApp করুন" or uses a WhatsApp icon. That button gets the exact same brand primary/accent treatment as every other CTA on the page — same gold/maroon, same shadow/glow style. Green must not appear anywhere on the page (buttons, icons, backgrounds, borders), regardless of what the element represents.
 
 🚨 CONTRAST SAFETY — MANDATORY, NO EXCEPTIONS:
 - Every piece of text must be clearly readable against whatever is directly behind it. Before writing any text+background pair, mentally check it would pass a 4.5:1 contrast ratio.
@@ -278,7 +286,7 @@ OUTPUT JSON SHAPE:
   "conversion_hints": { "scarcity": true, "urgency": true, "cod_emphasis": true }
 }
 
-Aim for 7–10 sections. Order them for maximum conversion: hero (with brand strip) → USP strip → benefits → gallery (bento) → variants/offer → scarcity → social proof → COD/delivery → exchange/quality guarantee → FAQ. Hero ALWAYS first.`;
+Aim for 7–10 sections. Order them for maximum conversion: hero (with brand strip) → USP strip → benefits → gallery (bento) → offer (price + colors together) → scarcity → social proof → COD/delivery → exchange/quality guarantee → FAQ. Hero ALWAYS first.`;
 }
 
 function buildUserPrompt(opts: {
