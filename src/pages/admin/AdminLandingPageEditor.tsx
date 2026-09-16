@@ -938,25 +938,13 @@ export default function AdminLandingPageEditor() {
                 )}
                 {editingSection === 'footer' && (
                   <div className="space-y-3">
-                    <div><Label className="text-xs mb-1 block">ফুটার টেক্সট</Label><Textarea value={pageConfig.footer?.text || ''} onChange={e => updateConfig('footer', 'text', e.target.value)} rows={3} /></div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                       <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড</Label>
-                        <ColorPickerWithRecent value={pageConfig.footer?.bg_color || '#333333'} onChange={v => updateConfig('footer', 'bg_color', v)} />
-                      </div>
-                      <div>
-                        <Label className="text-xs mb-1 block">টেক্সট কালার</Label>
-                        <ColorPickerWithRecent value={pageConfig.footer?.text_color || '#999999'} onChange={v => updateConfig('footer', 'text_color', v)} />
-                      </div>
-                    </div>
+                    <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                      ফুটার এখন মূল ওয়েবসাইটের ফুটারের সাথে sync — লোগো, যোগাযোগ, লিঙ্ক ইত্যাদি পরিবর্তন করতে{' '}
+                      <a href="/admin/site-editor" target="_blank" rel="noopener noreferrer" className="underline text-primary">সাইট এডিটর → ফুটার</a> এ যান।
+                    </p>
                     <div className="border-t pt-3">
-                      <Label className="text-xs mb-1 block">🎨 কাস্টম CSS</Label>
-                      <CodeEditor value={pageConfig.footer?.custom_css || ''} onChange={v => updateConfig('footer', 'custom_css', v)} rows={3} language="css" />
-                    </div>
-                    <div className="border-t pt-3">
-                      <Label className="text-xs mb-1 block">🌐 কাস্টম HTML</Label>
+                      <Label className="text-xs mb-1 block">🌐 কাস্টম HTML (ফুটারের পরে দেখাবে)</Label>
                       <CodeEditor value={pageConfig.footer?.custom_html || ''} onChange={v => updateConfig('footer', 'custom_html', v)} rows={3} language="html" placeholder="<div>...</div>" />
-                      <p className="text-xs text-muted-foreground mt-1">এই HTML ফুটারের পরে দেখাবে</p>
                     </div>
                   </div>
                 )}

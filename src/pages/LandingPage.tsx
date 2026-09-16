@@ -14,7 +14,7 @@ import LandingStickyHeader from '@/components/landing/LandingStickyHeader';
 import LandingHero from '@/components/landing/LandingHero';
 import LandingOrderForm from '@/components/landing/LandingOrderForm';
 import LandingTrustSignals from '@/components/landing/LandingTrustSignals';
-import LandingFooter from '@/components/landing/LandingFooter';
+import Footer from '@/components/layout/Footer';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import LandingTestimonialSection from '@/components/landing/LandingTestimonialSection';
 import LandingGiftService from '@/components/landing/LandingGiftService';
@@ -44,7 +44,6 @@ export default function LandingPage() {
   useLandingTracking();
   useLandingEditorBridge();
   const { data: navbarConfig } = useSiteConfig('navbar_config');
-  const { data: siteFooterConfig } = useSiteConfig('footer_config');
 
   // Parse brand defaults from store_settings
   const brandDefaults = (() => {
@@ -405,16 +404,14 @@ export default function LandingPage() {
             {trustConfig.custom_html && <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(trustConfig.custom_html) }} />}
           </div>
         );
-      case 'footer': {
+      case 'footer':
         if (footerConfig.enabled === false) return null;
-        const siteCopyright = (siteFooterConfig?.copyright || '© {year} স্বর্ণ সুতা। সর্বস্বত্ব সংরক্ষিত।').replace('{year}', String(new Date().getFullYear()));
         return (
           <>
-            <LandingFooter key="footer" text={footerConfig.text || siteCopyright} bgColor={footerConfig.bg_color} textColor={footerConfig.text_color} />
+            <Footer key="footer" />
             {footerConfig.custom_html && <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(footerConfig.custom_html) }} />}
           </>
         );
-      }
       default:
         return null;
     }

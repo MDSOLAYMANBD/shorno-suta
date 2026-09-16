@@ -473,28 +473,12 @@ export default function LandingPageBrandDefaults() {
       {/* Footer */}
       <Section title="📄 ফুটার">
         <div className="space-y-3">
-          <div>
-            <Label className="text-xs mb-1 block">ফুটার টেক্সট</Label>
-            <Textarea value={defaults.footer?.text || ''} onChange={e => u('footer', 'text', e.target.value)} rows={3} placeholder="Trade License No: ..." />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs mb-1 block">ব্যাকগ্রাউন্ড কালার</Label>
-              <ColorPickerWithRecent value={defaults.footer?.bg_color || '#333333'} onChange={v => u('footer', 'bg_color', v)} />
-            </div>
-            <div>
-              <Label className="text-xs mb-1 block">টেক্সট কালার</Label>
-              <ColorPickerWithRecent value={defaults.footer?.text_color || '#999999'} onChange={v => u('footer', 'text_color', v)} />
-            </div>
-          </div>
+          <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+            ফুটার এখন মূল ওয়েবসাইটের ফুটারের সাথে sync — লোগো, যোগাযোগ, লিঙ্ক ইত্যাদি পরিবর্তন করতে সাইট এডিটর → ফুটার এ যান।
+          </p>
           <div className="border-t border-border pt-3">
-            <Label className="text-xs mb-1 block">🎨 কাস্টম CSS</Label>
-            <CodeEditor value={defaults.footer?.custom_css || ''} onChange={v => u('footer', 'custom_css', v)} rows={3} language="css" />
-          </div>
-          <div className="border-t border-border pt-3">
-            <Label className="text-xs mb-1 block">🌐 কাস্টম HTML</Label>
+            <Label className="text-xs mb-1 block">🌐 কাস্টম HTML (ফুটারের পরে দেখাবে)</Label>
             <CodeEditor value={defaults.footer?.custom_html || ''} onChange={v => u('footer', 'custom_html', v)} rows={3} language="html" placeholder="<div>...</div>" />
-            <p className="text-xs text-muted-foreground mt-1">এই HTML ফুটারের পরে দেখাবে</p>
           </div>
         </div>
       </Section>
