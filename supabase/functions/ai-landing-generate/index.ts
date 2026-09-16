@@ -179,7 +179,7 @@ Design for 360–414px screens FIRST. Desktop is a bonus.
 3. IMAGES: \`width: 100%; height: auto; display: block; border-radius: 12px;\`. Galleries: \`object-fit: cover; aspect-ratio: 4/5;\`.
 4. TYPOGRAPHY (fluid): headings \`clamp(22px, 6vw, 38px); line-height: 1.2; letter-spacing: -0.01em;\` body \`clamp(14px, 4vw, 16px); line-height: 1.7;\`. Bengali font: \`'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;\`. Display headings may use \`'Noto Serif Bengali', 'Hind Siliguri', serif;\` for editorial feel.
 5. GRID/FLEX: Default single column mobile. Then \`@media (min-width: 640px) { grid-template-columns: repeat(2, 1fr); }\`. Flex rows: \`flex-wrap: wrap;\`.
-6. SPACING: Mobile padding 20–28px. Section vertical \`clamp(48px, 10vw, 96px)\` — generous breathing room.
+6. SPACING: Mobile padding 20–28px. The generous \`clamp(48px, 10vw, 96px)\` section-vertical rhythm is for HERO and major visual sections ONLY. For sections whose actual copy is short (usp_strip, trust_badges, a single scarcity/countdown line, a short guarantee note) use COMPACT vertical padding instead — \`clamp(20px, 5vw, 40px)\` — and group the short items into one dense row/grid rather than stacking each as its own tall section. Short labels/badges use tight \`line-height: 1.3–1.4\`, not the 1.7 body-copy value. Never inflate whitespace just to fill scroll length — a page of mostly short phrases must still read as information-dense on mobile, not sparse.
 7. BUTTONS/CTAs: Mobile full-width (\`width: 100%; max-width: 380px;\`), min-height 52px, font-weight 700, border-radius 999px or 14px, real shadow + glow.
 8. TABLES: Avoid. If needed: \`display: block; overflow-x: auto;\` wrapper.
 9. SCOPE CSS: Wrap EVERY selector inside a unique random root class (e.g. \`.sd-hero-x7k2p\`). Keyframe names also scoped (\`@keyframes sd-fade-x7k2p\`). Zero global leaks.
@@ -204,6 +204,12 @@ PALETTE DISCIPLINE:
 - Text: near-black (\`#181818\`), muted gray (\`#6B6B6B\`), and brand primary for accent words.
 - Optional luxury gold accent: \`#C9A86A\` for ornament/divider strokes on premium themes.
 - Use 1 hero section dark + light alternating rhythm — never 6 white sections in a row.
+
+🚨 CONTRAST SAFETY — MANDATORY, NO EXCEPTIONS:
+- Every piece of text must be clearly readable against whatever is directly behind it. Before writing any text+background pair, mentally check it would pass a 4.5:1 contrast ratio.
+- On a dark or saturated gradient section background: text/badges on top MUST be solid white (\`#FFFFFF\`) or solid near-black, at full or near-full opacity (≥0.9). NEVER place a translucent/glassmorphism badge (\`rgba(255,255,255,0.1–0.3)\` or similar) directly on a colorful gradient fill — the badge's own low-opacity background lets the gradient bleed through behind the text and reliably makes it unreadable. If a badge sits on a gradient/photo, give the badge a SOLID background (opacity ≥ 0.9, e.g. solid white or solid \`#1A1A1A\`) so its text color is guaranteed to contrast against something fixed, not the gradient.
+- Light tinted pill/badges (e.g. \`background: rgba({primary-rgb}, 0.12)\`) are only safe on a plain white/cream section background — text must be the fully-saturated dark version of that same color (e.g. bg \`rgba(107,30,43,0.12)\` + text \`#6B1E2B\`), never a lighter/washed-out shade.
+- \`-webkit-background-clip: text\` gradient text is decorative only — never use it for small badge/label text where legibility matters, only for large display prices/headlines where the gradient stops are both dark enough to read against the section's own background.
 
 REQUIRED VISUAL TOOLKIT (use AT LEAST 5 of these across the page):
 ✓ Glassmorphism cards: \`background: rgba(255,255,255,0.65); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 12px 40px rgba(0,0,0,0.08);\`
