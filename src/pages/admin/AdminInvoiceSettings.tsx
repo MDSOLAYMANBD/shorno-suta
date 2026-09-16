@@ -100,7 +100,7 @@ export default function AdminInvoiceSettings() {
             </div>
             <div>
               <Label>WhatsApp Number</Label>
-              <Input value={invoiceForm.whatsapp} onChange={e => setInvoiceForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="+8809617-356977" />
+              <Input value={invoiceForm.whatsapp} onChange={e => setInvoiceForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="+8801843-711211" />
             </div>
           </div>
           <div>

@@ -476,7 +476,7 @@ Deno.serve(async (req) => {
       name: "স্বর্ণ সুতা",
       primary: preset?.default_colors?.primary || themePrimary,
       secondary: preset?.default_colors?.secondary || themeSecondary,
-      whatsapp: settingsMap.whatsapp_number || "09617356977",
+      whatsapp: settingsMap.whatsapp_number || "01843711211",
       helpline: settingsMap.phone || "09617356977",
     };
 

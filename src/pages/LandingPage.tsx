@@ -180,7 +180,7 @@ export default function LandingPage() {
   const heroSection = sections.find((s: any) => s.section_type === 'hero');
   const heroContent = heroSection?.content as any;
 
-  const marqueeText = marqueeConfig.text || 'স্বর্ণ সুতায় স্বাগতম • অগ্রিম টাকা লাগে না • পণ্য হাতে পেয়ে দেখে টাকা দিন • ১০০% কোয়ালিটি পণ্য • ৭ দিনের রিটার্ন/এক্সচেঞ্জ • হোম ডেলিভারি সারা বাংলাদেশে • হটলাইন: 09617356977 • হোয়াটসঅ্যাপ: 09617356977';
+  const marqueeText = marqueeConfig.text || 'স্বর্ণ সুতায় স্বাগতম • অগ্রিম টাকা লাগে না • পণ্য হাতে পেয়ে দেখে টাকা দিন • ১০০% কোয়ালিটি পণ্য • ৭ দিনের রিটার্ন/এক্সচেঞ্জ • হোম ডেলিভারি সারা বাংলাদেশে • হটলাইন: 09617356977 • হোয়াটসঅ্যাপ: 01843711211';
 
   const sectionOrder: string[] = config.section_order || DEFAULT_SECTION_ORDER;
   const globalCss = config.global_css || '';

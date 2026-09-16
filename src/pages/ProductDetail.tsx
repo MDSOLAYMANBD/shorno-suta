@@ -987,7 +987,7 @@ export default function ProductDetail() {
                       ...(btnCfg.whatsapp_button?.text_color ? { color: btnCfg.whatsapp_button.text_color } : {}),
                     }}
                   >
-                    <a href={`https://wa.me/8809617356977?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackVisitorActivity('whatsapp_click')}>
+                    <a href={`https://wa.me/8801843711211?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" onClick={() => trackVisitorActivity('whatsapp_click')}>
                       <MessageCircle className="mr-1.5 sm:mr-2 h-4 w-4" />
                       {btnCfg.whatsapp_button?.text || 'WhatsApp'}
                     </a>

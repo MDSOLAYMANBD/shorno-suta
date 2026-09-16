@@ -78,7 +78,7 @@ export default function PrivacyPolicy() {
               <h3 className="text-base font-semibold text-foreground mb-2">📞 যোগাযোগ</h3>
               <p>প্রাইভেসি সংক্রান্ত যেকোনো প্রশ্ন বা অনুরোধের জন্য যোগাযোগ করুন:</p>
               <ul className="list-disc list-inside space-y-1 mt-1">
-                <li>WhatsApp: +8809617356977</li>
+                <li>WhatsApp: +8801843711211</li>
                 <li>ওয়েবসাইট: shornosuta.com</li>
               </ul>
             </div>
@@ -151,7 +151,7 @@ export default function PrivacyPolicy() {
               <h3 className="text-base font-semibold text-foreground mb-2">📞 Contact Us</h3>
               <p>For any privacy-related questions or requests:</p>
               <ul className="list-disc list-inside space-y-1 mt-1">
-                <li>WhatsApp: +8809617356977</li>
+                <li>WhatsApp: +8801843711211</li>
                 <li>Website: shornosuta.com</li>
               </ul>
             </div>

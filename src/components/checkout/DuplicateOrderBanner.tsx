@@ -66,7 +66,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
     return lines.join('\n');
   };
 
-  const waDigits = (whatsappNumber || '+8809617356977').replace(/[\s-]/g, '').replace(/^\+?88/, '');
+  const waDigits = (whatsappNumber || '+8801843711211').replace(/[\s-]/g, '').replace(/^\+?88/, '');
   const whatsappLink = `https://wa.me/88${waDigits}?text=${encodeURIComponent(buildWaMessage())}`;
 
   const rootRef = useRef<HTMLDivElement>(null);

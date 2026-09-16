@@ -375,9 +375,9 @@ export default function TermsAndConditions() {
                     </a>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="h-14 text-sm sm:text-base px-3 w-full min-w-0 bg-background hover:bg-accent">
-                    <a href="https://wa.me/8809617356977" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+                    <a href="https://wa.me/8801843711211" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
                       <MessageCircle className="h-5 w-5 mr-2 shrink-0" />
-                      <span className="truncate">WhatsApp: 09617356977</span>
+                      <span className="truncate">WhatsApp: 01843711211</span>
                     </a>
                   </Button>
                 </div>

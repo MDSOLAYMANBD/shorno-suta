@@ -115,9 +115,9 @@ export default function Contact() {
                   <Phone className="h-6 w-6 text-primary flex-shrink-0" />
                   <div><p className="text-sm text-muted-foreground">Help Line</p><p className="font-semibold text-foreground">+880 9617 356977</p></div>
                 </a>
-                <a href="https://wa.me/8809617356977" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-colors">
+                <a href="https://wa.me/8801843711211" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-colors">
                   <MessageCircle className="h-6 w-6 text-[#25D366] flex-shrink-0" />
-                  <div><p className="text-sm text-muted-foreground">WhatsApp Support</p><p className="font-semibold text-foreground">+880 9617 356977</p></div>
+                  <div><p className="text-sm text-muted-foreground">WhatsApp Support</p><p className="font-semibold text-foreground">+880 1843 711211</p></div>
                 </a>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
