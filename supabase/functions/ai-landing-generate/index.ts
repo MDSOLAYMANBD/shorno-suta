@@ -1,6 +1,6 @@
 // AI Landing Page Generator — Phase 1
 // Generates a structured landing-page layout from selected products using
-// Lovable AI Gateway, then persists it as html_blog sections on an existing
+// Gemini, then persists it as html_blog sections on an existing
 // or newly-created landing_page row. Fully additive — does not touch the
 // manual builder, brand defaults, page_config, or any existing sections.
 
@@ -326,7 +326,7 @@ Brand:
 First, silently classify each product (abaya / borkha / party dress / cotton dress / premium / summer / budget) and infer the best conversion theme. Then output the JSON layout.`;
 }
 
-async function callLovableAI(opts: {
+async function callGeminiAI(opts: {
   apiKey: string;
   model: string;
   systemPrompt: string;
@@ -504,7 +504,7 @@ Deno.serve(async (req) => {
     const userPrompt = buildUserPrompt({ products, brand });
 
     // Call AI
-    const aiResult = await callLovableAI({
+    const aiResult = await callGeminiAI({
       apiKey: GEMINI_API_KEY,
       model: DEFAULT_MODEL,
       systemPrompt,

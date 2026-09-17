@@ -1,6 +1,6 @@
-// Shared Gemini client — uses user's Gemini API key (stored in store_settings)
-// instead of the Lovable AI Gateway. Provides an OpenAI-style chat completion
-// shim so existing call sites need minimal changes.
+// Shared Gemini client — uses a user-configured Gemini API key (stored in
+// store_settings). Provides an OpenAI-style chat completion shim so call
+// sites can use a familiar request/response shape.
 
 export async function loadGeminiKey(supabase: any): Promise<string> {
   try {
@@ -19,7 +19,7 @@ export async function loadGeminiKey(supabase: any): Promise<string> {
 // Map OpenAI-style "google/gemini-X" or vendor-less id → bare Gemini model id
 function mapModel(model: string): string {
   let m = (model || "gemini-2.5-flash").replace(/^google\//, "");
-  // Lovable gateway uses "-preview" variants; map a few to public Gemini ids
+  // Map a few "-preview" variants to their public Gemini ids
   if (m === "gemini-3-flash-preview") m = "gemini-2.5-flash";
   return m;
 }

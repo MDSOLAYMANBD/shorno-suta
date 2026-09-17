@@ -95,7 +95,7 @@ Return ONLY valid JSON:
       if (aiResponse.status === 402) {
         const errText = await aiResponse.text();
         return new Response(JSON.stringify({
-          error: 'AI credit শেষ। Lovable workspace-এ credit যোগ করুন।',
+          error: 'AI credit শেষ। Gemini API key/billing চেক করুন।',
           code: 'PAYMENT_REQUIRED',
           details: errText,
         }), {
