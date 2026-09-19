@@ -10,13 +10,13 @@ export type SmsResult = {
   provider_response?: unknown;
 };
 
-export type SmsSendPurpose = "order_confirmation" | "payment_confirmation" | "delivery_thankyou" | "party_ledger";
+export type SmsSendPurpose = "order_confirmation" | "payment_confirmation" | "delivery_thankyou" | "party_ledger" | "admin_manual";
 
 export type SmsSendOptions = {
   purpose?: SmsSendPurpose;
 };
 
-const ALLOWED_SMS_PURPOSES: SmsSendPurpose[] = ["order_confirmation", "payment_confirmation", "delivery_thankyou", "party_ledger"];
+const ALLOWED_SMS_PURPOSES: SmsSendPurpose[] = ["order_confirmation", "payment_confirmation", "delivery_thankyou", "party_ledger", "admin_manual"];
 const ORDER_CONFIRMATION_PATTERN = /(?:অর্ডার|Order)\s*:\s*SD-\d+/i;
 // The post-delivery thank-you/reorder SMS carries no order number by design
 // (it's a relationship-building nudge, not a transactional receipt) — the
@@ -45,6 +45,11 @@ function assertSmsSendAllowed(message: string, options?: SmsSendOptions): SmsRes
       error: "SMS sending is disabled except for order/payment confirmation SMS.",
     };
   }
+
+  // admin_manual is free-form text by definition (the whole point of a manual
+  // send) and is already gated by admin login one layer up, not a fixed
+  // template — no content pattern to enforce here.
+  if (options.purpose === "admin_manual") return null;
 
   const pattern = options.purpose === "delivery_thankyou" ? DELIVERY_THANKYOU_PATTERN
     : options.purpose === "party_ledger" ? PARTY_LEDGER_PATTERN

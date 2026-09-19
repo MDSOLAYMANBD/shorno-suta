@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const result = await sendSmsViaActiveProvider(adminClient, phone, message, { purpose: "party_ledger" });
+    const result = await sendSmsViaActiveProvider(adminClient, phone, message, { purpose });
     if (!result.success) {
       console.error("[send-sms] provider failed", {
         provider: result.provider,

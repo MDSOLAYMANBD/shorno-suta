@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    const result = await sendSmsWithProvider(adminClient, provider, phone, message);
+    const result = await sendSmsWithProvider(adminClient, provider, phone, message, { purpose: "admin_manual" });
     if (!result.success) console.error("[test-sms-provider] failed", result);
     return new Response(JSON.stringify(result), {
       status: 200,
