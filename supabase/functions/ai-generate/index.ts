@@ -329,19 +329,19 @@ Deno.serve(async (req) => {
     // Load AI keys: DB first, env fallback
     const aiSettings = await loadAISettings(supabaseAdmin);
 
-    // ── Branch: image generation — Gemini first, auto-fallback to OpenAI DALL-E ──
+    // ── Branch: image generation — OpenAI DALL-E first, auto-fallback to Gemini ──
     if (type === 'banner_image') {
-      let result = await generateBannerImage(supabaseAdmin, prompt, size, quality, aiSettings.gemini_api_key, model);
-      let usedProvider = 'gemini';
+      let result = await generateBannerImageOpenAI(supabaseAdmin, prompt, size, aiSettings.openai_api_key);
+      let usedProvider = 'openai';
       if (result.error) {
-        console.error('Gemini image failed, falling back to OpenAI:', result.error);
-        const openaiResult = await generateBannerImageOpenAI(supabaseAdmin, prompt, size, aiSettings.openai_api_key);
-        if (openaiResult.url) {
-          result = openaiResult;
-          usedProvider = 'openai';
+        console.error('OpenAI image failed, falling back to Gemini:', result.error);
+        const geminiResult = await generateBannerImage(supabaseAdmin, prompt, size, quality, aiSettings.gemini_api_key, model);
+        if (geminiResult.url) {
+          result = geminiResult;
+          usedProvider = 'gemini';
         } else {
           return new Response(JSON.stringify({
-            error: `${result.error} (OpenAI fallback: ${openaiResult.error})`,
+            error: `${result.error} (Gemini fallback: ${geminiResult.error})`,
           }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -420,16 +420,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    let genResult = await tryGemini();
-    let usedProvider = 'gemini';
+    let genResult = await tryOpenAI();
+    let usedProvider = 'openai';
     if (!genResult.content) {
-      console.error('Gemini failed, falling back to OpenAI:', genResult.errMsg);
-      const openaiResult = await tryOpenAI();
-      if (openaiResult.content) {
-        genResult = openaiResult;
-        usedProvider = 'openai';
+      console.error('OpenAI failed, falling back to Gemini:', genResult.errMsg);
+      const geminiResult = await tryGemini();
+      if (geminiResult.content) {
+        genResult = geminiResult;
+        usedProvider = 'gemini';
       } else {
-        const combined = `${genResult.errMsg} | OpenAI fallback: ${openaiResult.errMsg} — অ্যাডমিন প্যানেলে (AI Keys) কী চেক করুন।`;
+        const combined = `${genResult.errMsg} | Gemini fallback: ${geminiResult.errMsg} — অ্যাডমিন প্যানেলে (AI Keys) কী চেক করুন।`;
         return new Response(JSON.stringify({ error: combined }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

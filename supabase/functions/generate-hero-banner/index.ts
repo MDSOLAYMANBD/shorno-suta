@@ -16,8 +16,8 @@ serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // Gemini is now the fallback (OpenAI is primary) — don't hard-fail if it's unset.
     const GEMINI_API_KEY = await loadGeminiKey(supabase);
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY কনফিগার করা হয়নি। অ্যাডমিন প্যানেলে (AI Keys) Gemini key দিন");
 
     const { custom_prompt, category_id, resolution, quality } = await req.json();
 
@@ -130,25 +130,27 @@ serve(async (req) => {
 - শুধুমাত্র ট্যাগলাইনটি লেখো, অন্য কিছু না`;
 
     let tagline = "";
-    const taglineRes = await geminiChatCompletion(GEMINI_API_KEY, {
-      model: "gemini-2.5-flash",
-      messages: [{ role: "user", content: taglinePrompt }],
-    });
-
-    if (taglineRes.ok) {
-      const taglineData = await taglineRes.json();
-      tagline = taglineData.choices?.[0]?.message?.content?.trim() || "";
-    } else {
-      console.error("Gemini tagline failed, falling back to OpenAI:", taglineRes.status);
-      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
-      if (!OPENAI_API_KEY) throw new Error(`Tagline generation failed: ${taglineRes.status} (OpenAI fallback not configured)`);
-      const openaiTaglineRes = await openaiChatCompletion(OPENAI_API_KEY, {
+    const OPENAI_API_KEY = await loadOpenAIKey(supabase);
+    let openaiTaglineRes: Response | null = null;
+    if (OPENAI_API_KEY) {
+      openaiTaglineRes = await openaiChatCompletion(OPENAI_API_KEY, {
         userMessage: taglinePrompt,
         model: "gpt-4o-mini",
       });
-      if (!openaiTaglineRes.ok) throw new Error(`Tagline generation failed on both Gemini (${taglineRes.status}) and OpenAI (${openaiTaglineRes.status})`);
+    }
+
+    if (openaiTaglineRes?.ok) {
       const openaiTaglineData = await openaiTaglineRes.json();
       tagline = openaiTaglineData.choices?.[0]?.message?.content?.trim() || "";
+    } else {
+      console.error("OpenAI tagline failed, falling back to Gemini:", openaiTaglineRes?.status);
+      const taglineRes = await geminiChatCompletion(GEMINI_API_KEY, {
+        model: "gemini-2.5-flash",
+        messages: [{ role: "user", content: taglinePrompt }],
+      });
+      if (!taglineRes.ok) throw new Error(`Tagline generation failed on both OpenAI (${openaiTaglineRes?.status ?? "not configured"}) and Gemini (${taglineRes.status})`);
+      const taglineData = await taglineRes.json();
+      tagline = taglineData.choices?.[0]?.message?.content?.trim() || "";
     }
 
     // ===== Step 2: Generate banner image =====
@@ -219,81 +221,84 @@ RULES:
 
     console.log("Generating hero banner with", productImageUrls.length, "product refs");
 
-    const imageModels = [
-      "gemini-3.1-flash-image-preview",
-      "gemini-2.5-flash-image",
-      "gemini-2.5-flash-image-preview",
-      "gemini-2.0-flash-preview-image-generation",
-    ];
-    let imageRes: Response | null = null;
-    let lastImgStatus = 500;
-    for (const m of imageModels) {
-      imageRes = await geminiChatCompletion(GEMINI_API_KEY, {
-        model: m,
-        messages: [{ role: "user", content: contentParts }],
-        modalities: ["image", "text"],
-      });
-      if (imageRes.ok) break;
-      lastImgStatus = imageRes.status;
-      if (imageRes.status === 401 || imageRes.status === 403 || imageRes.status === 429) break;
-    }
     let imageBytes: Uint8Array | undefined;
+    let openaiImgErrStatus: number | string = "not configured";
 
-    if (imageRes && imageRes.ok) {
-      const imageText = await imageRes.text();
-      if (!imageText || imageText.trim() === "") throw new Error("Image generation returned empty response");
+    // ── Try OpenAI DALL-E first (text-only prompt — DALL-E doesn't take reference images) ──
+    if (OPENAI_API_KEY) {
+      const openaiImageRes = await openaiGenerateImage(OPENAI_API_KEY, { prompt: imagePrompt, size: "1792x1024" });
+      if (openaiImageRes.ok) {
+        const openaiImageData = await openaiImageRes.json();
+        const b64 = openaiImageData?.data?.[0]?.b64_json;
+        if (b64) imageBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      } else {
+        openaiImgErrStatus = openaiImageRes.status;
+        const errText = await openaiImageRes.text();
+        console.error("OpenAI image failed:", openaiImageRes.status, errText.slice(0, 1000));
+      }
+    }
 
-      let imageData: any;
-      try {
-        imageData = JSON.parse(imageText);
-      } catch {
-        throw new Error("Image generation returned invalid JSON");
+    // ── Fall back to Gemini's multimodal image models (uses product reference images) ──
+    if (!imageBytes) {
+      console.error("OpenAI image generation failed, falling back to Gemini. OpenAI status:", openaiImgErrStatus);
+      const imageModels = [
+        "gemini-3.1-flash-image-preview",
+        "gemini-2.5-flash-image",
+        "gemini-2.5-flash-image-preview",
+        "gemini-2.0-flash-preview-image-generation",
+      ];
+      let imageRes: Response | null = null;
+      let lastImgStatus = 500;
+      for (const m of imageModels) {
+        imageRes = await geminiChatCompletion(GEMINI_API_KEY, {
+          model: m,
+          messages: [{ role: "user", content: contentParts }],
+          modalities: ["image", "text"],
+        });
+        if (imageRes.ok) break;
+        lastImgStatus = imageRes.status;
+        if (imageRes.status === 401 || imageRes.status === 403 || imageRes.status === 429) break;
       }
 
-      const message = imageData.choices?.[0]?.message;
-      let base64Url: string | undefined;
+      if (imageRes && imageRes.ok) {
+        const imageText = await imageRes.text();
+        if (!imageText || imageText.trim() === "") throw new Error("Image generation returned empty response");
 
-      if (message?.images?.length > 0) {
-        base64Url = message.images[0]?.image_url?.url;
-      }
-      if (!base64Url && Array.isArray(message?.content)) {
-        const imgPart = message.content.find((p: any) => p.type === "image_url" || p.type === "image");
-        if (imgPart) base64Url = imgPart.image_url?.url || imgPart.url;
-      }
-      if (!base64Url && message?.parts) {
-        const imgPart = message.parts.find((p: any) => p.inline_data);
-        if (imgPart?.inline_data) {
-          base64Url = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
+        let imageData: any;
+        try {
+          imageData = JSON.parse(imageText);
+        } catch {
+          throw new Error("Image generation returned invalid JSON");
+        }
+
+        const message = imageData.choices?.[0]?.message;
+        let base64Url: string | undefined;
+
+        if (message?.images?.length > 0) {
+          base64Url = message.images[0]?.image_url?.url;
+        }
+        if (!base64Url && Array.isArray(message?.content)) {
+          const imgPart = message.content.find((p: any) => p.type === "image_url" || p.type === "image");
+          if (imgPart) base64Url = imgPart.image_url?.url || imgPart.url;
+        }
+        if (!base64Url && message?.parts) {
+          const imgPart = message.parts.find((p: any) => p.inline_data);
+          if (imgPart?.inline_data) {
+            base64Url = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
+          }
+        }
+
+        if (base64Url) {
+          const base64Data = base64Url.replace(/^data:image\/\w+;base64,/, "");
+          imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+        } else {
+          console.error("Full image response:", JSON.stringify(imageData).substring(0, 2000));
         }
       }
 
-      if (base64Url) {
-        const base64Data = base64Url.replace(/^data:image\/\w+;base64,/, "");
-        imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
-      } else {
-        console.error("Full image response:", JSON.stringify(imageData).substring(0, 2000));
+      if (!imageBytes) {
+        throw new Error(`Image generation failed on both OpenAI (${openaiImgErrStatus}) and Gemini (${lastImgStatus})`);
       }
-    }
-
-    // Gemini image generation failed (all models) or returned no image — fall back to OpenAI DALL-E
-    if (!imageBytes) {
-      console.error("Gemini image generation failed, falling back to OpenAI DALL-E. Last status:", lastImgStatus);
-      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
-      if (!OPENAI_API_KEY) {
-        if (lastImgStatus === 429) throw new Error("Gemini রেট লিমিট/কোটা শেষ। OpenAI fallback কনফিগার করা নেই।");
-        if (lastImgStatus === 401 || lastImgStatus === 403) throw new Error("GEMINI_API_KEY অবৈধ বা image generation permission নেই। OpenAI fallback কনফিগার করা নেই।");
-        throw new Error("Image generation failed on Gemini and no OpenAI fallback is configured.");
-      }
-      const openaiImageRes = await openaiGenerateImage(OPENAI_API_KEY, { prompt: imagePrompt, size: "1792x1024" });
-      if (!openaiImageRes.ok) {
-        const errText = await openaiImageRes.text();
-        console.error("OpenAI image fallback failed:", openaiImageRes.status, errText.slice(0, 1000));
-        throw new Error(`Image generation failed on both Gemini (${lastImgStatus}) and OpenAI (${openaiImageRes.status})`);
-      }
-      const openaiImageData = await openaiImageRes.json();
-      const b64 = openaiImageData?.data?.[0]?.b64_json;
-      if (!b64) throw new Error("OpenAI fallback returned no image");
-      imageBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
     }
 
     // Upload to storage

@@ -480,10 +480,8 @@ Deno.serve(async (req) => {
     });
     if (!isAdmin) return jsonResponse({ error: "Admin access required" }, 403);
 
+    // Gemini is now the fallback (OpenAI is primary) — don't hard-fail if it's unset.
     const GEMINI_API_KEY = await loadGeminiKey(supabaseAdmin);
-    if (!GEMINI_API_KEY) {
-      return jsonResponse({ error: "GEMINI_API_KEY কনফিগার করা হয়নি। অ্যাডমিন প্যানেলে (AI Keys) Gemini key দিন।" }, 500);
-    }
 
     const body: GenInput = await req.json();
     const productIds = Array.isArray(body.product_ids) ? body.product_ids.filter(Boolean) : [];
@@ -545,27 +543,22 @@ Deno.serve(async (req) => {
     });
     const userPrompt = buildUserPrompt({ products, brand });
 
-    // Call AI — Gemini first, auto-fallback to OpenAI on failure
-    let aiResult = await callLovableAI({
-      apiKey: GEMINI_API_KEY,
-      model: DEFAULT_MODEL,
-      systemPrompt,
-      userPrompt,
-    });
-    let usedModel = DEFAULT_MODEL;
+    // Call AI — OpenAI first, auto-fallback to Gemini on failure
+    const OPENAI_API_KEY = await loadOpenAIKey(supabaseAdmin);
+    let aiResult = OPENAI_API_KEY
+      ? await callOpenAIFallback({ apiKey: OPENAI_API_KEY, systemPrompt, userPrompt })
+      : { ok: false as const, status: 500, duration_ms: 0, error: "OPENAI_API_KEY কনফিগার করা নেই।" };
+    let usedModel = "gpt-4o-mini";
 
     if (!aiResult.ok) {
-      console.error("Gemini landing generation failed, falling back to OpenAI:", aiResult.error);
-      const OPENAI_API_KEY = await loadOpenAIKey(supabaseAdmin);
-      if (OPENAI_API_KEY) {
-        const geminiError = aiResult.error;
-        const openaiResult = await callOpenAIFallback({ apiKey: OPENAI_API_KEY, systemPrompt, userPrompt });
-        if (openaiResult.ok) {
-          aiResult = openaiResult;
-          usedModel = "gpt-4o-mini";
-        } else {
-          aiResult = { ...openaiResult, error: `${geminiError} | OpenAI fallback: ${openaiResult.error}` };
-        }
+      console.error("OpenAI landing generation failed, falling back to Gemini:", aiResult.error);
+      const openaiError = aiResult.error;
+      const geminiResult = await callLovableAI({ apiKey: GEMINI_API_KEY, model: DEFAULT_MODEL, systemPrompt, userPrompt });
+      if (geminiResult.ok) {
+        aiResult = geminiResult;
+        usedModel = DEFAULT_MODEL;
+      } else {
+        aiResult = { ...geminiResult, error: `${openaiError} | Gemini fallback: ${geminiResult.error}` };
       }
     }
 

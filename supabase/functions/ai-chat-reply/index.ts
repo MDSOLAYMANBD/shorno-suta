@@ -418,41 +418,36 @@ Deno.serve(async (req) => {
       { role: "user", content: visitor_message },
     ];
 
-    const GEMINI_API_KEY = await loadGeminiKey(supabase);
+    const OPENAI_API_KEY = await loadOpenAIKey(supabase);
 
-    // Retry on 503 (model overloaded) with backoff, then fallback to a lighter model.
-    const tryModels = [model, "gemini-2.5-flash", "gemini-2.5-flash-lite"];
+    // Try OpenAI first (primary — Gemini's project is currently access-denied).
     let aiResp: Response | null = null;
-    outer: for (const m of tryModels) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        aiResp = await geminiChatCompletion(GEMINI_API_KEY, { model: m, messages });
-        if (aiResp.ok) break outer;
-        if (aiResp.status === 429 || aiResp.status === 402) break outer;
-        if (aiResp.status === 503) {
-          await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
-          continue;
-        }
-        break; // other errors → try next model
-      }
+    if (OPENAI_API_KEY) {
+      const systemMsg = messages.find((m) => m.role === "system")?.content || "";
+      const nonSystemMsgs = messages.filter((m) => m.role !== "system");
+      const userMessage = nonSystemMsgs.map((m) => `${m.role === "user" ? "Customer" : "Assistant"}: ${m.content}`).join("\n");
+      aiResp = await openaiChatCompletion(OPENAI_API_KEY, {
+        model: "gpt-4o-mini",
+        systemPrompt: systemMsg,
+        userMessage,
+      });
     }
 
-    // Gemini failed for any reason (rate limit, credits, denied, overloaded) — auto-fallback to OpenAI
+    // OpenAI failed or isn't configured — fall back to Gemini (retry on 503, then a lighter model).
     if (!aiResp || !aiResp.ok) {
-      console.error("Gemini chat reply failed, falling back to OpenAI:", aiResp?.status);
-      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
-      if (OPENAI_API_KEY) {
-        const systemMsg = messages.find((m) => m.role === "system")?.content || "";
-        const nonSystemMsgs = messages.filter((m) => m.role !== "system");
-        const userMessage = nonSystemMsgs.map((m) => `${m.role === "user" ? "Customer" : "Assistant"}: ${m.content}`).join("\n");
-        const openaiResp = await openaiChatCompletion(OPENAI_API_KEY, {
-          model: "gpt-4o-mini",
-          systemPrompt: systemMsg,
-          userMessage,
-        });
-        if (openaiResp.ok) {
-          aiResp = openaiResp;
-        } else {
-          console.error("OpenAI chat fallback also failed:", openaiResp.status, await openaiResp.text());
+      console.error("OpenAI chat reply failed, falling back to Gemini:", aiResp?.status);
+      const GEMINI_API_KEY = await loadGeminiKey(supabase);
+      const tryModels = [model, "gemini-2.5-flash", "gemini-2.5-flash-lite"];
+      outer: for (const m of tryModels) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          aiResp = await geminiChatCompletion(GEMINI_API_KEY, { model: m, messages });
+          if (aiResp.ok) break outer;
+          if (aiResp.status === 429 || aiResp.status === 402) break outer;
+          if (aiResp.status === 503) {
+            await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+            continue;
+          }
+          break; // other errors → try next model
         }
       }
     }
