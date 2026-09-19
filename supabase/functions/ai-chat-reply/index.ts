@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadGeminiKey, geminiChatCompletion } from "../_shared/gemini-client.ts";
+import { loadOpenAIKey, openaiChatCompletion } from "../_shared/openai-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -435,13 +436,34 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!aiResp || aiResp.status === 429) {
+    // Gemini failed for any reason (rate limit, credits, denied, overloaded) — auto-fallback to OpenAI
+    if (!aiResp || !aiResp.ok) {
+      console.error("Gemini chat reply failed, falling back to OpenAI:", aiResp?.status);
+      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
+      if (OPENAI_API_KEY) {
+        const systemMsg = messages.find((m) => m.role === "system")?.content || "";
+        const nonSystemMsgs = messages.filter((m) => m.role !== "system");
+        const userMessage = nonSystemMsgs.map((m) => `${m.role === "user" ? "Customer" : "Assistant"}: ${m.content}`).join("\n");
+        const openaiResp = await openaiChatCompletion(OPENAI_API_KEY, {
+          model: "gpt-4o-mini",
+          systemPrompt: systemMsg,
+          userMessage,
+        });
+        if (openaiResp.ok) {
+          aiResp = openaiResp;
+        } else {
+          console.error("OpenAI chat fallback also failed:", openaiResp.status, await openaiResp.text());
+        }
+      }
+    }
+
+    if (!aiResp || (!aiResp.ok && aiResp.status === 429)) {
       return new Response(JSON.stringify({ error: "একটু পরে চেষ্টা করুন (rate limit)" }), {
         status: 429,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (aiResp.status === 402) {
+    if (!aiResp.ok && aiResp.status === 402) {
       return new Response(JSON.stringify({ error: "AI সার্ভিস ক্রেডিট শেষ" }), {
         status: 402,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -455,7 +477,6 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
 
     const aiData = await aiResp.json();
     let replyText: string = aiData.choices?.[0]?.message?.content || "দুঃখিত, এখন উত্তর দিতে পারছি না।";

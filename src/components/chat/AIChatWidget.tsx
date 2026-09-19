@@ -425,6 +425,17 @@ export default function AIChatWidget() {
         else if (String(msg).includes('402')) toast.error('AI ক্রেডিট শেষ — admin-কে জানান');
         else console.error('ai invoke err', error);
         setAiTyping(false);
+        // Never leave the visitor staring at silence — always show something.
+        setMessages((prev) => [...prev, {
+          id: `local-error-${Date.now()}`,
+          session_id: sid,
+          sender_type: 'ai',
+          sender_name: '✨ স্বর্ণ সুতা AI',
+          sender_avatar: null,
+          message: 'দুঃখিত, এই মুহূর্তে উত্তর দিতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন, অথবা নিচের 📞 লাইভ কল / WhatsApp বাটনে যোগাযোগ করুন।',
+          image_url: null,
+          created_at: new Date().toISOString(),
+        }]);
       } else {
         // Realtime is unreliable for anonymous visitor clients (RLS blocks SELECT),
         // so explicitly refetch a few times to pick up the AI reply that the edge
