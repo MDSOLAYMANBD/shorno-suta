@@ -134,7 +134,7 @@ export default function AdminAIKeys() {
         <div>
           <h1 className="text-2xl font-bold">AI API Keys</h1>
             <p className="text-sm text-muted-foreground">
-            Gemini টেক্সট ও ছবি জেনারেশনের API কী এখান থেকে ম্যানেজ করুন।
+            Gemini ও OpenAI — দুটো API কী এখান থেকে ম্যানেজ করুন। Gemini প্রধান, কোনো কারণে ব্যর্থ হলে (রেট লিমিট, ইনভ্যালিড কী ইত্যাদি) স্বয়ংক্রিয়ভাবে OpenAI ব্যবহার হবে।
           </p>
         </div>
       </div>
@@ -231,10 +231,10 @@ export default function AdminAIKeys() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5 text-emerald-600" />
-                OpenAI DALL-E (ঐচ্ছিক / পুরনো)
+                OpenAI (স্বয়ংক্রিয় ফলব্যাক)
               </CardTitle>
               <CardDescription className="mt-1">
-                বর্তমানে ব্যানার Gemini দিয়ে তৈরি হয়; এই key শুধু পুরনো fallback/compatibility এর জন্য রাখা।
+                Gemini ব্যর্থ হলে (SEO, ক্যাপশন, ল্যান্ডিং পেজ, AI ব্যানার — সব ফিচারে) স্বয়ংক্রিয়ভাবে এই কী দিয়ে GPT-4o-mini ও DALL-E 3 ব্যবহার হবে।
               </CardDescription>
             </div>
             <StatusBadge ok={!!openaiKey} />

@@ -6,6 +6,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadGeminiKey, geminiChatCompletion } from "../_shared/gemini-client.ts";
+import { loadOpenAIKey, openaiChatCompletion } from "../_shared/openai-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -372,6 +373,47 @@ async function callLovableAI(opts: {
   return { ok: true as const, status: 200, duration_ms, layout: parsed, tokens_in, tokens_out };
 }
 
+async function callOpenAIFallback(opts: {
+  apiKey: string;
+  systemPrompt: string;
+  userPrompt: string;
+}) {
+  const startedAt = Date.now();
+  const resp = await openaiChatCompletion(opts.apiKey, {
+    model: "gpt-4o-mini",
+    systemPrompt: opts.systemPrompt,
+    userMessage: opts.userPrompt,
+    temperature: 0.7,
+    maxTokens: 8000,
+    jsonMode: true,
+  });
+
+  const duration_ms = Date.now() - startedAt;
+
+  if (resp.status === 429) {
+    return { ok: false as const, status: 429, duration_ms, error: "OpenAI rate-limited. একটু পরে আবার চেষ্টা করুন।" };
+  }
+  if (!resp.ok) {
+    const text = await resp.text();
+    console.error("OpenAI AI error:", resp.status, text.slice(0, 800));
+    return { ok: false as const, status: resp.status, duration_ms, error: `OpenAI error ${resp.status}` };
+  }
+
+  const data = await resp.json();
+  const content: string = data?.choices?.[0]?.message?.content || "";
+
+  let parsed: any;
+  try {
+    const cleaned = content.replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, "").trim();
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    console.error("OpenAI JSON parse fail:", content.slice(0, 500));
+    return { ok: false as const, status: 502, duration_ms, error: "AI invalid JSON response", raw: content };
+  }
+
+  return { ok: true as const, status: 200, duration_ms, layout: parsed, tokens_in: data?.usage?.prompt_tokens || null, tokens_out: data?.usage?.completion_tokens || null };
+}
+
 const FORBIDDEN_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /ফ্রি\s*(ডেলিভারি|শিপিং)|ডেলিভারি\s*ফ্রি|শিপিং\s*ফ্রি|বিনামূল্যে\s*ডেলিভারি|ডেলিভারি\s*একদম\s*ফ্রি|শূন্য\s*ডেলিভারি|ডেলিভারি\s*চার্জ\s*০/iu, label: "free-shipping-bn" },
   { pattern: /\bfree\s*(delivery|shipping)\b|\bzero\s*shipping\b/i, label: "free-shipping-en" },
@@ -503,13 +545,29 @@ Deno.serve(async (req) => {
     });
     const userPrompt = buildUserPrompt({ products, brand });
 
-    // Call AI
-    const aiResult = await callLovableAI({
+    // Call AI — Gemini first, auto-fallback to OpenAI on failure
+    let aiResult = await callLovableAI({
       apiKey: GEMINI_API_KEY,
       model: DEFAULT_MODEL,
       systemPrompt,
       userPrompt,
     });
+    let usedModel = DEFAULT_MODEL;
+
+    if (!aiResult.ok) {
+      console.error("Gemini landing generation failed, falling back to OpenAI:", aiResult.error);
+      const OPENAI_API_KEY = await loadOpenAIKey(supabaseAdmin);
+      if (OPENAI_API_KEY) {
+        const geminiError = aiResult.error;
+        const openaiResult = await callOpenAIFallback({ apiKey: OPENAI_API_KEY, systemPrompt, userPrompt });
+        if (openaiResult.ok) {
+          aiResult = openaiResult;
+          usedModel = "gpt-4o-mini";
+        } else {
+          aiResult = { ...openaiResult, error: `${geminiError} | OpenAI fallback: ${openaiResult.error}` };
+        }
+      }
+    }
 
     if (!aiResult.ok) {
       // Log failure
@@ -520,7 +578,7 @@ Deno.serve(async (req) => {
         style_preset: body.style_preset || null,
         tone: body.tone || null,
         prompt_version: PROMPT_VERSION,
-        model: DEFAULT_MODEL,
+        model: usedModel,
         input_context: { products: productIds, brand, preset_key: body.style_preset, directive: body.directive },
         output_layout: {},
         duration_ms: aiResult.duration_ms,
@@ -539,7 +597,7 @@ Deno.serve(async (req) => {
         style_preset: body.style_preset || null,
         tone: body.tone || null,
         prompt_version: PROMPT_VERSION,
-        model: DEFAULT_MODEL,
+        model: usedModel,
         input_context: { products: productIds, brand, preset_key: body.style_preset },
         output_layout: aiResult.layout,
         tokens_in: aiResult.tokens_in,
@@ -617,7 +675,7 @@ Deno.serve(async (req) => {
         style_preset: body.style_preset || null,
         tone: body.tone || null,
         prompt_version: PROMPT_VERSION,
-        model: DEFAULT_MODEL,
+        model: usedModel,
         input_context: { products: productIds, brand, preset_key: body.style_preset, directive: body.directive },
         output_layout: aiResult.layout,
         tokens_in: aiResult.tokens_in,

@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { openaiChatCompletion, openaiGenerateImage } from "../_shared/openai-client.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -244,6 +245,61 @@ async function generateBannerImage(
   return { error: 'Gemini ছবি তৈরিতে সমস্যা হয়েছে।', status: lastStatus };
 }
 
+// ─────────────────────────────────────────────
+// OpenAI DALL-E banner image generation — automatic fallback when Gemini fails
+// ─────────────────────────────────────────────
+async function generateBannerImageOpenAI(
+  supabaseAdmin: any,
+  prompt: string,
+  size: string,
+  OPENAI_API_KEY: string,
+): Promise<{ url?: string; error?: string; status?: number }> {
+  if (!OPENAI_API_KEY) {
+    return { error: 'OPENAI_API_KEY কনফিগার করা হয়নি।', status: 500 };
+  }
+
+  const validSizes = ['1024x1024', '1792x1024', '1024x1792'];
+  const finalSize = validSizes.includes(size) ? size : '1792x1024';
+  const aspect = finalSize === '1024x1024' ? '1:1 square' : finalSize === '1024x1792' ? '9:16 portrait' : '16:9 landscape';
+  const imagePrompt = `${prompt.slice(0, 3500)}\n\nCreate one finished e-commerce marketing banner image. Aspect ratio: ${aspect}.`;
+
+  try {
+    const res = await openaiGenerateImage(OPENAI_API_KEY, { prompt: imagePrompt, size: finalSize });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('OpenAI image error:', res.status, errText.slice(0, 1000));
+      if (res.status === 401) return { error: 'OPENAI_API_KEY অবৈধ।', status: 401 };
+      if (res.status === 429) return { error: 'OpenAI রেট লিমিট/কোটা শেষ।', status: 429 };
+      let reason = 'OpenAI ছবি তৈরিতে সমস্যা হয়েছে।';
+      try {
+        const j = JSON.parse(errText);
+        if (j?.error?.message) reason = j.error.message;
+      } catch { /* keep default reason */ }
+      return { error: reason, status: res.status };
+    }
+    const data = await res.json();
+    const b64 = data?.data?.[0]?.b64_json;
+    if (!b64) {
+      console.error('OpenAI image empty:', JSON.stringify(data).slice(0, 500));
+      return { error: 'OpenAI থেকে কোনো ছবি পাওয়া যায়নি।', status: 500 };
+    }
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const path = `ai-generated/openai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`;
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from('hero-banners')
+      .upload(path, bytes, { contentType: 'image/png', upsert: false, cacheControl: '31536000' });
+    if (uploadErr) {
+      console.error('Storage upload error:', uploadErr);
+      return { error: 'ছবি স্টোরেজে আপলোড হয়নি।', status: 500 };
+    }
+    const { data: pub } = supabaseAdmin.storage.from('hero-banners').getPublicUrl(path);
+    return { url: pub.publicUrl };
+  } catch (e) {
+    console.error('OpenAI image exception:', e);
+    return { error: 'OpenAI ছবি তৈরিতে সমস্যা হয়েছে।', status: 500 };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -273,84 +329,115 @@ Deno.serve(async (req) => {
     // Load AI keys: DB first, env fallback
     const aiSettings = await loadAISettings(supabaseAdmin);
 
-    // ── Branch: image generation via Gemini ──
+    // ── Branch: image generation — Gemini first, auto-fallback to OpenAI DALL-E ──
     if (type === 'banner_image') {
-      const result = await generateBannerImage(supabaseAdmin, prompt, size, quality, aiSettings.gemini_api_key, model);
+      let result = await generateBannerImage(supabaseAdmin, prompt, size, quality, aiSettings.gemini_api_key, model);
+      let usedProvider = 'gemini';
       if (result.error) {
-        return new Response(JSON.stringify({ error: result.error }), {
+        console.error('Gemini image failed, falling back to OpenAI:', result.error);
+        const openaiResult = await generateBannerImageOpenAI(supabaseAdmin, prompt, size, aiSettings.openai_api_key);
+        if (openaiResult.url) {
+          result = openaiResult;
+          usedProvider = 'openai';
+        } else {
+          return new Response(JSON.stringify({
+            error: `${result.error} (OpenAI fallback: ${openaiResult.error})`,
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+      return new Response(JSON.stringify({ image_url: result.url, type, provider: usedProvider }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── Branch: text — Gemini first, auto-fallback to OpenAI on any failure ──
+    const systemPrompt = SYSTEM_PROMPTS[type] || SYSTEM_PROMPTS.general;
+    const userMessage = context ? `${prompt}\n\nContext: ${context}` : prompt;
+
+    async function tryGemini(): Promise<{ content?: string; errMsg?: string }> {
+      const GEMINI_API_KEY = aiSettings.gemini_api_key;
+      if (!GEMINI_API_KEY) return { errMsg: 'GEMINI_API_KEY কনফিগার করা হয়নি।' };
+      const GEMINI_MODEL = aiSettings.gemini_model || 'gemini-2.5-flash';
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      try {
+        const response = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+            generationConfig: { temperature: 0.8, topP: 0.95, maxOutputTokens: 2048 },
+          }),
+        });
+        if (!response.ok) {
+          const status = response.status;
+          const t = await response.text();
+          console.error('Gemini API error:', status, t);
+          let errMsg = `Gemini সার্ভিসে সমস্যা হয়েছে (${status})`;
+          if (status === 429) errMsg = 'Gemini রেট লিমিট অতিক্রম হয়েছে।';
+          else if (status === 401 || status === 403) {
+            let extra = '';
+            try { const j = JSON.parse(t); if (j?.error?.message) extra = ` (${j.error.message})`; } catch { /* ignore */ }
+            errMsg = `GEMINI_API_KEY অবৈধ বা Google থেকে access denied।${extra}`;
+          } else if (status === 400) {
+            try { const j = JSON.parse(t); if (j?.error?.message) errMsg = j.error.message; } catch { /* ignore */ }
+          }
+          return { errMsg };
+        }
+        const data = await response.json();
+        const content = data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).filter(Boolean).join('') || '';
+        if (!content) return { errMsg: 'Gemini থেকে কোনো কন্টেন্ট পাওয়া যায়নি।' };
+        return { content };
+      } catch (e) {
+        console.error('Gemini fetch exception:', e);
+        return { errMsg: 'Gemini সার্ভিসে পৌঁছানো যায়নি।' };
+      }
+    }
+
+    async function tryOpenAI(): Promise<{ content?: string; errMsg?: string }> {
+      const OPENAI_API_KEY = aiSettings.openai_api_key;
+      if (!OPENAI_API_KEY) return { errMsg: 'OPENAI_API_KEY কনফিগার করা নেই।' };
+      try {
+        const res = await openaiChatCompletion(OPENAI_API_KEY, { systemPrompt, userMessage, model: 'gpt-4o-mini' });
+        if (!res.ok) {
+          const t = await res.text();
+          console.error('OpenAI API error:', res.status, t);
+          let errMsg = `OpenAI সার্ভিসে সমস্যা হয়েছে (${res.status})`;
+          if (res.status === 401) errMsg = 'OPENAI_API_KEY অবৈধ।';
+          else if (res.status === 429) errMsg = 'OpenAI রেট লিমিট/কোটা শেষ।';
+          return { errMsg };
+        }
+        const data = await res.json();
+        const content = data?.choices?.[0]?.message?.content || '';
+        if (!content) return { errMsg: 'OpenAI থেকে কোনো কন্টেন্ট পাওয়া যায়নি।' };
+        return { content };
+      } catch (e) {
+        console.error('OpenAI fetch exception:', e);
+        return { errMsg: 'OpenAI সার্ভিসে পৌঁছানো যায়নি।' };
+      }
+    }
+
+    let genResult = await tryGemini();
+    let usedProvider = 'gemini';
+    if (!genResult.content) {
+      console.error('Gemini failed, falling back to OpenAI:', genResult.errMsg);
+      const openaiResult = await tryOpenAI();
+      if (openaiResult.content) {
+        genResult = openaiResult;
+        usedProvider = 'openai';
+      } else {
+        const combined = `${genResult.errMsg} | OpenAI fallback: ${openaiResult.errMsg} — অ্যাডমিন প্যানেলে (AI Keys) কী চেক করুন।`;
+        return new Response(JSON.stringify({ error: combined }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      return new Response(JSON.stringify({ image_url: result.url, type }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     }
 
-    // ── Branch: text via Google Gemini API (direct) ──
-    const GEMINI_API_KEY = aiSettings.gemini_api_key;
-    if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: 'GEMINI_API_KEY কনফিগার করা হয়নি। অ্যাডমিন প্যানেলে (AI Keys) কী যোগ করুন।' }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const systemPrompt = SYSTEM_PROMPTS[type] || SYSTEM_PROMPTS.general;
-    const userMessage = context ? `${prompt}\n\nContext: ${context}` : prompt;
-
-    // Gemini model: from settings (fallback gemini-2.5-flash)
-    const GEMINI_MODEL = aiSettings.gemini_model || 'gemini-2.5-flash';
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: {
-          temperature: 0.8,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const status = response.status;
-      const t = await response.text();
-      console.error('Gemini API error:', status, t);
-      let errMsg = 'Gemini সার্ভিসে সমস্যা হয়েছে';
-      if (status === 429) {
-        errMsg = 'Gemini রেট লিমিট অতিক্রম হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
-      } else if (status === 401 || status === 403) {
-        let extra = '';
-        try { const j = JSON.parse(t); if (j?.error?.message) extra = ` (${j.error.message})`; } catch {}
-        errMsg = `GEMINI_API_KEY অবৈধ বা Google থেকে access denied।${extra} অ্যাডমিন প্যানেলে (AI Keys) নতুন কী যোগ করুন।`;
-      } else if (status === 400) {
-        try { const j = JSON.parse(t); if (j?.error?.message) errMsg = j.error.message; } catch {}
-      }
-      return new Response(JSON.stringify({ error: errMsg }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const data = await response.json();
-    // Gemini returns: candidates[0].content.parts[0].text
-    const content =
-      data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).filter(Boolean).join('') || '';
-
-    if (!content) {
-      console.error('Gemini empty response:', JSON.stringify(data).slice(0, 500));
-      return new Response(JSON.stringify({ error: 'Gemini থেকে কোনো কন্টেন্ট পাওয়া যায়নি। প্রম্পট পরিবর্তন করে দেখুন।' }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ content, type }), {
+    return new Response(JSON.stringify({ content: genResult.content, type, provider: usedProvider }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {

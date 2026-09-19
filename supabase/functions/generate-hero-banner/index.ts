@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadGeminiKey, geminiChatCompletion } from "../_shared/gemini-client.ts";
+import { loadOpenAIKey, openaiChatCompletion, openaiGenerateImage } from "../_shared/openai-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -128,20 +129,27 @@ serve(async (req) => {
 - ইমোশনাল ও পারচেজ-ড্রাইভিং টোন
 - শুধুমাত্র ট্যাগলাইনটি লেখো, অন্য কিছু না`;
 
+    let tagline = "";
     const taglineRes = await geminiChatCompletion(GEMINI_API_KEY, {
       model: "gemini-2.5-flash",
       messages: [{ role: "user", content: taglinePrompt }],
     });
 
-    if (!taglineRes.ok) {
-      const status = taglineRes.status;
-      if (status === 429) throw new Error("Rate limited, please try again later");
-      if (status === 402) throw new Error("AI credits exhausted");
-      throw new Error(`Tagline generation failed: ${status}`);
+    if (taglineRes.ok) {
+      const taglineData = await taglineRes.json();
+      tagline = taglineData.choices?.[0]?.message?.content?.trim() || "";
+    } else {
+      console.error("Gemini tagline failed, falling back to OpenAI:", taglineRes.status);
+      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
+      if (!OPENAI_API_KEY) throw new Error(`Tagline generation failed: ${taglineRes.status} (OpenAI fallback not configured)`);
+      const openaiTaglineRes = await openaiChatCompletion(OPENAI_API_KEY, {
+        userMessage: taglinePrompt,
+        model: "gpt-4o-mini",
+      });
+      if (!openaiTaglineRes.ok) throw new Error(`Tagline generation failed on both Gemini (${taglineRes.status}) and OpenAI (${openaiTaglineRes.status})`);
+      const openaiTaglineData = await openaiTaglineRes.json();
+      tagline = openaiTaglineData.choices?.[0]?.message?.content?.trim() || "";
     }
-
-    const taglineData = await taglineRes.json();
-    const tagline = taglineData.choices?.[0]?.message?.content?.trim() || "";
 
     // ===== Step 2: Generate banner image =====
     const imagePrompt = custom_prompt
@@ -229,47 +237,66 @@ RULES:
       lastImgStatus = imageRes.status;
       if (imageRes.status === 401 || imageRes.status === 403 || imageRes.status === 429) break;
     }
-    if (!imageRes || !imageRes.ok) {
-      if (lastImgStatus === 429) throw new Error("Gemini রেট লিমিট/কোটা শেষ। কিছুক্ষণ পর চেষ্টা করুন");
-      if (lastImgStatus === 401 || lastImgStatus === 403) throw new Error("GEMINI_API_KEY অবৈধ বা image generation permission নেই");
-      throw new Error(`Image generation failed: ${lastImgStatus}`);
-    }
+    let imageBytes: Uint8Array | undefined;
 
-    const imageText = await imageRes.text();
-    if (!imageText || imageText.trim() === "") throw new Error("Image generation returned empty response");
+    if (imageRes && imageRes.ok) {
+      const imageText = await imageRes.text();
+      if (!imageText || imageText.trim() === "") throw new Error("Image generation returned empty response");
 
-    let imageData: any;
-    try {
-      imageData = JSON.parse(imageText);
-    } catch {
-      throw new Error("Image generation returned invalid JSON");
-    }
+      let imageData: any;
+      try {
+        imageData = JSON.parse(imageText);
+      } catch {
+        throw new Error("Image generation returned invalid JSON");
+      }
 
-    const message = imageData.choices?.[0]?.message;
-    let base64Url: string | undefined;
+      const message = imageData.choices?.[0]?.message;
+      let base64Url: string | undefined;
 
-    if (message?.images?.length > 0) {
-      base64Url = message.images[0]?.image_url?.url;
-    }
-    if (!base64Url && Array.isArray(message?.content)) {
-      const imgPart = message.content.find((p: any) => p.type === "image_url" || p.type === "image");
-      if (imgPart) base64Url = imgPart.image_url?.url || imgPart.url;
-    }
-    if (!base64Url && message?.parts) {
-      const imgPart = message.parts.find((p: any) => p.inline_data);
-      if (imgPart?.inline_data) {
-        base64Url = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
+      if (message?.images?.length > 0) {
+        base64Url = message.images[0]?.image_url?.url;
+      }
+      if (!base64Url && Array.isArray(message?.content)) {
+        const imgPart = message.content.find((p: any) => p.type === "image_url" || p.type === "image");
+        if (imgPart) base64Url = imgPart.image_url?.url || imgPart.url;
+      }
+      if (!base64Url && message?.parts) {
+        const imgPart = message.parts.find((p: any) => p.inline_data);
+        if (imgPart?.inline_data) {
+          base64Url = `data:${imgPart.inline_data.mime_type};base64,${imgPart.inline_data.data}`;
+        }
+      }
+
+      if (base64Url) {
+        const base64Data = base64Url.replace(/^data:image\/\w+;base64,/, "");
+        imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+      } else {
+        console.error("Full image response:", JSON.stringify(imageData).substring(0, 2000));
       }
     }
 
-    if (!base64Url) {
-      console.error("Full image response:", JSON.stringify(imageData).substring(0, 2000));
-      throw new Error("No image in AI response");
+    // Gemini image generation failed (all models) or returned no image — fall back to OpenAI DALL-E
+    if (!imageBytes) {
+      console.error("Gemini image generation failed, falling back to OpenAI DALL-E. Last status:", lastImgStatus);
+      const OPENAI_API_KEY = await loadOpenAIKey(supabase);
+      if (!OPENAI_API_KEY) {
+        if (lastImgStatus === 429) throw new Error("Gemini রেট লিমিট/কোটা শেষ। OpenAI fallback কনফিগার করা নেই।");
+        if (lastImgStatus === 401 || lastImgStatus === 403) throw new Error("GEMINI_API_KEY অবৈধ বা image generation permission নেই। OpenAI fallback কনফিগার করা নেই।");
+        throw new Error("Image generation failed on Gemini and no OpenAI fallback is configured.");
+      }
+      const openaiImageRes = await openaiGenerateImage(OPENAI_API_KEY, { prompt: imagePrompt, size: "1792x1024" });
+      if (!openaiImageRes.ok) {
+        const errText = await openaiImageRes.text();
+        console.error("OpenAI image fallback failed:", openaiImageRes.status, errText.slice(0, 1000));
+        throw new Error(`Image generation failed on both Gemini (${lastImgStatus}) and OpenAI (${openaiImageRes.status})`);
+      }
+      const openaiImageData = await openaiImageRes.json();
+      const b64 = openaiImageData?.data?.[0]?.b64_json;
+      if (!b64) throw new Error("OpenAI fallback returned no image");
+      imageBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
     }
 
     // Upload to storage
-    const base64Data = base64Url.replace(/^data:image\/\w+;base64,/, "");
-    const imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
     const fileName = `hero-banner-${Date.now()}.png`;
 
     const { error: uploadErr } = await supabase.storage
