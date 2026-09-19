@@ -804,11 +804,11 @@ export default function ProductDetail() {
             {product.id && (() => {
               const v = viewsMap?.get(product.id) || 0;
               const s = salesMap?.get(product.id) || 0;
-              if (v < 50 && s < 1) return null;
+              if (v < 1 && s < 1) return null;
               const fmt = (n: number) => n < 1000 ? String(n) : n < 10000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + 'k' : n < 1_000_000 ? Math.floor(n/1000) + 'k' : (n/1_000_000).toFixed(1).replace(/\.0$/,'') + 'M';
               return (
                 <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
-                  {v >= 50 && (
+                  {v >= 1 && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[11px] text-muted-foreground">
                       <Eye className="h-3 w-3" />
                       <span className="font-semibold text-foreground">{fmt(v)}</span>
