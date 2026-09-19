@@ -171,7 +171,7 @@ const ProductCard = memo(function ProductCard({ slug, name, name_bn, price, orig
             )}
             {isNew && (
               <span
-                className={`absolute right-2 ${(isTopRated || isTrending) ? 'bottom-9' : 'bottom-2'} flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md ring-1 ring-white/40 backdrop-blur-sm z-[2]`}
+                className={`absolute right-2 ${(isTopRated || isTrending) ? 'bottom-9' : 'bottom-2'} flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-white/40 backdrop-blur-sm z-[2]`}
                 title="নতুন এসেছে — গত ৩০ দিনে আপলোড"
               >
                 <Sparkles className="h-2.5 w-2.5 fill-current" />

@@ -747,7 +747,7 @@ export default function ProductDetail() {
               {/* New product badge — within 30 days of upload */}
               {(product as any)?.created_at && (Date.now() - new Date((product as any).created_at).getTime()) < 30 * 24 * 60 * 60 * 1000 && (
                 <span
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md ring-1 ring-white/40"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-white/40"
                   title="নতুন এসেছে — গত ৩০ দিনে আপলোড"
                 >
                   <Sparkles className="h-3 w-3 fill-current" />

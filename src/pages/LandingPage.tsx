@@ -145,7 +145,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="h-[92px] sm:h-[102px]" />
-        <section className="px-4 py-10 sm:py-16 text-center" style={{ background: 'linear-gradient(180deg,#F1F8F4 0%,#FFFFFF 100%)' }}>
+        <section className="px-4 py-10 sm:py-16 text-center" style={{ background: 'linear-gradient(180deg, hsl(var(--primary) / 0.06) 0%, hsl(var(--background)) 100%)' }}>
           <div className="max-w-3xl mx-auto space-y-3">
             <div className="h-8 sm:h-12 w-3/4 mx-auto bg-muted rounded animate-pulse" />
             <div className="h-4 sm:h-5 w-1/2 mx-auto bg-muted/70 rounded animate-pulse" />
@@ -325,7 +325,7 @@ export default function LandingPage() {
             <button
               onClick={() => document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-3 rounded-full text-white font-bold text-lg"
-              style={{ backgroundColor: '#8C6A1A' }}
+              style={{ backgroundColor: 'hsl(var(--primary))' }}
             >
               {content?.text || 'এখনই অর্ডার করুন'}
             </button>

@@ -9,7 +9,7 @@ interface Props {
 export default function LandingHero({ title, subtitle, imageUrl }: Props) {
   if (!title && !subtitle && !imageUrl) return null;
   return (
-    <section className="relative py-10 sm:py-16 px-4 text-center" style={{ background: 'linear-gradient(180deg, #F1F8F4 0%, #FFFFFF 100%)' }}>
+    <section className="relative py-10 sm:py-16 px-4 text-center" style={{ background: 'linear-gradient(180deg, hsl(var(--primary) / 0.06) 0%, hsl(var(--background)) 100%)' }}>
       <div className="max-w-3xl mx-auto">
         {title && (
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 leading-tight" style={{ color: '#1a1a1a' }}>

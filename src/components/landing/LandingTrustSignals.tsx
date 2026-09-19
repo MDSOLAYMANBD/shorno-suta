@@ -25,7 +25,7 @@ export default function LandingTrustSignals({ enabled = true, heading, items }: 
   const displayItems = items && items.length > 0 ? items : DEFAULT_ITEMS;
 
   return (
-    <section className="py-8 sm:py-12 px-4" style={{ backgroundColor: '#F1F8F4' }}>
+    <section className="py-8 sm:py-12 px-4" style={{ backgroundColor: 'hsl(var(--primary) / 0.05)' }}>
       <div className="max-w-3xl mx-auto">
         <h2 className="text-xl sm:text-2xl font-bold text-center mb-6">{heading || 'ডেলিভারি ও রিটার্ন পলিসি'}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -33,8 +33,8 @@ export default function LandingTrustSignals({ enabled = true, heading, items }: 
             const Icon = ICON_MAP[s.icon || ''] || Truck;
             return (
               <div key={i} className="bg-white rounded-xl p-4 flex gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8C6A1A15' }}>
-                  <Icon className="h-5 w-5" style={{ color: '#8C6A1A' }} />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--primary) / 0.08)' }}>
+                  <Icon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm mb-0.5">{s.title}</h3>

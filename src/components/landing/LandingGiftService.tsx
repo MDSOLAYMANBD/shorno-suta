@@ -49,7 +49,7 @@ export default function LandingGiftService({
         <div className="relative rounded-2xl border-2 border-dashed overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50" style={{ borderColor: ac + '40' }}>
           {/* FREE Badge */}
           <div className="absolute top-3 right-3 z-10">
-            <Badge className="bg-green-500 text-white text-xs font-bold px-3 py-1 shadow-lg hover:bg-green-500">
+            <Badge className="text-white text-xs font-bold px-3 py-1 shadow-lg" style={{ backgroundColor: ac }}>
               ✨ FREE
             </Badge>
           </div>
