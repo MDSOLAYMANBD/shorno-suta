@@ -223,6 +223,13 @@ export const DEFAULT_WELCOME_ISLAND_CONFIG = {
   ] as string[],
 };
 
+// Admin-only "Dynamic Island" nudge widget (src/components/admin/DynamicIsland.tsx)
+// — a floating pill that pops up periodically with time-of-day/prayer/birthday
+// messages for the logged-in staff member. Nothing customer-facing here.
+export const DEFAULT_DYNAMIC_ISLAND_CONFIG = {
+  enabled: true,
+};
+
 /**
  * Derives a parsed JSON config for a specific key from the master settings cache.
  * No extra network call — reads from useAllSettings().

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { Sparkles, X } from 'lucide-react';
+import { useSiteConfig, DEFAULT_DYNAMIC_ISLAND_CONFIG } from '@/hooks/useSiteConfig';
 
 const INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 const DISPLAY_DURATION = 30_000; // 30 seconds
@@ -131,6 +132,9 @@ interface DynamicIslandProps {
 }
 
 export default function DynamicIsland({ userId }: DynamicIslandProps) {
+  const { data: islandConfig } = useSiteConfig('dynamic_island_config');
+  const enabled = islandConfig?.enabled ?? DEFAULT_DYNAMIC_ISLAND_CONFIG.enabled;
+
   const [visible, setVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [msgIndex, setMsgIndex] = useState(0);
@@ -227,7 +231,7 @@ export default function DynamicIsland({ userId }: DynamicIslandProps) {
 
   // Interval check: show every 30 minutes
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || !enabled) return;
 
     const checkAndShow = () => {
       const lastShown = parseInt(localStorage.getItem('dynamic_island_last_shown') || '0');
@@ -247,7 +251,7 @@ export default function DynamicIsland({ userId }: DynamicIslandProps) {
       clearTimeout(initTimeout);
       clearInterval(interval);
     };
-  }, [profile, showIsland]);
+  }, [profile, enabled, showIsland]);
 
   // Auto-hide after 30 seconds
   useEffect(() => {
@@ -256,7 +260,7 @@ export default function DynamicIsland({ userId }: DynamicIslandProps) {
     return () => clearTimeout(timer);
   }, [visible, isExiting, msgIndex, hideIsland]);
 
-  if (!visible || messageQueue.length === 0) return null;
+  if (!enabled || !visible || messageQueue.length === 0) return null;
 
   const currentMsg = messageQueue[msgIndex % messageQueue.length];
 
