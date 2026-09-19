@@ -213,7 +213,7 @@ export default function AdminSmartInbox() {
       if (sendSms && selectedConv.customer_phone) {
         try {
           const { data: smsResult, error: smsError } = await supabase.functions.invoke('send-sms', {
-            body: { phone: selectedConv.customer_phone, message: text },
+            body: { phone: selectedConv.customer_phone, message: text, purpose: 'admin_manual' },
           });
           if (smsError) {
             toast.error('SMS পাঠাতে সমস্যা: ' + smsError.message);

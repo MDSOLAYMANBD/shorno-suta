@@ -12,15 +12,6 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  return new Response(JSON.stringify({
-    success: false,
-    disabled: true,
-    error: "SMS provider testing is disabled. Only order confirmation SMS is allowed.",
-  }), {
-    status: 200,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {

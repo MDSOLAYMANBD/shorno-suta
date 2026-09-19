@@ -71,14 +71,14 @@ Deno.serve(async (req) => {
     }
 
     // Emergency spend guard: this generic endpoint is used by campaigns,
-    // inbox/manual sends, and any direct caller. The business rule stays —
-    // only order confirmation SMS (via send-order-notification's own
-    // sendSms() export, which doesn't call this HTTP endpoint at all) is
-    // exempt from this. The one deliberate addition: party/loan ledger SMS
-    // (payment-received notices, work-summary sends from a person's
-    // accounting profile) — a narrow, separately content-gated purpose, not
-    // a general reopening of direct sends.
-    if (purpose !== "party_ledger") {
+    // inbox/manual sends, and any direct caller. Bulk campaign sends
+    // (AdminSmsCampaign, SmsAudienceEngineTab, SmsCampaignHistoryTab) pass no
+    // purpose and stay blocked here. Single admin-triggered sends that are
+    // already gated by has_any_role above — the manual "send SMS to
+    // customer" dialog and inbox replies (purpose: "admin_manual"), plus
+    // party/loan ledger SMS (purpose: "party_ledger") — are allowed through.
+    const ALLOWED_PURPOSES = new Set(["party_ledger", "admin_manual"]);
+    if (!ALLOWED_PURPOSES.has(purpose)) {
       return new Response(JSON.stringify({
         success: false,
         disabled: true,

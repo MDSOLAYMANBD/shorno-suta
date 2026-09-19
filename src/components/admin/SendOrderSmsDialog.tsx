@@ -76,7 +76,7 @@ export default function SendOrderSmsDialog({ open, onOpenChange, order }: Props)
     let providerResp: any = null;
     try {
       const { data, error } = await supabase.functions.invoke('send-sms', {
-        body: { phone: normalizedPhone, message: finalMessage },
+        body: { phone: normalizedPhone, message: finalMessage, purpose: 'admin_manual' },
       });
       if (error) throw error;
       success = !!data?.success;
