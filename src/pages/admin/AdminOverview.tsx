@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { SmartRangeCalendar } from '@/components/ui/smart-range-calendar';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
+import { getColorPrimaryImage } from '@/lib/productVariants';
 
 const BLUE = { gradient: 'from-blue-500/10 to-blue-600/5', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600' };
 const GREEN = { gradient: 'from-green-500/10 to-green-600/5', iconBg: 'bg-green-500/15', iconColor: 'text-green-600' };
@@ -25,6 +26,27 @@ const AMBER = { gradient: 'from-amber-500/10 to-amber-600/5', iconBg: 'bg-amber-
 // অর্ডার/বিক্রিত আইটেম/মোট বিক্রি → blue, সফল/কনফার্মড → green, ক্যান্সেল → red, অসম্পূর্ণ → amber
 // Row 1: blue, blue, blue, green | Row 2: green, green, red, green
 const CARD_STYLES = [BLUE, BLUE, BLUE, GREEN, GREEN, GREEN, RED, GREEN];
+
+// Single source of truth for order_origin → source-card key, shared by the
+// "অর্ডার সোর্স" summary counts and the per-source product popup so a card's
+// count and its popup contents always agree.
+function deriveOrderSource(orderOrigin: string | null | undefined): string {
+  const origin = (orderOrigin || 'website').toLowerCase();
+  const parts = origin.split('+');
+  return origin === 'manual+facebook' ? 'messenger' : (parts.length > 1 ? parts[parts.length - 1] : origin);
+}
+
+const ORDER_SOURCES = [
+  { key: 'facebook', label: 'Facebook', icon: Facebook, color: '#1877F2' },
+  { key: 'messenger', label: 'Messenger', icon: MessageSquare, color: '#0084FF' },
+  { key: 'google', label: 'Google', icon: Search, color: '#4285F4' },
+  { key: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: '#25D366' },
+  { key: 'instagram', label: 'Instagram', icon: Instagram, color: '#E4405F' },
+  { key: 'tiktok', label: 'TikTok', icon: Video, color: '#000000' },
+  { key: 'imo', label: 'IMO', icon: MessageCircle, color: '#0078FF' },
+  { key: 'website', label: 'Website', icon: Globe, color: 'hsl(var(--primary))' },
+  { key: 'manual', label: 'ম্যানুয়াল', icon: Phone, color: '#F59E0B' },
+];
 
 export default function AdminOverview() {
   const today = new Date();
@@ -41,6 +63,8 @@ export default function AdminOverview() {
   const [showAllTimeSales, setShowAllTimeSales] = useState(false);
   const [showTopProductsAll, setShowTopProductsAll] = useState(false);
   const [topProductsStatusFilter, setTopProductsStatusFilter] = useState<'all' | 'active' | 'cancelled'>('active');
+  // "অর্ডার সোর্স" card click — which source's item-list popup is open, if any.
+  const [sourceDialogKey, setSourceDialogKey] = useState<string | null>(null);
   // Live clock
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit', hour12: true })
@@ -94,9 +118,7 @@ export default function AdminOverview() {
       // Build source stats with confirmed/cancelled breakdown
       const sourceStats: Record<string, { total: number; confirmed: number; cancelled: number }> = {};
       for (const o of ordersList) {
-        const origin = (o.order_origin || 'website').toLowerCase();
-        const parts = origin.split('+');
-        const src = origin === 'manual+facebook' ? 'messenger' : (parts.length > 1 ? parts[parts.length - 1] : origin);
+        const src = deriveOrderSource(o.order_origin);
         if (!sourceStats[src]) sourceStats[src] = { total: 0, confirmed: 0, cancelled: 0 };
         sourceStats[src].total++;
         if (confirmedStatuses.includes(o.status)) sourceStats[src].confirmed++;
@@ -116,6 +138,52 @@ export default function AdminOverview() {
         conversionRate,
         sourceStats,
       };
+    },
+  });
+
+  // Item list for the "অর্ডার সোর্স" card popup — same date range as the
+  // source cards above, filtered to just the clicked source's orders.
+  const { data: sourceProducts = [], isLoading: sourceProductsLoading } = useQuery({
+    queryKey: ['admin-source-products', sourceDialogKey, perfStart.toISOString(), perfEndOfDay.toISOString()],
+    enabled: !!sourceDialogKey,
+    queryFn: async () => {
+      const ordersList = await fetchAllRows(() =>
+        supabase.from('orders').select('id, order_origin').gte('created_at', perfStart.toISOString()).lte('created_at', perfEndOfDay.toISOString())
+      );
+      const matchingOrderIds = ordersList.filter((o: any) => deriveOrderSource(o.order_origin) === sourceDialogKey).map((o: any) => o.id);
+      if (matchingOrderIds.length === 0) return [];
+
+      const items = await fetchAllByIds('order_items', 'product_name, product_id, color, quantity, price, order_id, item_type', 'order_id', matchingOrderIds);
+      if (!items || items.length === 0) return [];
+
+      const map = new Map<string, { name: string; productId: string | null; color: string | null; sold: number; revenue: number }>();
+      for (const item of items) {
+        if ((item.item_type || 'normal') !== 'normal') continue; // just the real products, not addon/bump noise
+        const key = `${item.product_id || item.product_name}::${item.color || ''}`;
+        const existing = map.get(key) || { name: item.product_name, productId: item.product_id, color: item.color || null, sold: 0, revenue: 0 };
+        existing.sold += item.quantity;
+        existing.revenue += item.price * item.quantity;
+        map.set(key, existing);
+      }
+
+      const productIds = [...new Set(items.map((i: any) => i.product_id).filter(Boolean))] as string[];
+      const { data: products } = productIds.length > 0
+        ? await supabase.from('products').select('id, images, variant_images').in('id', productIds)
+        : { data: [] as { id: string; images: string[] | null; variant_images: any }[] };
+      const imgMap = new Map((products || []).map(p => [p.id, p.images?.[0] || null]));
+      const variantImgMap = new Map((products || []).map(p => [p.id, (p as any).variant_images]));
+
+      return Array.from(map.values())
+        .sort((a, b) => b.sold - a.sold)
+        .map(p => {
+          const colorImg = p.color ? getColorPrimaryImage(variantImgMap.get(p.productId || '')?.color_images, p.color) : null;
+          return {
+            name: p.color ? `${p.name} (${p.color})` : p.name,
+            sold: p.sold,
+            revenue: p.revenue,
+            image: colorImg || imgMap.get(p.productId || '') || null,
+          };
+        });
     },
   });
 
@@ -596,17 +664,7 @@ export default function AdminOverview() {
         </CardHeader>
         <CardContent className="px-3 pb-3 pt-1">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-            {[
-              { key: 'facebook', label: 'Facebook', icon: Facebook, color: '#1877F2' },
-              { key: 'messenger', label: 'Messenger', icon: MessageSquare, color: '#0084FF' },
-              { key: 'google', label: 'Google', icon: Search, color: '#4285F4' },
-              { key: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: '#25D366' },
-              { key: 'instagram', label: 'Instagram', icon: Instagram, color: '#E4405F' },
-              { key: 'tiktok', label: 'TikTok', icon: Video, color: '#000000' },
-              { key: 'imo', label: 'IMO', icon: MessageCircle, color: '#0078FF' },
-              { key: 'website', label: 'Website', icon: Globe, color: 'hsl(var(--primary))' },
-              { key: 'manual', label: 'ম্যানুয়াল', icon: Phone, color: '#F59E0B' },
-            ].filter(s => {
+            {ORDER_SOURCES.filter(s => {
               const st = stats?.sourceStats?.[s.key] || { total: 0 };
               return st.total > 0;
             }).map(s => {
@@ -614,10 +672,11 @@ export default function AdminOverview() {
               const total = stats?.todayOrders || 0;
               const pct = total > 0 ? ((st.total / total) * 100).toFixed(1) : '0';
               return (
-                <Link
+                <button
                   key={s.key}
-                  to={`/admin/orders?origin=${s.key}`}
-                  className="flex items-center gap-2 rounded-lg border bg-background px-2.5 py-2 hover:bg-muted/50 hover:border-primary/40 transition-colors cursor-pointer"
+                  type="button"
+                  onClick={() => setSourceDialogKey(s.key)}
+                  className="flex items-center gap-2 rounded-lg border bg-background px-2.5 py-2 hover:bg-muted/50 hover:border-primary/40 transition-colors cursor-pointer text-left"
                 >
                   <div className="h-8 w-8 rounded-md flex items-center justify-center shrink-0 bg-muted/40">
                     <s.icon className="h-5 w-5" style={{ color: s.color }} />
@@ -633,12 +692,53 @@ export default function AdminOverview() {
                       <span className="flex items-center gap-0.5"><span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />{st.cancelled}</span>
                     </div>
                   </div>
-                </Link>
+                </button>
               );
             })}
           </div>
         </CardContent>
       </Card>
+
+      {/* অর্ডার সোর্স কার্ড ক্লিক — সেই সোর্সের আজকের আইটেম লিস্ট */}
+      <Dialog open={!!sourceDialogKey} onOpenChange={(o) => { if (!o) setSourceDialogKey(null); }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>
+              {ORDER_SOURCES.find(s => s.key === sourceDialogKey)?.label || sourceDialogKey} থেকে অর্ডার হওয়া প্রোডাক্ট
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh]">
+            {sourceProductsLoading ? (
+              <p className="text-sm text-muted-foreground text-center py-8">লোড হচ্ছে...</p>
+            ) : sourceProducts.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">এই সোর্স থেকে কোনো প্রোডাক্ট অর্ডার হয়নি</p>
+            ) : (
+              <div className="space-y-1">
+                {sourceProducts.map((p, i) => (
+                  <div key={p.name}>
+                    <div className="flex items-center gap-3 py-2.5">
+                      <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}.</span>
+                      <div className="h-9 w-9 rounded-md overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
+                        {p.image ? (
+                          <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{p.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{p.sold} বিক্রি · ৳{p.revenue.toLocaleString('bn-BD')}</p>
+                      </div>
+                      <span className="text-sm font-semibold flex-shrink-0 whitespace-nowrap">{p.sold}</span>
+                    </div>
+                    {i < sourceProducts.length - 1 && <Separator />}
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
 
       {/* সেরা প্রোডাক্ট */}
       <Card>
