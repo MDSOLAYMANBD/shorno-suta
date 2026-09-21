@@ -88,7 +88,7 @@ export default function CourierTrackingDialog({
       fetchTrackingEvents();
       fetchEntryDate();
       setLiveStatus(courierStatus || '');
-      if (consignmentId) {
+      if (consignmentId && courierProvider !== 'manual') {
         refreshStatus();
       }
     }
@@ -126,7 +126,7 @@ export default function CourierTrackingDialog({
   };
 
   const refreshStatus = async () => {
-    if (!consignmentId) return;
+    if (!consignmentId || courierProvider === 'manual') return;
     setStatusLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -244,7 +244,7 @@ export default function CourierTrackingDialog({
               <Badge variant="outline" className={`text-xs ${statusClass}`}>
                 {statusLabel}
               </Badge>
-              {consignmentId && (
+              {consignmentId && courierProvider !== 'manual' && (
                 <Button size="icon" variant="ghost" className="h-6 w-6" onClick={refreshStatus} disabled={statusLoading}>
                   <RefreshCw className={`h-3 w-3 ${statusLoading ? 'animate-spin' : ''}`} />
                 </Button>

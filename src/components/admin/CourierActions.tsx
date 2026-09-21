@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Truck, MapPin } from 'lucide-react';
 import CourierTrackingDialog from './CourierTrackingDialog';
+import ManualCourierEntryDialog from './ManualCourierEntryDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +14,13 @@ import {
 
 const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
 
-type CourierProvider = 'steadfast' | 'pathao' | 'redx';
+type CourierProvider = 'steadfast' | 'pathao' | 'redx' | 'manual';
 
 const PROVIDER_CONFIG: Record<CourierProvider, { label: string; color: string; functionName: string }> = {
   steadfast: { label: 'Steadfast', color: 'bg-blue-100 text-blue-700', functionName: 'steadfast-courier' },
   pathao: { label: 'Pathao', color: 'bg-green-100 text-green-700', functionName: 'pathao-courier' },
   redx: { label: 'RedX', color: 'bg-red-100 text-red-700', functionName: 'redx-courier' },
+  manual: { label: 'ম্যানুয়াল', color: 'bg-gray-100 text-gray-700', functionName: '' },
 };
 
 interface CourierActionsProps {
@@ -27,15 +29,18 @@ interface CourierActionsProps {
   consignmentId?: string | null;
   courierStatus?: string | null;
   courierProvider?: string | null;
+  courierManualName?: string | null;
   onUpdate: () => void;
 }
 
-export default function CourierActions({ orderId, orderNumber, consignmentId, courierStatus, courierProvider, onUpdate }: CourierActionsProps) {
+export default function CourierActions({ orderId, orderNumber, consignmentId, courierStatus, courierProvider, courierManualName, onUpdate }: CourierActionsProps) {
   const [loading, setLoading] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
 
   const resolvedProvider: CourierProvider = (courierProvider as CourierProvider) || 'steadfast';
   const providerInfo = PROVIDER_CONFIG[resolvedProvider] || PROVIDER_CONFIG.steadfast;
+  const providerLabel = resolvedProvider === 'manual' && courierManualName ? courierManualName : providerInfo.label;
 
   const callCourier = async (provider: CourierProvider, action: string, body: any) => {
     const config = PROVIDER_CONFIG[provider];
@@ -92,12 +97,15 @@ export default function CourierActions({ orderId, orderNumber, consignmentId, co
             <DropdownMenuItem onClick={() => sendToCourier('redx')}>
               <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />RedX
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setManualOpen(true)}>
+              <span className="inline-block w-2 h-2 rounded-full bg-gray-400 mr-2" />ম্যানুয়াল এন্ট্রি
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
         <div className="flex flex-col gap-0.5 items-end">
           <div className="flex items-center gap-1 flex-wrap justify-end">
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${providerInfo.color}`}>{providerInfo.label}</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${providerInfo.color}`}>{providerLabel}</span>
             <span className="text-[10px] text-muted-foreground font-mono">{shortId}</span>
           </div>
           <div className="flex items-center gap-0.5">
@@ -120,6 +128,13 @@ export default function CourierActions({ orderId, orderNumber, consignmentId, co
         courierStatus={courierStatus}
         courierProvider={courierProvider}
         onUpdate={onUpdate}
+      />
+
+      <ManualCourierEntryDialog
+        open={manualOpen}
+        onOpenChange={setManualOpen}
+        orderId={orderId}
+        onSaved={onUpdate}
       />
     </>
   );

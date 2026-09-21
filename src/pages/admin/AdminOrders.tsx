@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { cn, normalizeBDPhone, toLocalDateStr } from '@/lib/utils';
+import { isDeliveryMemoPrintable, PRINT_LOCKED_MESSAGE } from '@/lib/orderPrintEligibility';
 import { Search, Printer, Eye, Truck, ChevronDown, Check, Trash2, CalendarIcon, SlidersHorizontal, RotateCcw, XCircle, RefreshCw, ChevronLeft, ChevronRight, Share2, Copy, MessageSquare, PackageCheck, Inbox } from 'lucide-react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
@@ -311,7 +312,7 @@ export default function AdminOrders() {
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['admin-orders', filter, originFilter, paymentStatusFilter, paymentMethodFilter, searchQuery, showTrash, currentPage],
     queryFn: async () => {
-      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount, scheduled_dispatch_date, return_pending, return_received_at', { count: 'exact' }).order('created_at', { ascending: false });
+      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, courier_manual_name, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount, scheduled_dispatch_date, return_pending, return_received_at', { count: 'exact' }).order('created_at', { ascending: false });
       if (showTrash) {
         q = q.not('deleted_at' as any, 'is', null);
       } else {
@@ -409,7 +410,7 @@ export default function AdminOrders() {
       try {
         const from = currentPage * ORDERS_PER_PAGE; // i.e. (currentPage-1)*PP + PP
         const to = from + loadedExtra * ORDERS_PER_PAGE - 1;
-        let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount').order('created_at', { ascending: false });
+        let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, courier_manual_name, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount').order('created_at', { ascending: false });
         if (showTrash) q = q.not('deleted_at' as any, 'is', null); else q = q.is('deleted_at' as any, null);
         if (filter !== 'all') q = q.eq('status', filter);
         if (paymentStatusFilter !== 'all') q = q.eq('payment_status', paymentStatusFilter);
@@ -450,7 +451,7 @@ export default function AdminOrders() {
     try {
       const from = (currentPage - 1) * ORDERS_PER_PAGE + orders.length;
       const to = from + ORDERS_PER_PAGE - 1;
-      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount').order('created_at', { ascending: false });
+      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, courier_manual_name, payment_status, payment_method, payment_invoice_id, paid_at, deleted_at, order_attribution, discount_note, free_shipping, is_pre_order, paid_amount, due_amount').order('created_at', { ascending: false });
       if (showTrash) {
         q = q.not('deleted_at' as any, 'is', null);
       } else {
@@ -989,6 +990,10 @@ export default function AdminOrders() {
   }, [orders, isLoading]);
 
   const handlePrint = async (order: any) => {
+    if (!isDeliveryMemoPrintable(order)) {
+      toast.error(PRINT_LOCKED_MESSAGE);
+      return;
+    }
     setBulkPrintData([]); // clear bulk portal
     const { data } = await supabase.from('order_items').select('*').eq('order_id', order.id);
     const items = data || [];
@@ -1030,8 +1035,18 @@ export default function AdminOrders() {
     setPrintOrder(null); // clear single portal
     setBulkLoading(true);
     const selected = orders.filter((o: any) => selectedOrders.includes(o.id));
+    const eligible = selected.filter(isDeliveryMemoPrintable);
+    const skipped = selected.length - eligible.length;
+    if (eligible.length === 0) {
+      toast.error('নির্বাচিত অর্ডারগুলোর কোনোটিরই কুরিয়ার এন্ট্রি নেই — প্রিন্ট করা যাবে না');
+      setBulkLoading(false);
+      return;
+    }
+    if (skipped > 0) {
+      toast.warning(`${skipped}টি অর্ডার বাদ দেওয়া হয়েছে (কুরিয়ার এন্ট্রি নেই)`);
+    }
     const allData: { order: any; items: any[] }[] = [];
-    for (const order of selected) {
+    for (const order of eligible) {
       const { data } = await supabase.from('order_items').select('*').eq('order_id', order.id);
       const items = data || [];
       const productIds = [...new Set(items.filter(i => i.product_id).map(i => i.product_id))];
@@ -1591,7 +1606,11 @@ export default function AdminOrders() {
             </>
           ) : (
             <>
-              <Button size="sm" variant="outline" onClick={bulkPrint} disabled={bulkLoading}>
+              <Button
+                size="sm" variant="outline" onClick={bulkPrint}
+                disabled={bulkLoading || (selectedOrders.length > 0 && !orders.some((o: any) => selectedOrders.includes(o.id) && isDeliveryMemoPrintable(o)))}
+                title={selectedOrders.length > 0 && !orders.some((o: any) => selectedOrders.includes(o.id) && isDeliveryMemoPrintable(o)) ? PRINT_LOCKED_MESSAGE : undefined}
+              >
                 <Printer className="h-3 w-3 mr-1" /> Bulk প্রিন্ট
               </Button>
               <Button size="sm" variant="outline" onClick={() => setChecklistOpen(true)} disabled={bulkLoading}>
@@ -1916,7 +1935,11 @@ export default function AdminOrders() {
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPreviewOrder(o)}>
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handlePrint(o)}>
+                        <Button
+                          variant="ghost" size="icon" className="h-7 w-7" onClick={() => handlePrint(o)}
+                          disabled={!isDeliveryMemoPrintable(o)}
+                          title={isDeliveryMemoPrintable(o) ? undefined : PRINT_LOCKED_MESSAGE}
+                        >
                           <Printer className="h-3.5 w-3.5" />
                         </Button>
                         <Popover>
@@ -1965,7 +1988,7 @@ export default function AdminOrders() {
                     </TableCell>
                     <TableCell>
                       <CourierActions orderId={o.id} orderNumber={o.order_number} consignmentId={o.courier_consignment_id}
-                        courierStatus={o.courier_status} courierProvider={(o as any).courier_provider}
+                        courierStatus={o.courier_status} courierProvider={(o as any).courier_provider} courierManualName={(o as any).courier_manual_name}
                         onUpdate={() => qc.invalidateQueries({ queryKey: ['admin-orders'] })} />
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">

@@ -89,7 +89,7 @@ function GiftOrdersTab() {
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['giveaway-orders', filter, searchQuery, currentPage],
     queryFn: async () => {
-      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, payment_status, payment_method, deleted_at, order_attribution, discount_note, free_shipping', { count: 'exact' })
+      let q = supabase.from('orders').select('id, order_number, customer_name, customer_phone, customer_address, city, delivery_area, delivery_charge, subtotal, total, status, notes, created_at, order_origin, courier_consignment_id, courier_status, courier_provider, courier_manual_name, payment_status, payment_method, deleted_at, order_attribution, discount_note, free_shipping', { count: 'exact' })
         .eq('order_origin', 'giveaway')
         .is('deleted_at' as any, null)
         .order('created_at', { ascending: false });
@@ -284,7 +284,7 @@ function GiftOrdersTab() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <CourierActions orderId={o.id} orderNumber={o.order_number} consignmentId={o.courier_consignment_id} courierStatus={o.courier_status} courierProvider={(o as any).courier_provider}
+                      <CourierActions orderId={o.id} orderNumber={o.order_number} consignmentId={o.courier_consignment_id} courierStatus={o.courier_status} courierProvider={(o as any).courier_provider} courierManualName={(o as any).courier_manual_name}
                         onUpdate={() => qc.invalidateQueries({ queryKey: ['giveaway-orders'] })} />
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{shortTimeAgo(new Date(o.created_at))}</TableCell>
@@ -318,7 +318,7 @@ function GiftOrdersTab() {
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className={cn('text-[10px] font-semibold px-2 py-0.5 rounded-full', statusColor[o.status])}>{statusLabel[o.status]}</span>
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                      <CourierActions orderId={o.id} orderNumber={o.order_number} consignmentId={o.courier_consignment_id} courierStatus={o.courier_status} courierProvider={(o as any).courier_provider}
+                      <CourierActions orderId={o.id} orderNumber={o.order_number} consignmentId={o.courier_consignment_id} courierStatus={o.courier_status} courierProvider={(o as any).courier_provider} courierManualName={(o as any).courier_manual_name}
                         onUpdate={() => qc.invalidateQueries({ queryKey: ['giveaway-orders'] })} />
                       <Popover>
                         <PopoverTrigger asChild>

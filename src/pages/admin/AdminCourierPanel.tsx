@@ -1314,7 +1314,7 @@ function GenericCourierPaymentSection({ provider, portalUrl, portalLabel }: { pr
 }
 
 // ==================== Other Courier Payment Section ====================
-const OTHER_COURIERS = [
+export const OTHER_COURIERS = [
   { value: 'sa_poribohon', label: 'S A পরিবহন' },
   { value: 'sundorbon', label: 'সুন্দরবন কুরিয়ার' },
   { value: 'korotoa', label: 'করতোয়া কুরিয়ার' },

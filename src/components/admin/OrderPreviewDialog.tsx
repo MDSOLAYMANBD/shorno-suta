@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { useActivityLog } from '@/hooks/useActivityLog';
 import ExchangeSection from '@/components/admin/ExchangeSection';
 import CourierActions from '@/components/admin/CourierActions';
+import { isDeliveryMemoPrintable, PRINT_LOCKED_MESSAGE } from '@/lib/orderPrintEligibility';
 import CourierParcelHistory from '@/components/admin/CourierParcelHistory';
 import { useAdminProductPicker, useAdminCategoryOptions } from '@/hooks/useAdminProductPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -946,7 +947,11 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
             </Popover>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrintReady(true)} title="ডেলিভারি মেমো প্রিন্ট">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrintReady(true)}
+              disabled={!isDeliveryMemoPrintable(order)}
+              title={isDeliveryMemoPrintable(order) ? "ডেলিভারি মেমো প্রিন্ট" : PRINT_LOCKED_MESSAGE}
+            >
               <Printer className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => setSmsOpen(true)} title="কাস্টমারকে SMS পাঠান">
@@ -1003,6 +1008,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
                   consignmentId={order.courier_consignment_id}
                   courierStatus={order.courier_status}
                   courierProvider={order.courier_provider}
+                  courierManualName={order.courier_manual_name}
                   onUpdate={() => {
                     qc.invalidateQueries({ queryKey: ['admin-orders'] });
                     qc.invalidateQueries({ queryKey: ['admin-order-preview', order.id] });
