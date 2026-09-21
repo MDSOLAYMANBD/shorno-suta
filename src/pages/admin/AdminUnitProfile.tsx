@@ -590,7 +590,7 @@ export default function AdminUnitProfile() {
   const unitStyle = getUnitStyle(id || null, unit?.name);
 
   return (
-    <div className="space-y-4 pr-[112px] sm:pr-36">
+    <div className="space-y-4 sm:pr-36">
       {/* Branded Header */}
       <div
         className="rounded-xl overflow-hidden shadow-lg"

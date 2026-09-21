@@ -4075,7 +4075,7 @@ export default function AdminPersonProfile() {
   })();
 
   return (
-    <div className="space-y-2 pr-[112px] sm:pr-36">
+    <div className="space-y-2 sm:pr-36">
       <PersonChipsBar currentId={id!} unitId={person.unit_id} />
       {content}
     </div>
