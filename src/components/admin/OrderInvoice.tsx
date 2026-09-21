@@ -1,7 +1,14 @@
 import { forwardRef } from 'react';
 import { useSiteConfig, DEFAULT_INVOICE_CONFIG, DEFAULT_NAVBAR_CONFIG } from '@/hooks/useSiteConfig';
+import { useAllSettings } from '@/hooks/useAllSettings';
 import { QRCodeSVG } from 'qrcode.react';
 import { getOrderDiscount } from '@/lib/orderDiscount';
+
+const COURIER_MERCHANT_ID_KEY: Record<string, string> = {
+  steadfast: 'steadfast_merchant_id',
+  pathao: 'pathao_merchant_id',
+  redx: 'redx_merchant_id',
+};
 
 interface InvoiceProps {
   order: any;
@@ -13,8 +20,12 @@ interface InvoiceProps {
 const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, coupon, exchangeData }, ref) => {
   const { data: savedConfig } = useSiteConfig('invoice_config');
   const { data: navbarConfig } = useSiteConfig('navbar_config');
+  const { data: allSettings } = useAllSettings();
   const config = { ...DEFAULT_INVOICE_CONFIG, ...savedConfig };
   const navbar = { ...DEFAULT_NAVBAR_CONFIG, ...navbarConfig };
+
+  const merchantIdKey = order.courier_provider ? COURIER_MERCHANT_ID_KEY[order.courier_provider] : null;
+  const courierMerchantId = merchantIdKey ? allSettings?.[merchantIdKey] : null;
 
   const brandColor = config.brand_color || '#8C6A1A';
   const websiteUrl = 'https://www.shornosuta.com';
@@ -67,7 +78,25 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
               Delivery Memo
             </p>
             <p className="font-bold text-[11px]" style={{ color: brandColor }}>Memo No: #{order.order_number}</p>
-            <p className="text-[10px] text-gray-600 mt-0.5">Date: {orderDate}</p>
+            <p className="text-[10px] text-gray-600 mt-0.5 mb-1.5">Date: {orderDate}</p>
+            {courierMerchantId && (
+              <div
+                className="rounded-md px-2 py-1 inline-block text-right border"
+                style={{
+                  borderColor: brandColor,
+                  color: brandColor,
+                  WebkitPrintColorAdjust: 'exact',
+                  printColorAdjust: 'exact',
+                }}
+              >
+                <p className="text-[9px] font-bold uppercase tracking-wider opacity-80 leading-none">
+                  Merchant ID
+                </p>
+                <p className="text-[14px] font-extrabold font-mono leading-tight mt-0.5">
+                  #{courierMerchantId}
+                </p>
+              </div>
+            )}
             {order.courier_consignment_id && (
               <div
                 className="mt-1.5 rounded-md px-2 py-1 inline-block text-right"
@@ -78,10 +107,10 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
                   printColorAdjust: 'exact',
                 }}
               >
-                <p className="text-[8px] font-bold uppercase tracking-wider opacity-90 leading-none">
+                <p className="text-[9px] font-bold uppercase tracking-wider opacity-90 leading-none">
                   Courier ID
                 </p>
-                <p className="text-[11px] font-extrabold font-mono leading-tight mt-0.5">
+                <p className="text-[14px] font-extrabold font-mono leading-tight mt-0.5">
                   #{order.courier_consignment_id}
                 </p>
                 {order.courier_tracking_code && (

@@ -47,6 +47,7 @@ export default function AdminIntegrations() {
     bd_courier_api_key: '',
     steadfast_api_key: '',
     steadfast_secret_key: '',
+    steadfast_merchant_id: '',
     courier_default_note: '',
     courier_exchange_default_note: '',
     pathao_api_key: '',
@@ -58,6 +59,7 @@ export default function AdminIntegrations() {
     redx_api_key: '',
     redx_token: '',
     redx_pickup_store_id: '',
+    redx_merchant_id: '',
     uddoktapay_api_key: '',
     uddoktapay_base_url: '',
   });
@@ -99,6 +101,7 @@ export default function AdminIntegrations() {
         bd_courier_api_key: settings.bd_courier_api_key || '',
         steadfast_api_key: settings.steadfast_api_key || '',
         steadfast_secret_key: settings.steadfast_secret_key || '',
+        steadfast_merchant_id: settings.steadfast_merchant_id || '',
         courier_default_note: settings.courier_default_note || '',
         courier_exchange_default_note: settings.courier_exchange_default_note || '',
         pathao_api_key: settings.pathao_api_key || '',
@@ -110,6 +113,7 @@ export default function AdminIntegrations() {
         redx_api_key: settings.redx_api_key || '',
         redx_token: settings.redx_token || '',
         redx_pickup_store_id: settings.redx_pickup_store_id || '',
+        redx_merchant_id: settings.redx_merchant_id || '',
         uddoktapay_api_key: settings.uddoktapay_api_key || '',
         uddoktapay_base_url: settings.uddoktapay_base_url || '',
       });
@@ -370,6 +374,14 @@ export default function AdminIntegrations() {
                   </div>
                   <Button size="sm" onClick={async () => { try { await updateSetting.mutateAsync({ key: 'steadfast_secret_key', value: apiKeys.steadfast_secret_key }); toast.success('Steadfast Secret Key সেভ হয়েছে'); } catch { toast.error('সেভ করতে সমস্যা হয়েছে'); } }}><Save className="h-4 w-4" /></Button>
                 </div>
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <Label>Merchant ID</Label>
+                    <Input type="text" value={apiKeys.steadfast_merchant_id} onChange={e => setApiKeys(p => ({ ...p, steadfast_merchant_id: e.target.value }))} placeholder="যেমন: 51719" />
+                  </div>
+                  <Button size="sm" onClick={async () => { try { await updateSetting.mutateAsync({ key: 'steadfast_merchant_id', value: apiKeys.steadfast_merchant_id }); toast.success('Steadfast Merchant ID সেভ হয়েছে'); } catch { toast.error('সেভ করতে সমস্যা হয়েছে'); } }}><Save className="h-4 w-4" /></Button>
+                </div>
+                <p className="text-xs text-muted-foreground">প্রিন্ট মেমোতে দেখানো হবে — portal.steadfast.com.bd → Profile থেকে সংগ্রহ করুন</p>
                 <div className="space-y-1.5 pt-2 border-t">
                   <Label>ডিফল্ট কুরিয়ার নোট (নরমাল অর্ডার)</Label>
                   <div className="flex gap-2 items-start">
@@ -547,6 +559,14 @@ export default function AdminIntegrations() {
                   <Button size="sm" onClick={async () => { try { await updateSetting.mutateAsync({ key: 'redx_pickup_store_id', value: apiKeys.redx_pickup_store_id || '' }); toast.success('Pickup Store ID সেভ হয়েছে'); } catch { toast.error('সেভ করতে সমস্যা হয়েছে'); } }}><Save className="h-4 w-4" /></Button>
                 </div>
                 <p className="text-xs text-muted-foreground">RedX ড্যাশবোর্ড থেকে Pickup Store ID দিন (ঐচ্ছিক)</p>
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <Label>Merchant ID</Label>
+                    <Input type="text" value={apiKeys.redx_merchant_id || ''} onChange={e => setApiKeys(p => ({ ...p, redx_merchant_id: e.target.value }))} placeholder="যেমন: 811919" />
+                  </div>
+                  <Button size="sm" onClick={async () => { try { await updateSetting.mutateAsync({ key: 'redx_merchant_id', value: apiKeys.redx_merchant_id || '' }); toast.success('RedX Merchant ID সেভ হয়েছে'); } catch { toast.error('সেভ করতে সমস্যা হয়েছে'); } }}><Save className="h-4 w-4" /></Button>
+                </div>
+                <p className="text-xs text-muted-foreground">প্রিন্ট মেমোতে দেখানো হবে — RedX ড্যাশবোর্ড → Profile থেকে সংগ্রহ করুন</p>
                 <div className="space-y-1.5 pt-2 border-t">
                   <Label>ডিফল্ট কুরিয়ার নোট (নরমাল অর্ডার)</Label>
                   <div className="flex gap-2 items-start">
