@@ -1,4 +1,5 @@
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Phone, Globe, Package, Facebook, Youtube, TrendingUp, TrendingDown, Wallet, ListChecks } from 'lucide-react';
 import { format } from 'date-fns';
@@ -13,6 +14,9 @@ function fmt(n: number) {
 
 export default function PublicHishab({ kind }: Props) {
   const params = useParams();
+  const [searchParams] = useSearchParams();
+  const autoPrint = searchParams.get('print') === '1';
+  const printedRef = useRef(false);
   const id = (kind === 'unit-module' ? params.unitId : (kind === 'person' ? params.personId : params.unitId)) || '';
   const moduleType = params.moduleType || '';
 
@@ -33,6 +37,17 @@ export default function PublicHishab({ kind }: Props) {
     retry: false,
     staleTime: 30 * 1000,
   });
+
+  // Opened from an admin "প্রিন্ট" button (?print=1) — trigger the print
+  // dialog once the branded ledger has actually rendered, instead of
+  // printing the plain admin dashboard chrome. Small delay so images
+  // (logo) get a beat to paint before the print snapshot is taken.
+  useEffect(() => {
+    if (!autoPrint || printedRef.current || isLoading || !data) return;
+    printedRef.current = true;
+    const timer = setTimeout(() => window.print(), 300);
+    return () => clearTimeout(timer);
+  }, [autoPrint, isLoading, data]);
 
   if (isLoading) {
     return (
@@ -64,8 +79,8 @@ export default function PublicHishab({ kind }: Props) {
       : `${entity.module || 'মডিউল'} হিসাব`;
 
   return (
-    <div className="min-h-screen bg-muted/30 py-4 px-3 pb-8">
-      <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-lg overflow-hidden" style={{ fontFamily: 'Arial, sans-serif' }}>
+    <div className="min-h-screen bg-muted/30 py-4 px-3 pb-8 print:min-h-0 print:bg-white print:p-0">
+      <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-lg overflow-hidden print:max-w-none print:shadow-none print:rounded-none" style={{ fontFamily: 'Arial, sans-serif' }}>
 
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 border-b-4 flex items-start gap-3" style={{ borderColor: brandColor }}>
@@ -111,7 +126,7 @@ export default function PublicHishab({ kind }: Props) {
         </div>
 
         {/* Ledger Table */}
-        <div className="mx-4 sm:mx-6 mt-4 mb-4 overflow-x-auto rounded-lg border" style={{ borderColor: `${brandColor}30` }}>
+        <div className="mx-4 sm:mx-6 mt-4 mb-4 overflow-x-auto print:overflow-visible print:mx-0 rounded-lg border print:border-0" style={{ borderColor: `${brandColor}30` }}>
           <table className="w-full text-[11px] sm:text-xs border-collapse">
             <thead>
               <tr className="text-white" style={{ background: `linear-gradient(180deg, ${brandColor}, ${brandColor}cc)` }}>

@@ -19,7 +19,7 @@ interface Props {
 
 const BASE_ORIGIN = 'https://www.shornosuta.com';
 
-function buildHishabUrl(p: Props): string {
+export function buildHishabUrl(p: Props): string {
   const origin = p.origin || (typeof window !== 'undefined' ? window.location.origin : BASE_ORIGIN);
   // Always use production domain for shareable links so they don't break across previews
   const shareOrigin = (origin.includes('shornosuta.com') || origin.includes('shorno-suta.vercel.app')) ? origin : BASE_ORIGIN;
@@ -66,8 +66,8 @@ export default function AccountingShareButton(props: Props) {
           className={props.className}
           title="হিসাব শেয়ার করুন"
         >
-          <Share2 className="h-4 w-4 mr-1" />
-          শেয়ার
+          <Share2 className="h-4 w-4 sm:mr-1" />
+          <span className="hidden sm:inline">শেয়ার</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56 p-2 z-[1002]" align="end">

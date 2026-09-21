@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
-import AccountingShareButton from '@/components/admin/AccountingShareButton';
+import AccountingShareButton, { buildHishabUrl } from '@/components/admin/AccountingShareButton';
 import { buildUnitSlug } from '@/lib/hishabSlug';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUnits, useAccounts, useUnitMaterials, useCreateUnitMaterial, useDeleteUnitMaterial, useUnitFixedExpenses, useCreateUnitFixedExpense, useDeleteUnitFixedExpense, useUnitCustomExpenses, useCreateUnitCustomExpense, useUpdateUnitCustomExpense, useDeleteUnitCustomExpense, useCreateTransaction } from '@/hooks/useAccounting';
@@ -331,16 +331,22 @@ export default function AdminUnitModuleProfile() {
           </Button>
           <div className="flex items-center gap-2">
             {unitId && moduleType && (
-              <AccountingShareButton
-                entityType="unit-module"
-                entityId={buildUnitSlug(unitId, unit?.name)}
-                entityName={`${unit?.name || 'ইউনিট'} — ${moduleType}`}
-                extraPath={moduleType}
-              />
+              <>
+                <AccountingShareButton
+                  entityType="unit-module"
+                  entityId={buildUnitSlug(unitId, unit?.name)}
+                  entityName={`${unit?.name || 'ইউনিট'} — ${moduleType}`}
+                  extraPath={moduleType}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`${buildHishabUrl({ entityType: 'unit-module', entityId: buildUnitSlug(unitId, unit?.name), entityName: '', extraPath: moduleType })}?print=1`, '_blank')}
+                >
+                  <Printer className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">প্রিন্ট</span>
+                </Button>
+              </>
             )}
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
-              <Printer className="h-4 w-4 mr-1" /> প্রিন্ট
-            </Button>
           </div>
         </div>
 

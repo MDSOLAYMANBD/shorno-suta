@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import AccountingShareButton from '@/components/admin/AccountingShareButton';
+import AccountingShareButton, { buildHishabUrl } from '@/components/admin/AccountingShareButton';
 import SalesPartyPaymentDialog from '@/components/admin/SalesPartyPaymentDialog';
 import { Textarea } from '@/components/ui/textarea';
 import { logAccActivity } from '@/hooks/useAccActivityLog';
@@ -22,7 +22,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format, differenceInMonths, differenceInYears, eachDayOfInterval, isFriday, parseISO, getDay, differenceInMinutes, getDaysInMonth } from 'date-fns';
 import { bn } from 'date-fns/locale';
-import { ArrowUpRight, ArrowDownRight, Plus, ArrowLeft, Printer, Pencil, Trash2, ChevronLeft, ChevronRight, ClipboardList, CalendarIcon, Clock, Settings2, Package, Receipt, Home, Landmark, Phone, Copy, Send } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Plus, ArrowLeft, Printer, Pencil, Trash2, ChevronLeft, ChevronRight, ClipboardList, CalendarIcon, Clock, Settings2, Package, Receipt, Home, Landmark, Phone, Copy, Send, Users } from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { sendPartyLedgerSMS } from '@/lib/sms';
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { toLocalDateStr } from '@/lib/utils';
@@ -148,6 +150,12 @@ function BrandedHeader({ person, actions }: { person: any; actions?: React.React
 function ProfileToolbar({ personId, personName, personCode }: { personId?: string; personName?: string; personCode?: string | null }) {
   const navigate = useNavigate();
   const slug = personCode?.trim() || personId || '';
+  // Printing this admin page directly (window.print()) dumped the raw
+  // dashboard chrome/cards as-is — ugly and unstyled for print. The public
+  // /hishab/person/:id page (used for sharing) already has a proper
+  // branded, print-ready layout, so open that with ?print=1 and let it
+  // trigger the print dialog once its data has loaded instead.
+  const printUrl = slug ? `${buildHishabUrl({ entityType: 'person', entityId: slug, entityName: personName || '' })}?print=1` : '';
   return (
     <div className="flex items-center justify-between mb-3 print:hidden">
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
@@ -157,9 +165,11 @@ function ProfileToolbar({ personId, personName, personCode }: { personId?: strin
         {slug && personName && (
           <AccountingShareButton entityType="person" entityId={slug} entityName={personName} />
         )}
-        <Button variant="outline" size="sm" onClick={() => window.print()}>
-          <Printer className="h-4 w-4 mr-1" /> প্রিন্ট
-        </Button>
+        {printUrl && (
+          <Button variant="outline" size="sm" onClick={() => window.open(printUrl, '_blank')}>
+            <Printer className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">প্রিন্ট</span>
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -566,7 +576,7 @@ function PartyProfileView({ person, id, direction = 'purchase' }: { person: any;
           (স্বয়ংক্রিয় সমন্বয় card above) and নতুন এন্ট্রি is superseded by কাজের অর্ডার's own + অর্ডার.
           A memo-based internal sheet (এম্ব্রয়ডারি) still needs নতুন এন্ট্রি — it has no order UI. */}
       {!usesWorkOrders && (
-      <div className="flex justify-end gap-2 print:hidden">
+      <div className="flex flex-wrap justify-end gap-2 print:hidden">
         {direction === 'sales' && (
           <>
             <Button size="sm" onClick={() => { setEditPaymentTx(null); setPaymentOpen(true); }}>🏦 জমা নিন</Button>
@@ -3795,6 +3805,8 @@ function SalariedProductionSection({ personId, personName, totalSalaryPaid }: { 
 // ========== PERSON CHIPS NAV BAR ==========
 function PersonChipsBar({ currentId, unitId }: { currentId: string; unitId: string | null }) {
   const navigate = useNavigate();
+  const [railOpen, setRailOpen] = useState(false);
+  const isMobile = useIsMobile();
   const { data: unitPersons = [] } = usePersons({ unit_id: unitId || undefined });
   const { data: units = [] } = useUnits();
   const unit = units.find(u => u.id === unitId);
@@ -3881,10 +3893,9 @@ function PersonChipsBar({ currentId, unitId }: { currentId: string; unitId: stri
       </div>
 
       {/* Persistent floating nav rail — same pattern as the unit profile page */}
-      <div
-        className="fixed z-30 top-1/2 -translate-y-1/2 right-1 sm:right-3 w-[104px] sm:w-32 max-h-[78vh] overflow-y-auto rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-lg p-1.5 space-y-2 no-scrollbar"
-        style={{ scrollbarWidth: 'none' }}
-      >
+      {(() => {
+        const railBody = (
+          <>
         {unitId && (
           <button onClick={() => navigate(`/admin/accounting/units/${unitId}`)}
             className={`${rowBase} border-muted-foreground/30 bg-muted/50 text-muted-foreground hover:bg-muted`}>
@@ -4000,7 +4011,40 @@ function PersonChipsBar({ currentId, unitId }: { currentId: string; unitId: stri
             </button>
           ))}
         </Section>
-      </div>
+          </>
+        );
+
+        if (isMobile) {
+          return (
+            <>
+              <button
+                type="button"
+                onClick={() => setRailOpen(true)}
+                className="fixed z-30 bottom-20 right-3 h-11 w-11 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+                aria-label="ব্যক্তি ও মডিউল তালিকা দেখুন"
+              >
+                <Users className="h-5 w-5" />
+              </button>
+              <Sheet open={railOpen} onOpenChange={setRailOpen}>
+                <SheetContent side="right" className="w-[78vw] max-w-[280px] p-2 overflow-y-auto">
+                  <div className="space-y-2 pt-6">
+                    {railBody}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </>
+          );
+        }
+
+        return (
+          <div
+            className="fixed z-30 top-1/2 -translate-y-1/2 right-1 sm:right-3 w-[104px] sm:w-32 max-h-[78vh] overflow-y-auto rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-lg p-1.5 space-y-2 no-scrollbar"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {railBody}
+          </div>
+        );
+      })()}
     </>
   );
 }

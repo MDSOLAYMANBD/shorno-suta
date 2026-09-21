@@ -14,9 +14,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { ArrowLeft, Plus, Users, DollarSign, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, Trash2, Package, Receipt, Banknote, CircleDollarSign, ClipboardList, Pin, Clock, Landmark, ChevronDown, Building2, Home } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { toLocalDateStr } from '@/lib/utils';
 import { useWorkOrders, useAllWorkOrderEntries } from '@/hooks/useWorkOrders';
@@ -214,6 +216,8 @@ export default function AdminUnitProfile() {
   const createPerson = useCreatePerson();
   const updateUnit = useUpdateUnit();
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+  const [railOpen, setRailOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [newPersonName, setNewPersonName] = useState('');
   const [newPersonType, setNewPersonType] = useState('employee');
   const [newPersonPhone, setNewPersonPhone] = useState('');
@@ -770,11 +774,8 @@ export default function AdminUnitProfile() {
             </div>
           );
 
-        return (
-          <div
-            className="fixed z-30 top-1/2 -translate-y-1/2 right-1 sm:right-3 w-[104px] sm:w-32 max-h-[78vh] overflow-y-auto rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-lg p-1.5 space-y-2 no-scrollbar"
-            style={{ scrollbarWidth: 'none' }}
-          >
+        const railBody = (
+          <>
             {/* + Button */}
             <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
               <PopoverTrigger asChild>
@@ -834,6 +835,37 @@ export default function AdminUnitProfile() {
             <Section label="🛒 বিক্রি" colorClass="text-teal-600" items={usWithTotal} />
             <Section label="🧾 কাজ" colorClass="text-amber-600" items={uw} />
             <Section label="🗂️ মডিউল" colorClass="text-muted-foreground" items={um} />
+          </>
+        );
+
+        if (isMobile) {
+          return (
+            <>
+              <button
+                type="button"
+                onClick={() => setRailOpen(true)}
+                className="fixed z-30 bottom-20 right-3 h-11 w-11 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+                aria-label="ব্যক্তি ও মডিউল তালিকা দেখুন"
+              >
+                <Users className="h-5 w-5" />
+              </button>
+              <Sheet open={railOpen} onOpenChange={setRailOpen}>
+                <SheetContent side="right" className="w-[78vw] max-w-[280px] p-2 overflow-y-auto">
+                  <div className="space-y-2 pt-6">
+                    {railBody}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </>
+          );
+        }
+
+        return (
+          <div
+            className="fixed z-30 top-1/2 -translate-y-1/2 right-1 sm:right-3 w-[104px] sm:w-32 max-h-[78vh] overflow-y-auto rounded-xl border border-border bg-background/95 backdrop-blur-sm shadow-lg p-1.5 space-y-2 no-scrollbar"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {railBody}
           </div>
         );
       })()}
