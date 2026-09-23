@@ -453,7 +453,7 @@ export default function Cart() {
           })}
         </div>
 
-        <div className="border-t border-border pt-6 pb-20 lg:pb-0">
+        <div className="border-t border-border pt-6 pb-6">
           <FreeShippingProgress
             items={items.map(i => ({ id: (i.is_addon ? i.parent_product_id : i.id) as string, quantity: i.quantity, price: i.price }))}
             variant="banner"
@@ -464,19 +464,12 @@ export default function Cart() {
             <span className="font-semibold">৳{subtotal}</span>
           </div>
           <p className="text-xs text-muted-foreground mb-6">ডেলিভারি চার্জ চেকআউটে যোগ হবে।</p>
-          <Button asChild size="lg" className="w-full rounded-full hidden lg:flex">
-            <Link to="/checkout">অর্ডার করুন</Link>
+          <Button asChild size="lg" className="w-full rounded-full">
+            <Link to="/checkout" className="flex items-center justify-center gap-2">
+              অর্ডার করুন — ৳{subtotal}
+            </Link>
           </Button>
         </div>
-      </div>
-
-      {/* Sticky mobile checkout button */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background border-t border-border p-3 lg:hidden">
-        <Button asChild size="lg" className="w-full rounded-full">
-          <Link to="/checkout" className="flex items-center justify-center gap-2">
-            অর্ডার করুন — ৳{subtotal}
-          </Link>
-        </Button>
       </div>
     </Layout>
   );

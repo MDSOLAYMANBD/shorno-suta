@@ -284,19 +284,8 @@ export default function Footer() {
 
       <div id="google-customer-reviews-badge" className="relative z-10 flex justify-center py-2" />
 
-      <div className="relative z-10 text-center py-4 pb-20 lg:pb-4 text-xs text-white/60 space-y-1">
-        <div>{(cfg.copyright || '© {year} স্বর্ণ সুতা। সর্বস্বত্ব সংরক্ষিত।').replace('{year}', new Date().getFullYear().toString())}</div>
-        <div>
-          Developed by{' '}
-          <a
-            href="https://wa.me/8801609953644"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white/80 hover:text-white underline underline-offset-2"
-          >
-            MD SOLAYMAN
-          </a>
-        </div>
+      <div className="relative z-10 text-center py-4 pb-20 lg:pb-4 text-xs text-white/60">
+        {(cfg.copyright || '© {year} স্বর্ণ সুতা। সর্বস্বত্ব সংরক্ষিত।').replace('{year}', new Date().getFullYear().toString())}
       </div>
     </footer>
   );
