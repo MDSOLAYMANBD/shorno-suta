@@ -105,7 +105,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
                     <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse" />
                   )}
                   {badge > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[9px] font-bold rounded-full h-[16px] min-w-[16px] px-1 flex items-center justify-center animate-scale-in shadow-sm ring-2 ring-background">
+                    <span className="absolute -top-2 -right-2.5 z-20 bg-orange-500 text-white text-[10px] leading-none font-bold rounded-full h-[18px] min-w-[18px] px-1 flex items-center justify-center shadow-sm ring-2 ring-background">
                       {badge}
                     </span>
                   )}
@@ -142,7 +142,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
             );
           })}
         </div>
-        <div className="h-[env(safe-area-inset-bottom)]" />
+        <div className="h-[min(env(safe-area-inset-bottom),0.5rem)]" />
       </nav>
     </>
   );

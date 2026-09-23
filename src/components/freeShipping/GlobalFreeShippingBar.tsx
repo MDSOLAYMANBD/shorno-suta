@@ -54,7 +54,7 @@ export default function GlobalFreeShippingBar() {
   return (
     <div
       className="fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem)] max-w-md px-1 animate-in slide-in-from-bottom-2 fade-in"
-      style={{ bottom: isMobile ? 'calc(env(safe-area-inset-bottom) + 72px)' : '1rem' }}
+      style={{ bottom: isMobile ? 'calc(min(env(safe-area-inset-bottom), 0.5rem) + 72px)' : '1rem' }}
     >
       <div className="relative">
         <FreeShippingProgress
