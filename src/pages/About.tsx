@@ -527,9 +527,9 @@ export default function About() {
                   <div className="relative flex justify-center">
                     <div className="relative">
                       <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl opacity-60" />
-                      <div className="relative h-28 w-28 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
+                      <div className="relative h-36 w-36 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
                         {f.image ? (
-                          <img src={f.image} alt={f.name} className="h-full w-full object-cover" loading="lazy" />
+                          <img src={f.image} alt={f.name} className="h-full w-full object-cover object-top" loading="lazy" />
                         ) : (
                           <span className="text-3xl font-extrabold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">{f.initials}</span>
                         )}
