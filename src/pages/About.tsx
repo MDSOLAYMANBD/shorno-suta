@@ -518,17 +518,21 @@ export default function About() {
             </div>
             <div className="grid sm:grid-cols-3 gap-6">
               {[
-                { name: 'IMON MAHMUD', initials: 'IM', title: 'Co-Founder · Shorno Suta' },
-                { name: 'ABU MUSA', initials: 'AM', title: 'Co-Founder & CEO · Shorno Suta' },
-                { name: 'MD EMRAN HOSSAIN', initials: 'MH', title: 'Co-Founder & CMO · Shorno Suta' },
+                { name: 'IMON MAHMUD', initials: 'IM', title: 'Co-Founder · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/imon-mahmud.webp' },
+                { name: 'ABU MUSA', initials: 'AM', title: 'Co-Founder & CEO · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/abu-musa.webp' },
+                { name: 'MD EMRAN HOSSAIN', initials: 'MH', title: 'Co-Founder & CMO · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/md-emran-hossain.webp' },
               ].map((f, i) => (
                 <div key={i} className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04] p-8 text-center">
                   <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
                   <div className="relative flex justify-center">
                     <div className="relative">
                       <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl opacity-60" />
-                      <div className="relative h-28 w-28 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
-                        <span className="text-3xl font-extrabold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">{f.initials}</span>
+                      <div className="relative h-28 w-28 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/20 flex items-center justify-center shadow-2xl border border-primary/20">
+                        {f.image ? (
+                          <img src={f.image} alt={f.name} className="h-full w-full object-cover" loading="lazy" />
+                        ) : (
+                          <span className="text-3xl font-extrabold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">{f.initials}</span>
+                        )}
                       </div>
                     </div>
                   </div>
