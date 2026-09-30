@@ -3,6 +3,7 @@ import { useAllSettings } from '@/hooks/useAllSettings';
 import { useUpdateSetting } from '@/hooks/useStoreSettings';
 import { useLoans, useCreateLoan, useAllLoanPaymentCounts, useInvestments, useCreateInvestment, useStockValuation, useUpdateLoan, useDeleteLoan } from '@/hooks/useLoans';
 import { useAccounts } from '@/hooks/useAccounting';
+import { usePersons } from '@/hooks/usePersons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,8 @@ import SnapshotHistorySection from '@/components/admin/accounting/SnapshotHistor
 import CurrentCapitalSection from '@/components/admin/accounting/CurrentCapitalSection';
 import { useLatestSnapshot, useUpdateSnapshotCore, useStartNewSnapshot } from '@/hooks/useSnapshots';
 
+const INVESTOR_MANUAL = '__manual__';
+
 export default function AdminBusinessAccount() {
   const navigate = useNavigate();
   const { data: allSettings } = useAllSettings();
@@ -35,6 +38,7 @@ export default function AdminBusinessAccount() {
   
   const { data: investments = [] } = useInvestments();
   const createInvestment = useCreateInvestment();
+  const { data: investors = [] } = usePersons({ type: 'investor' });
   const { data: stockItems = [] } = useStockValuation();
   const { data: accounts = [] } = useAccounts();
   const { data: latestSnapshot } = useLatestSnapshot();
@@ -45,7 +49,7 @@ export default function AdminBusinessAccount() {
   const [loanForm, setLoanForm] = useState({ name: '', principal_amount: '', interest_rate: '', total_installments: '', monthly_installment: '', start_date: '', interest_type: 'none' as 'none' | 'monthly_flat', monthly_interest_amount: '' });
   const [payLoanId, setPayLoanId] = useState<string | null>(null);
   const [payDefaultAmount, setPayDefaultAmount] = useState<number | undefined>();
-  const [invForm, setInvForm] = useState({ amount: '', description: '', date: '', source: 'cash' });
+  const [invForm, setInvForm] = useState({ amount: '', description: '', date: '', source: 'cash', person_id: INVESTOR_MANUAL, investor_name: '' });
   const [expandedLoanId, setExpandedLoanId] = useState<string | null>(null);
 
   type BusinessConfig = { opening_balance_cash: number; opening_balance_bank: number; initial_stock_value: number; stock_note: string };
@@ -85,6 +89,14 @@ export default function AdminBusinessAccount() {
   const totalStockValue = useMemo(() => stockItems.reduce((s, p) => s + (p.stock * p.price), 0), [stockItems]);
   const totalStockCost = useMemo(() => stockItems.reduce((s, p: any) => s + (p.stock * (p.cost_price || 0)), 0), [stockItems]);
   const totalInvestment = useMemo(() => investments.reduce((s, i) => s + Number(i.amount), 0), [investments]);
+  const investmentByInvestor = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const inv of investments) {
+      const key = inv.investor_name || 'অনির্দিষ্ট';
+      map.set(key, (map.get(key) || 0) + Number(inv.amount));
+    }
+    return Array.from(map.entries());
+  }, [investments]);
   const totalLoanPrincipal = useMemo(() => loans.filter(l => l.status === 'active').reduce((s, l) => s + Number(l.principal_amount), 0), [loans]);
   const totalCapital = bizConfig.opening_balance_cash + bizConfig.opening_balance_bank + totalInvestment;
 
@@ -117,14 +129,21 @@ export default function AdminBusinessAccount() {
 
   const handleAddInvestment = async () => {
     if (!invForm.amount) { toast.error('পরিমাণ দিন'); return; }
+    if (invForm.person_id === INVESTOR_MANUAL && !invForm.investor_name.trim()) { toast.error('বিনিয়োগকারীর নাম দিন'); return; }
     try {
       await createInvestment.mutateAsync({
         amount: Number(invForm.amount), description: invForm.description,
         date: invForm.date || toLocalDateStr(), source: invForm.source,
+        person_id: invForm.person_id === INVESTOR_MANUAL ? null : invForm.person_id,
+        investor_name: invForm.person_id === INVESTOR_MANUAL ? invForm.investor_name.trim() : (investors.find(p => p.id === invForm.person_id)?.name || invForm.investor_name.trim()),
       });
       toast.success('বিনিয়োগ যোগ হয়েছে');
-      setInvForm({ amount: '', description: '', date: '', source: 'cash' });
+      setInvForm({ amount: '', description: '', date: '', source: 'cash', person_id: INVESTOR_MANUAL, investor_name: '' });
     } catch (e: any) { toast.error(e.message); }
+  };
+
+  const onInvestorSelect = (v: string) => {
+    setInvForm(f => ({ ...f, person_id: v, investor_name: v === INVESTOR_MANUAL ? '' : (investors.find(p => p.id === v)?.name || '') }));
   };
 
   return (
@@ -197,11 +216,21 @@ export default function AdminBusinessAccount() {
               <Label className="text-xs font-semibold">বিনিয়োগ হিস্টোরি</Label>
               <span className="text-xs font-bold text-primary">মোট: ৳{totalInvestment.toLocaleString('bn-BD')}</span>
             </div>
+            {investmentByInvestor.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {investmentByInvestor.map(([name, amt]) => (
+                  <Badge key={name} variant="secondary" className="text-[10px] font-normal">
+                    {name}: ৳{amt.toLocaleString('bn-BD')}
+                  </Badge>
+                ))}
+              </div>
+            )}
             {investments.length > 0 && (
               <div className="space-y-1 mb-3 max-h-40 overflow-y-auto">
                 {investments.map(inv => (
                   <div key={inv.id} className="flex justify-between text-xs py-1.5 px-2 rounded bg-muted/50">
-                    <span>{new Date(inv.date).toLocaleDateString('bn-BD')}</span>
+                    <span className="shrink-0">{new Date(inv.date).toLocaleDateString('bn-BD')}</span>
+                    <span className="shrink-0 mx-2 font-medium">{inv.investor_name || 'অনির্দিষ্ট'}</span>
                     <span className="flex-1 min-w-0 mx-2 truncate text-muted-foreground">{inv.description || '-'}</span>
                     <Badge variant="outline" className="text-[10px] mr-1">{inv.source}</Badge>
                     <span className="font-medium">৳{Number(inv.amount).toLocaleString('bn-BD')}</span>
@@ -210,8 +239,18 @@ export default function AdminBusinessAccount() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
+              <Select value={invForm.person_id} onValueChange={onInvestorSelect}>
+                <SelectTrigger><SelectValue placeholder="বিনিয়োগকারী বাছাই" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={INVESTOR_MANUAL}>➕ অন্য বিনিয়োগকারী (নাম লিখুন)</SelectItem>
+                  {investors.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {invForm.person_id === INVESTOR_MANUAL ? (
+                <Input placeholder="বিনিয়োগকারীর নাম" value={invForm.investor_name} onChange={e => setInvForm(f => ({ ...f, investor_name: e.target.value }))} />
+              ) : <div />}
               <Input type="number" placeholder="পরিমাণ (৳)" value={invForm.amount} onChange={e => setInvForm(f => ({ ...f, amount: e.target.value }))} />
-              <Input placeholder="বিবরণ" value={invForm.description} onChange={e => setInvForm(f => ({ ...f, description: e.target.value }))} />
+              <Input placeholder="বিবরণ (যেমন: শুরুর বিনিয়োগ)" value={invForm.description} onChange={e => setInvForm(f => ({ ...f, description: e.target.value }))} />
               <Input type="date" value={invForm.date} onChange={e => setInvForm(f => ({ ...f, date: e.target.value }))} />
               <Select value={invForm.source} onValueChange={v => setInvForm(f => ({ ...f, source: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

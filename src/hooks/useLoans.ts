@@ -40,6 +40,8 @@ export interface AccInvestment {
   date: string;
   source: string;
   created_at: string;
+  person_id: string | null;
+  investor_name: string | null;
 }
 
 export function useLoans(filter?: { unitId?: string | null }) {
@@ -323,7 +325,7 @@ export function useInvestments() {
 export function useCreateInvestment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (inv: { amount: number; description?: string; date: string; source: string }) => {
+    mutationFn: async (inv: { amount: number; description?: string; date: string; source: string; person_id?: string | null; investor_name?: string | null }) => {
       const { data, error } = await (supabase.from('acc_investments' as any) as any).insert(inv).select().single();
       if (error) throw error;
       return data;

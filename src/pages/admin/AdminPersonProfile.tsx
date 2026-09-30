@@ -68,7 +68,7 @@ function getWorkDuration(joiningDate: string | null): string {
 
 const typeLabel: Record<string, string> = {
   employee: 'কর্মচারী', salaried_production: 'কর্মচারী (প্রোডাকশন)', production_staff: 'প্রোডাকশন স্টাফ', party: 'পার্টি', supplier: 'সাপ্লায়ার',
-  sales_party: 'বিক্রি পার্টি', work_party: 'কাজ পার্টি', loan_kisti: 'ঋণ কিস্তি',
+  sales_party: 'বিক্রি পার্টি', work_party: 'কাজ পার্টি', loan_kisti: 'ঋণ কিস্তি', investor: 'বিনিয়োগকারী',
 };
 
 const statusLabel: Record<string, string> = {
