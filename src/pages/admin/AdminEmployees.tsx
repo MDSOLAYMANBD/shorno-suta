@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import AddEmployeeDialog from '@/components/admin/AddEmployeeDialog';
 import SendNotificationDialog from '@/components/admin/SendNotificationDialog';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 const OWNER_EMAIL = 'amisrsolayman@gmail.com';
 
@@ -45,7 +46,7 @@ export default function AdminEmployees() {
     queryKey: ['employees'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee', {
+      const res = await fetch(`${FUNCTIONS_URL}/manage-employee`, {
         headers: { 'Authorization': `Bearer ${session?.access_token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch');
@@ -56,7 +57,7 @@ export default function AdminEmployees() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee', {
+      const res = await fetch(`${FUNCTIONS_URL}/manage-employee`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
         body: JSON.stringify({ user_id: userId, role: newRole }),
@@ -70,7 +71,7 @@ export default function AdminEmployees() {
   const toggleActive = async (userId: string, currentActive: boolean) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee', {
+      const res = await fetch(`${FUNCTIONS_URL}/manage-employee`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
         body: JSON.stringify({ user_id: userId, is_active: !currentActive }),

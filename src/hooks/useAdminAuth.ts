@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { checkStaffRoleWithRetry } from '@/lib/authHelpers';
+import { AUTH_STORAGE_KEY } from '@/integrations/supabase/config';
 
 interface AdminAuthState {
   ready: boolean;
@@ -17,7 +18,7 @@ interface AdminAuthState {
 // (Default = `sb-<project-ref>-auth-token`.) We only use this to detect
 // "session is stored but the SDK is mid-restore" so we don't bounce a
 // real admin to the login page during a transient null session.
-const SESSION_STORAGE_KEY = 'sb-xxucasikopqtcztbgfbw-auth-token';
+const SESSION_STORAGE_KEY = AUTH_STORAGE_KEY;
 
 const SESSION_RESTORE_GRACE_MS = 3500;
 

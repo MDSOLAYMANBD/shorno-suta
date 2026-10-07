@@ -13,8 +13,10 @@
 
 const PROXY = 'https://wsrv.nl/';
 
+// Matches public object URLs from any Supabase host: Cloud (*.supabase.co),
+// legacy (*.supabase.in) and our self-hosted api.* domain.
 function isSupabaseStorageUrl(url: string): boolean {
-  return url.includes('supabase.co/storage/') || url.includes('supabase.in/storage/');
+  return url.includes('/storage/v1/object/public/');
 }
 
 function buildProxied(url: string, width: number, quality: number): string {

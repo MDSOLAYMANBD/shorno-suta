@@ -232,6 +232,7 @@ if (typeof requestIdleCallback === 'function') {
 }
 
 import AdminSkeleton from "./components/admin/AdminSkeleton";
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 const SimpleLoading = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -248,12 +249,12 @@ function ThemeLoader() {
 }
 
 function SitemapRedirect() {
-  window.location.replace('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/sitemap');
+  window.location.replace(`${FUNCTIONS_URL}/sitemap`);
   return null;
 }
 
 function MerchantFeedRedirect() {
-  window.location.replace('https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/google-merchant-feed');
+  window.location.replace(`${FUNCTIONS_URL}/google-merchant-feed`);
   return null;
 }
 

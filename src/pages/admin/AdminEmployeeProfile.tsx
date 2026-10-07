@@ -22,7 +22,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import { getRandomQuote, MOTIVATIONAL_QUOTES, type Quote as QuoteType } from '@/lib/motivationalQuotes';
 
-const FUNC_URL = 'https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee';
+const FUNC_URL = `${FUNCTIONS_URL}/manage-employee`;
 
 // Hobby options
 const HOBBY_OPTIONS = [
@@ -626,6 +626,7 @@ import { format as formatDate } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import StaffNotificationCard from '@/components/admin/StaffNotificationCard';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 function NotificationsTab({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const queryClient = useQueryClient();

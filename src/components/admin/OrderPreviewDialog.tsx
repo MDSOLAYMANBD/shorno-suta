@@ -33,6 +33,7 @@ import CourierParcelHistory from '@/components/admin/CourierParcelHistory';
 import { useAdminProductPicker, useAdminCategoryOptions } from '@/hooks/useAdminProductPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useShippingCharges } from '@/hooks/useShippingCharges';
+import { FUNCTIONS_URL, SUPABASE_PUBLISHABLE_KEY } from '@/integrations/supabase/config';
 
 interface OrderPreviewDialogProps {
   order: any;
@@ -318,7 +319,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${fn}?action=check_status`, {
+        const res = await fetch(`${FUNCTIONS_URL}/${fn}?action=check_status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({ consignment_id: cid }),
@@ -585,12 +586,12 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
     resyncInFlightRef.current = true;
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/steadfast-courier?action=recreate_parcel`, {
+      const res = await fetch(`${FUNCTIONS_URL}/steadfast-courier?action=recreate_parcel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          'Authorization': `Bearer ${session?.access_token || SUPABASE_PUBLISHABLE_KEY}`,
+          'apikey': SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ order_id: order.id, reason }),
       });
@@ -658,12 +659,12 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
     if (!fnName) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${fnName}?action=cancel_order`, {
+      const res = await fetch(`${FUNCTIONS_URL}/${fnName}?action=cancel_order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          'Authorization': `Bearer ${session?.access_token || SUPABASE_PUBLISHABLE_KEY}`,
+          'apikey': SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ order_id: order.id }),
       });

@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Phone, Globe, Package, Facebook, Youtube, TrendingUp, TrendingDown, Wallet, ListChecks } from 'lucide-react';
 import { format } from 'date-fns';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 type Kind = 'person' | 'unit' | 'unit-module';
 
@@ -28,7 +29,7 @@ export default function PublicHishab({ kind }: Props) {
     queryKey: ['public-hishab', kind, id, moduleType],
     queryFn: async () => {
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/accounting-memo?${queryString}`
+        `${FUNCTIONS_URL}/accounting-memo?${queryString}`
       );
       if (!res.ok) throw new Error('Not found');
       return res.json();

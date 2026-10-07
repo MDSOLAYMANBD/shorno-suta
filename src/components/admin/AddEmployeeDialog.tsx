@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 const ROLES = [
   { value: 'admin', label: 'Admin', desc: 'সব কিছু করতে পারবে' },
@@ -35,7 +36,7 @@ export default function AddEmployeeDialog({ open, onOpenChange, onSuccess }: Pro
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/manage-employee`, {
+      const res = await fetch(`${FUNCTIONS_URL}/manage-employee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -19,6 +19,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import IncomingCallNotification from '@/components/admin/inbox/IncomingCallNotification';
 import CallStatusBanner from '@/components/admin/inbox/CallStatusBanner';
 import LiveVisitorBadge from '@/components/LiveVisitorBadge';
+import { AUTH_STORAGE_KEY } from '@/integrations/supabase/config';
 
 const ALL_SIDEBAR_LINKS = [
   { label: 'ড্যাশবোর্ড', to: '/admin/dashboard', icon: LayoutDashboard, section: 'dashboard', hasSubLinks: true, iconColor: 'bg-blue-100 text-blue-600',
@@ -191,7 +192,7 @@ export default function AdminDashboard() {
           const { data: { session } } = await supabase.auth.getSession();
           if (cancelled) return;
           if (session) return; // recovered
-          const stored = localStorage.getItem('sb-xxucasikopqtcztbgfbw-auth-token');
+          const stored = localStorage.getItem(AUTH_STORAGE_KEY);
           if (stored) {
             // Session token still present — wait once more.
             await new Promise((r) => setTimeout(r, 1500));

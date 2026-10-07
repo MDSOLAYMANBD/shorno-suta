@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Phone, Globe, Package, Facebook, Youtube } from 'lucide-react';
 import { getOrderDiscount } from '@/lib/orderDiscount';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 export default function PublicMemo() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -15,7 +16,7 @@ export default function PublicMemo() {
     queryKey: ['public-memo', orderId],
     queryFn: async () => {
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-memo?${queryParam}`
+        `${FUNCTIONS_URL}/order-memo?${queryParam}`
       );
       if (!res.ok) throw new Error('Order not found');
       return res.json();

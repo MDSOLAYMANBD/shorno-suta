@@ -518,9 +518,9 @@ export default function About() {
             </div>
             <div className="grid sm:grid-cols-3 gap-6">
               {[
-                { name: 'IMON MAHMUD', initials: 'IM', title: 'Co-Founder · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/imon-mahmud.webp' },
-                { name: 'ABU MUSA', initials: 'AM', title: 'Co-Founder & CEO · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/abu-musa.webp' },
-                { name: 'MD EMRAN HOSSAIN', initials: 'MH', title: 'Co-Founder & CMO · Shorno Suta', image: 'https://xxucasikopqtcztbgfbw.supabase.co/storage/v1/object/public/product-images/founders/md-emran-hossain.webp' },
+                { name: 'IMON MAHMUD', initials: 'IM', title: 'Co-Founder · Shorno Suta', image: 'https://api.shornosuta.com/storage/v1/object/public/product-images/founders/imon-mahmud.webp' },
+                { name: 'ABU MUSA', initials: 'AM', title: 'Co-Founder & CEO · Shorno Suta', image: 'https://api.shornosuta.com/storage/v1/object/public/product-images/founders/abu-musa.webp' },
+                { name: 'MD EMRAN HOSSAIN', initials: 'MH', title: 'Co-Founder & CMO · Shorno Suta', image: 'https://api.shornosuta.com/storage/v1/object/public/product-images/founders/md-emran-hossain.webp' },
               ].map((f, i) => (
                 <div key={i} className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04] p-8 text-center">
                   <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />

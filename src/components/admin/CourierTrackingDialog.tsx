@@ -10,8 +10,7 @@ import { toast } from 'sonner';
 import { RefreshCw, Send, Clock, StickyNote, Truck, MapPin, Phone, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { bn } from 'date-fns/locale';
-
-const SUPABASE_URL = 'https://xxucasikopqtcztbgfbw.supabase.co';
+import { SUPABASE_URL } from '@/integrations/supabase/config';
 
 interface CourierTrackingDialogProps {
   open: boolean;

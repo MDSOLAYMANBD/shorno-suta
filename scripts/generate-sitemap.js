@@ -10,8 +10,9 @@ if (existsSync(resolve(".env"))) {
   }
 }
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Keep in sync with src/integrations/supabase/config.ts (this runs in Node, outside Vite).
+const SUPABASE_URL = "https://api.shornosuta.com";
+const SUPABASE_ANON_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc5MTM2NDk4MCwiZXhwIjo0OTQ3MDM4NTgwLCJyb2xlIjoiYW5vbiJ9.8SrXqiAa_1UfDiFdRJ2a0pfhhFyLfwBYxXBFmrzujR4";
 const SITE_URL = "https://www.shornosuta.com";
 
 async function generateSitemap() {

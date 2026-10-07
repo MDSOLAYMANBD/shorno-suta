@@ -36,6 +36,7 @@ import { useAccounts } from '@/hooks/useAccounting';
 import { ensureOfficeSellSaleEntry, deleteOfficeSellSaleEntry } from '@/lib/officeSellSaleEntry';
 import { logAccActivity } from '@/hooks/useAccActivityLog';
 import { getColorPrimaryImage } from '@/lib/productVariants';
+import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 
 function shortTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -1237,7 +1238,7 @@ export default function AdminOrders() {
 
     try {
       if (provider === 'steadfast') {
-        const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=bulk_create`, {
+        const res = await fetch(`${FUNCTIONS_URL}/${cfg.fn}?action=bulk_create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({ order_ids: eligibleIds }),
@@ -1251,7 +1252,7 @@ export default function AdminOrders() {
         // Pathao / RedX: no bulk endpoint — loop single create_order calls
         for (const id of eligibleIds) {
           try {
-            const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=create_order`, {
+            const res = await fetch(`${FUNCTIONS_URL}/${cfg.fn}?action=create_order`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
               body: JSON.stringify({ order_id: id }),
@@ -1296,7 +1297,7 @@ export default function AdminOrders() {
         .filter(([, ids]) => ids.length > 0)
         .map(async ([p, ids]) => {
           const cfg = COURIER_FUNCTIONS[p];
-          const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${cfg.fn}?action=bulk_status`, {
+          const res = await fetch(`${FUNCTIONS_URL}/${cfg.fn}?action=bulk_status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({ order_ids: ids }),
@@ -1339,7 +1340,7 @@ export default function AdminOrders() {
       // Sync ALL active courier parcels across every page (in_review, pending, hold, …)
       await Promise.all(providers.map(async (p) => {
         try {
-          const res = await fetch(`https://xxucasikopqtcztbgfbw.supabase.co/functions/v1/${p.fn}?action=bulk_status`, {
+          const res = await fetch(`${FUNCTIONS_URL}/${p.fn}?action=bulk_status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({ only_active: true, limit: 500 }),
