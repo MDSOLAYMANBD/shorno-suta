@@ -12,13 +12,59 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const STEADFAST_BASE = 'https://portal.packzy.com/api/v1';
 const MAX_PAYMENT_SYNC_PAGES = 100;
 
+// Steadfast documents no limit for `note`, but every parcel it ever accepted
+// from us had an empty note, while every create with the long multi-line
+// store default note came back as a bare HTML "Server Error" page. So notes
+// are flattened to one line and capped, and a create that hits that server
+// error is retried with a shorter note, then none, so the parcel still goes out.
+const NOTE_MAX_CHARS = 200;
+const NOTE_FALLBACK_CHARS = 100;
+
+function sanitizeNote(note: string): string {
+  const flat = (note || '')
+    .replace(/\r\n|\r|\n/g, ' | ')
+    .replace(/\s+/g, ' ')
+    .replace(/(\s*\|\s*)+/g, ' | ')
+    .replace(/^\s*\|\s*|\s*\|\s*$/g, '')
+    .trim();
+  return flat.length > NOTE_MAX_CHARS ? flat.slice(0, NOTE_MAX_CHARS).trim() : flat;
+}
+
 async function parseResponse(res: Response): Promise<any> {
   const text = await res.text();
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error(`Steadfast API error (HTTP ${res.status}): ${text.substring(0, 300)}`);
+    const title = text.match(/<title>([^<]*)<\/title>/i)?.[1]?.trim();
+    const err: any = new Error(`Steadfast API error (HTTP ${res.status}): ${title || text.substring(0, 200)}`);
+    err.nonJson = true;
+    throw err;
   }
+}
+
+async function postCreateOrder(headers: Record<string, string>, payload: Record<string, any>) {
+  const full = String(payload.note || '');
+  const notes = [full];
+  if (full.length > NOTE_FALLBACK_CHARS) notes.push(full.slice(0, NOTE_FALLBACK_CHARS).trim());
+  if (full) notes.push('');
+
+  let lastErr: any;
+  for (const note of notes) {
+    const body = { ...payload, note };
+    const res = await fetch(`${STEADFAST_BASE}/create_order`, { method: 'POST', headers, body: JSON.stringify(body) });
+    try {
+      const result = await parseResponse(res);
+      if (note !== full) {
+        console.warn(`[steadfast] invoice=${payload.invoice} accepted only after shortening note ${full.length} → ${note.length} chars`);
+      }
+      return { res, result, payload: body };
+    } catch (e: any) {
+      if (!e?.nonJson) throw e;
+      lastErr = e;
+      console.warn(`[steadfast] invoice=${payload.invoice} server error with note of ${note.length} chars`);
+    }
+  }
+  throw lastErr;
 }
 
 async function getSteadfastCredentials(supabaseAdmin: any) {
@@ -173,7 +219,7 @@ function buildOrderPayload(order: any, defaultNote = '') {
     recipient_phone: order.customer_phone,
     recipient_address: address || 'N/A',
     cod_amount: order.is_gift_order ? 0 : Math.round(Number(order.due_amount) > 0 ? Number(order.due_amount) : (Number(order.due_amount) === 0 && Number(order.paid_amount) > 0 ? 0 : Number(order.total) || 0)),
-    note: combinedNote,
+    note: sanitizeNote(combinedNote),
   };
   if (altPhone) payload.alternative_phone = altPhone;
   if (order.order_origin === 'exchange') payload.is_exchange = 1;
@@ -186,13 +232,7 @@ async function createOrder(supabaseAdmin: any, headers: Record<string, string>, 
   if (error || !order) throw new Error(`Order not found: ${orderId}`);
 
   const defaults = await getDefaultCourierNotes(supabaseAdmin);
-  const res = await fetch(`${STEADFAST_BASE}/create_order`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(buildOrderPayload(order, pickDefaultNote(defaults, order.order_origin))),
-  });
-
-  const result = await parseResponse(res);
+  const { res, result } = await postCreateOrder(headers, buildOrderPayload(order, pickDefaultNote(defaults, order.order_origin)));
 
   if (!res.ok || !result?.consignment?.consignment_id) {
     const detail = result?.message || result?.error || result?.errors || `HTTP ${res.status}`;
@@ -275,20 +315,29 @@ async function bulkCreateOrders(supabaseAdmin: any, headers: Record<string, stri
   const defaults = await getDefaultCourierNotes(supabaseAdmin);
   const payloads = orders.map((order: any) => buildOrderPayload(order, pickDefaultNote(defaults, order.order_origin)));
 
-  // Steadfast bulk API expects: data as JSON string of array
-  const formData = new FormData();
-  formData.append('data', JSON.stringify(payloads));
-
   const bulkHeaders = { ...headers };
   delete bulkHeaders['Content-Type']; // FormData sets its own content-type
 
-  const res = await fetch(`${STEADFAST_BASE}/create_order/bulk-order`, {
-    method: 'POST',
-    headers: bulkHeaders,
-    body: formData,
-  });
+  // Steadfast bulk API expects: data as JSON string of array
+  const sendBulk = async (items: any[]) => {
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(items));
+    const res = await fetch(`${STEADFAST_BASE}/create_order/bulk-order`, {
+      method: 'POST',
+      headers: bulkHeaders,
+      body: formData,
+    });
+    return parseResponse(res);
+  };
 
-  const result = await parseResponse(res);
+  let result: any;
+  try {
+    result = await sendBulk(payloads);
+  } catch (e: any) {
+    if (!e?.nonJson || !payloads.some((p: any) => p.note)) throw e;
+    console.warn(`[steadfast] bulk create server error — retrying ${payloads.length} parcels without notes`);
+    result = await sendBulk(payloads.map((p: any) => ({ ...p, note: '' })));
+  }
 
   // Update DB for each successful consignment
   const results: any[] = [];
@@ -412,12 +461,7 @@ async function resyncOrder(supabaseAdmin: any, headers: Record<string, string>, 
     courier_last_synced_total: null,
   }).eq('id', orderId);
 
-  const createRes = await fetch(`${STEADFAST_BASE}/create_order`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
-  });
-  const createResult = await parseResponse(createRes);
+  const { res: createRes, result: createResult } = await postCreateOrder(headers, payload);
   if (!createRes.ok || !createResult?.consignment?.consignment_id) {
     const detail = createResult?.message || createResult?.error || createResult?.errors || `HTTP ${createRes.status}`;
     const err: any = new Error(`পুরাতন parcel delete হয়েছে, কিন্তু নতুন Steadfast parcel তৈরি ব্যর্থ: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
@@ -536,10 +580,7 @@ async function recreateParcel(
   }
 
   // 4) Create brand-new parcel
-  const createRes = await fetch(`${STEADFAST_BASE}/create_order`, {
-    method: 'POST', headers, body: JSON.stringify(payload),
-  });
-  const createResult = await parseResponse(createRes);
+  const { res: createRes, result: createResult } = await postCreateOrder(headers, payload);
   if (!createRes.ok || !createResult?.consignment?.consignment_id) {
     // Roll-back archive flag so we don't lose pointer to the still-live old parcel
     if (activeRow) {
