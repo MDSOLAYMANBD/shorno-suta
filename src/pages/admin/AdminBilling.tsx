@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useCoreBilling } from '@/hooks/useCoreBilling';
+import CoreAddonCard from '@/components/admin/CoreAddonCard';
 import {
   coreAction,
   formatBnDate,
@@ -338,6 +339,7 @@ export default function AdminBilling() {
   const payments = core.payments ?? [];
   const pendingFor = new Set(payments.filter((p) => p.status === 'pending').map((p) => p.invoice_id));
   const plans = core.plans ?? [];
+  const addons = core.addons ?? [];
   const support = core.support;
   const whatsapp = support?.whatsapp?.replace(/\D/g, '');
   const bn = (n: number) => n.toLocaleString('bn-BD');
@@ -418,6 +420,12 @@ export default function AdminBilling() {
             ) : (
               <div className="mt-1 text-sm text-muted-foreground">এখনো কোনো প্যাকেজ ঠিক করা হয়নি</div>
             )}
+            {billing.addons_monthly ? (
+              <div className="mt-2 text-xs text-muted-foreground">
+                + সার্ভিস {formatTaka(billing.addons_monthly)} · মোট প্রতি মাসে{' '}
+                <span className="font-semibold text-foreground">{formatTaka(billing.monthly_total)}</span>
+              </div>
+            ) : null}
           </div>
           <div>
             <div className="text-xs text-muted-foreground">পরের বিল</div>
@@ -458,6 +466,15 @@ export default function AdminBilling() {
                     )}
                   </div>
                   <div className="mt-1 text-sm">{inv.description}</div>
+                  {inv.items && inv.items.length > 1 && (
+                    <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                      {inv.items.map((item, i) => (
+                        <li key={i}>
+                          {item.description}: {formatTaka(item.amount)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {inv.due_date && <div className="text-xs text-muted-foreground">শেষ তারিখ {formatBnDate(inv.due_date)}</div>}
                 </div>
                 <div className="flex items-center gap-2">
@@ -475,6 +492,18 @@ export default function AdminBilling() {
             ))}
           </CardContent>
         </Card>
+      )}
+
+      {/* Services on top of the package */}
+      {addons.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">আপনার সার্ভিস</h2>
+          <div className="grid gap-6 xl:grid-cols-2">
+            {addons.map((addon) => (
+              <CoreAddonCard key={addon.id} addon={addon} />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Packages */}

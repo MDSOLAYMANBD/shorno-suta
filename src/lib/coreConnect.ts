@@ -32,6 +32,29 @@ export interface CoreBilling {
   next_renewal?: string | null;
   bill_days_before?: number;
   grace_days?: number;
+  addons_monthly?: number | null;
+  monthly_total?: number | null;
+}
+
+/** A service the site runs on top of its package, e.g. IP Number & SMS Service. */
+export interface CoreAddon {
+  id: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  status: 'setting_up' | 'active' | 'paused' | 'cancelled';
+  phone_number: string | null;
+  details: string | null;
+  started_on: string;
+  plan: string | null;
+  monthly: number | null;
+  setup: string | null;
+  extras: string[];
+  features: string[];
+  rates: { label: string; price: number; unit: string | null; note: string | null }[];
+  samples: { title: string; url: string }[];
+  /** Apps to use the service with, e.g. a softphone for Windows and Android. */
+  apps?: { label: string; url: string }[];
 }
 
 export interface CoreInvoice {
@@ -45,6 +68,8 @@ export interface CoreInvoice {
   due_date: string | null;
   paid_date: string | null;
   url: string;
+  /** The bill's lines (the package, each service); empty for a one-line bill. */
+  items?: { description: string; amount: number }[];
 }
 
 export interface CorePayment {
@@ -83,6 +108,7 @@ export interface CoreStatus {
   billing?: CoreBilling;
   plan?: CorePlan | null;
   plans?: CorePlan[];
+  addons?: CoreAddon[];
   invoices?: CoreInvoice[];
   payments?: CorePayment[];
   orders?: { id: string; service_name: string; status: string; created_at: string }[];
