@@ -3,7 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -20,6 +20,9 @@ import IncomingCallNotification from '@/components/admin/inbox/IncomingCallNotif
 import CallStatusBanner from '@/components/admin/inbox/CallStatusBanner';
 import LiveVisitorBadge from '@/components/LiveVisitorBadge';
 import { AUTH_STORAGE_KEY } from '@/integrations/supabase/config';
+import { useCoreBilling } from '@/hooks/useCoreBilling';
+import CoreLockScreen from '@/components/admin/CoreLockScreen';
+import CoreBillingNotice from '@/components/admin/CoreBillingNotice';
 
 const ALL_SIDEBAR_LINKS = [
   { label: 'ড্যাশবোর্ড', to: '/admin/dashboard', icon: LayoutDashboard, section: 'dashboard', hasSubLinks: true, iconColor: 'bg-blue-100 text-blue-600',
@@ -90,6 +93,7 @@ const ALL_SIDEBAR_LINKS = [
   },
   { label: 'CRM', to: '/admin/crm', icon: Contact, section: 'crm', iconColor: 'bg-violet-100 text-violet-600' },
   { label: 'ব্রডকাস্ট', to: '/admin/broadcast', icon: Megaphone, section: 'marketing', iconColor: 'bg-fuchsia-100 text-fuchsia-600' },
+  { label: 'বিল ও প্যাকেজ', to: '/admin/billing', icon: Crown, section: 'billing', iconColor: 'bg-amber-100 text-amber-700' },
 ];
 
 export default function AdminDashboard() {
@@ -316,6 +320,15 @@ export default function AdminDashboard() {
     return () => { supabase.removeChannel(channel); };
   }, [queryClient, notify, navigate]);
 
+  // CORE Connect: this site's bills come from CORE Automation. While CORE has locked
+  // the panel for an unpaid bill, every page but Billing shows the lock screen; a
+  // system owner is never locked out. The store's admins see and pay the bills.
+  // MUST be called before any early returns to preserve hook order.
+  const { data: core } = useCoreBilling(Boolean(user));
+  const isSystemOwner = permissions?.role === 'system_owner';
+  const canBilling = isSystemOwner || permissions?.role === 'admin' || permissions?.role === 'malik';
+  const coreLocked = Boolean(core?.billing?.locked) && !isSystemOwner;
+
   // Show spinner until auth bootstrap finishes. Once ready:
   //  - if no user, the redirect effect above sends them to /admin (still show spinner briefly)
   //  - if user but role not yet confirmed, keep showing spinner rather than
@@ -353,7 +366,7 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const sidebarLinks = ALL_SIDEBAR_LINKS.filter(l => can(l.section));
+  const sidebarLinks = ALL_SIDEBAR_LINKS.filter(l => (l.section === 'billing' ? canBilling : can(l.section)));
   const isActive = (path: string) => location.pathname === path;
 
   const displayName = myProfile?.full_name || 'স্বর্ণ সুতা';
@@ -471,6 +484,8 @@ export default function AdminDashboard() {
       )}
 
 
+      <CoreBillingNotice core={core} onNavigate={onNavigate} />
+
       <NavItems onNavigate={onNavigate} />
 
       <div className="mt-auto pt-6 space-y-2">
@@ -536,7 +551,7 @@ export default function AdminDashboard() {
         <div className="p-4 md:p-6">
           <DynamicIsland userId={userId} />
           <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
-            <Outlet />
+            {coreLocked && core && !location.pathname.startsWith('/admin/billing') ? <CoreLockScreen core={core} /> : <Outlet />}
           </Suspense>
         </div>
       </main>

@@ -148,6 +148,7 @@ const AdminAIKeys = lazy(() => lazyRetry(() => import("./pages/admin/AdminAIKeys
 const AdminAIChatSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminAIChatSettings")));
 const AdminAISupportRequests = lazy(() => lazyRetry(() => import("./pages/admin/AdminAISupportRequests")));
 const AdminBroadcast = lazy(() => lazyRetry(() => import("./pages/admin/AdminBroadcast")));
+const AdminBilling = lazy(() => lazyRetry(() => import("./pages/admin/AdminBilling")));
 
 // Customer account pages
 const CustomerLogin = lazy(() => lazyRetry(() => import("./pages/account/CustomerLogin")));
@@ -373,6 +374,7 @@ const App = () => (
                 <Route path="ai-chat-settings" element={<AdminAIChatSettings />} />
                 <Route path="ai-support-requests" element={<AdminAISupportRequests />} />
                 <Route path="broadcast" element={<AdminBroadcast />} />
+                <Route path="billing" element={<AdminBilling />} />
               </Route>
               <Route path="/sitemap.xml" element={<SitemapRedirect />} />
               <Route path="/feeds/google-merchant-optimized.xml" element={<MerchantFeedRedirect />} />

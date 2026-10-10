@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, ShoppingCart, Package, LayoutGrid, Tag, Users, Ticket, Globe, ImageIcon, Palette, PenTool, Settings, UserCog, MessageCircle, AlertTriangle, Bell, Calculator, Star } from 'lucide-react';
+import { BarChart3, ShoppingCart, Package, LayoutGrid, Tag, Users, Ticket, Globe, ImageIcon, Palette, PenTool, Settings, UserCog, MessageCircle, AlertTriangle, Bell, Calculator, Star, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -21,6 +21,7 @@ const MORE_LINKS = [
   { label: 'লাইভ চ্যাট', to: '/admin/live-chat', icon: MessageCircle, section: 'live_chat' },
   { label: 'হিসাব', to: '/admin/accounting', icon: Calculator, section: 'accounting' },
   { label: 'রিভিউ', to: '/admin/reviews', icon: Star, section: 'settings' },
+  { label: 'বিল ও প্যাকেজ', to: '/admin/billing', icon: Crown, section: 'billing' },
 ];
 
 export default function AdminBottomNav() {
@@ -51,7 +52,10 @@ export default function AdminBottomNav() {
     ...(isOwnerOrAdmin ? [{ label: 'হিসাব', to: '/admin/accounting', icon: Calculator, badge: 0 }] : []),
   ];
 
-  const filteredMoreLinks = MORE_LINKS.filter(l => can(l.section) && !(isOwnerOrAdmin && l.section === 'accounting'));
+  // Billing (CORE Automation's bills for this site) is for the store's admins.
+  const canBilling = isOwnerOrAdmin || permissions?.role === 'system_owner';
+  const filteredMoreLinks = MORE_LINKS.filter(l =>
+    (l.section === 'billing' ? canBilling : can(l.section)) && !(isOwnerOrAdmin && l.section === 'accounting'));
 
   return (
     <>
