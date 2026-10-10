@@ -39,6 +39,7 @@ export interface CoreBilling {
 /** A service the site runs on top of its package, e.g. IP Number & SMS Service. */
 export interface CoreAddon {
   id: string;
+  service_id?: string;
   name: string;
   tagline: string | null;
   description: string | null;
@@ -55,6 +56,38 @@ export interface CoreAddon {
   samples: { title: string; url: string }[];
   /** Apps to use the service with, e.g. a softphone for Windows and Android. */
   apps?: { label: string; url: string }[];
+}
+
+export interface CoreAddonPrice {
+  id: string;
+  label: string;
+  price: number;
+  unit: string | null;
+  note: string | null;
+  features: string[];
+  popular: boolean;
+}
+
+/** A service CORE offers on top of the package (e.g. IP Number & SMS Service). */
+export interface CoreAddonOffer {
+  id: string;
+  slug: string | null;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  features: string[];
+  apps: { label: string; url: string }[];
+  samples: { title: string; url: string }[];
+  /** One-time, always taken (e.g. the setup charge). */
+  fees: CoreAddonPrice[];
+  /** One-time, pick one (e.g. a regular or a VIP number). */
+  setups: CoreAddonPrice[];
+  /** One-time, optional (e.g. a caller tune). */
+  extras: CoreAddonPrice[];
+  plans: CoreAddonPrice[];
+  rates: CoreAddonPrice[];
+  /** The site already runs it. */
+  running: boolean;
 }
 
 export interface CoreInvoice {
@@ -109,6 +142,7 @@ export interface CoreStatus {
   plan?: CorePlan | null;
   plans?: CorePlan[];
   addons?: CoreAddon[];
+  addon_offers?: CoreAddonOffer[];
   invoices?: CoreInvoice[];
   payments?: CorePayment[];
   orders?: { id: string; service_name: string; status: string; created_at: string }[];
@@ -179,7 +213,8 @@ export type CoreAction =
   | { action: 'pay'; invoice_id: string; method: string; amount: number; trx_id: string; sender?: string }
   | { action: 'plan'; package_id: string }
   | { action: 'ticket'; subject: string; description?: string }
-  | { action: 'order'; service_id: string; note?: string };
+  | { action: 'order'; service_id: string; note?: string }
+  | { action: 'addon'; service_id: string; plan_id: string | null; setup_id: string | null; extra_ids: string[]; note?: string };
 
 export const coreAction = <T = Record<string, unknown>>(body: CoreAction) => call<T>('POST', body);
 

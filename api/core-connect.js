@@ -16,7 +16,7 @@ const CORE_URL = (process.env.CORE_URL || "https://coreautomationbd.com").replac
 const BILLING_ROLES = new Set(["admin", "malik", "system_owner"]);
 
 // POST { action, ...fields } → CORE's endpoint for it.
-const ACTIONS = { pay: "payments", plan: "plan", ticket: "tickets", order: "orders" };
+const ACTIONS = { pay: "payments", plan: "plan", ticket: "tickets", order: "orders", addon: "addon-orders" };
 
 /** The signed-in staff member's role, checked with the site's backend (null if not staff). */
 async function staffRole(req) {

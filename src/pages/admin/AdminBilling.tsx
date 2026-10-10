@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { useCoreBilling } from '@/hooks/useCoreBilling';
 import CoreAddonCard from '@/components/admin/CoreAddonCard';
+import CoreAddonOffer from '@/components/admin/CoreAddonOffer';
 import {
   coreAction,
   formatBnDate,
@@ -340,6 +341,9 @@ export default function AdminBilling() {
   const pendingFor = new Set(payments.filter((p) => p.status === 'pending').map((p) => p.invoice_id));
   const plans = core.plans ?? [];
   const addons = core.addons ?? [];
+  const offers = (core.addon_offers ?? []).filter((o) => !o.running);
+  const ordered = (name: string) =>
+    (core.orders ?? []).some((o) => o.service_name === name && (o.status === 'new' || o.status === 'in_progress'));
   const support = core.support;
   const whatsapp = support?.whatsapp?.replace(/\D/g, '');
   const bn = (n: number) => n.toLocaleString('bn-BD');
@@ -503,6 +507,16 @@ export default function AdminBilling() {
               <CoreAddonCard key={addon.id} addon={addon} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Services CORE offers on top of the package */}
+      {offers.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">আরও সার্ভিস</h2>
+          {offers.map((offer) => (
+            <CoreAddonOffer key={offer.id} offer={offer} ordered={ordered(offer.name)} onOrdered={() => refetch()} />
+          ))}
         </div>
       )}
 
