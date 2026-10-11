@@ -1,9 +1,26 @@
+import { useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { CheckCircle2, Copy, Download, Monitor, Music, PhoneCall, Smartphone } from 'lucide-react';
+import {
+  CheckCircle2,
+  Copy,
+  Download,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Monitor,
+  Music,
+  PhoneCall,
+  PlayCircle,
+  Server,
+  Smartphone,
+  type LucideIcon,
+} from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { formatBnDate, formatTaka, type CoreAddon } from '@/lib/coreConnect';
+import { formatBnDate, formatTaka, type CoreAddon, type CoreAddonAccess, type CoreGuideStep } from '@/lib/coreConnect';
 
 const STATUS: Record<CoreAddon['status'], { label: string; className: string; dot: string }> = {
   active: { label: 'চালু আছে', className: 'bg-emerald-400/20 text-emerald-200', dot: 'bg-emerald-400' },
@@ -13,12 +30,242 @@ const STATUS: Record<CoreAddon['status'], { label: string; className: string; do
 };
 
 const isPhoneApp = (label: string) => /android|iphone|ios|mobile|play\s*store|app\s*store/i.test(label);
+const bnDigits = (n: number) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[Number(d)]);
+const copy = (text: string) =>
+  navigator.clipboard.writeText(text).then(
+    () => toast.success('কপি হয়েছে'),
+    () => toast.error('কপি করা যায়নি'),
+  );
+
+const iconButton =
+  'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground';
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  return (
+    <button type="button" onClick={() => copy(value)} aria-label={label} title={label} className={iconButton}>
+      <Copy className="h-4 w-4" />
+    </button>
+  );
+}
+
+/** A value with a copy button. */
+function Value({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-0.5">
+      <span className="min-w-0 flex-1 truncate font-mono text-sm font-semibold">{value}</span>
+      <CopyButton value={value} label={label} />
+    </div>
+  );
+}
+
+/** A password: hidden until asked, copied either way. */
+function Secret({ value }: { value: string }) {
+  const [shown, setShown] = useState(false);
+  const toggle = shown ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন';
+  return (
+    <div className="flex min-w-0 items-center gap-0.5">
+      <span className="min-w-0 flex-1 truncate font-mono text-sm">{shown ? value : '••••••••'}</span>
+      <button type="button" onClick={() => setShown(!shown)} aria-label={toggle} title={toggle} className={iconButton}>
+        {shown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+      <CopyButton value={value} label="পাসওয়ার্ড কপি করুন" />
+    </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <span className="w-[70px] shrink-0 text-[11px] text-muted-foreground">{label}</span>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+/** The server, accounts (e.g. extensions) and logins (e.g. call records) CORE set up for this site. */
+function AccessDetails({ access }: { access: CoreAddonAccess }) {
+  return (
+    <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 dark:border-teal-900 dark:bg-teal-950/20">
+      <div className="flex items-center gap-2 text-sm font-bold">
+        <KeyRound className="h-4 w-4 text-teal-600" /> আপনার লগইনের তথ্য
+      </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">শুধু এই প্যানেলের মালিকরা দেখতে পান। পাসওয়ার্ড কাউকে শেয়ার করবেন না।</p>
+
+      {access.server && (
+        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 rounded-lg border bg-background px-3 py-1.5">
+          <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <Server className="h-4 w-4 text-teal-600" /> সার্ভার / SIP ডোমেইন
+          </span>
+          <div className="min-w-[160px] flex-1">
+            <Value value={access.server} label="সার্ভার কপি করুন" />
+          </div>
+        </div>
+      )}
+
+      {access.accounts.length > 0 && (
+        <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2">
+          {access.accounts.map((a, i) => (
+            <div key={`${a.username}-${i}`} className="rounded-lg border bg-background px-3 py-2">
+              <div className="mb-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">এক্সটেনশন {bnDigits(i + 1)}</div>
+              <Row label="ইউজারনেম">
+                <Value value={a.username} label="ইউজারনেম কপি করুন" />
+              </Row>
+              {a.password && (
+                <Row label="পাসওয়ার্ড">
+                  <Secret value={a.password} />
+                </Row>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {access.logins.length > 0 && (
+        <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2">
+          {access.logins.map((l, i) => (
+            <div key={`${l.label}-${i}`} className="rounded-lg border bg-background px-3 py-2">
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                <span className="min-w-0 break-words text-sm font-bold">{l.label}</span>
+                {l.url && (
+                  <a
+                    href={l.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md bg-teal-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-teal-700"
+                  >
+                    লগইন পেজ খুলুন <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+              {l.username && (
+                <Row label="ইউজারনেম">
+                  <Value value={l.username} label="ইউজারনেম কপি করুন" />
+                </Row>
+              )}
+              {l.password && (
+                <Row label="পাসওয়ার্ড">
+                  <Secret value={l.password} />
+                </Row>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Setting the service up on a phone or on a computer: the app, a video and a picture, then logging in. */
+function SetupSide({
+  title,
+  icon: Icon,
+  apps,
+  step,
+  login,
+}: {
+  title: string;
+  icon: LucideIcon;
+  apps: { label: string; url: string }[];
+  step?: CoreGuideStep;
+  login: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const steps: { key: string; content: ReactNode }[] = [];
+  if (apps.length > 0) {
+    steps.push({
+      key: 'apps',
+      content: (
+        <div className="space-y-2">
+          <div className="text-sm">অ্যাপটি নামান</div>
+          {apps.map((app) => (
+            <a
+              key={app.url}
+              href={app.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl border bg-background px-3 py-2 transition-colors hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50"
+            >
+              <span className="min-w-0 flex-1 break-words text-sm font-semibold leading-tight">{app.label}</span>
+              <Download className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-300" />
+            </a>
+          ))}
+        </div>
+      ),
+    });
+  }
+  if (step?.video || step?.image) {
+    steps.push({
+      key: 'guide',
+      content: (
+        <div className="space-y-2">
+          <div className="text-sm">দেখে দেখে সেটআপ করুন</div>
+          {step.video && (
+            <a
+              href={step.video}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-xl bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            >
+              <PlayCircle className="h-4 w-4 shrink-0" /> সেটআপের ভিডিও দেখুন
+            </a>
+          )}
+          {step.image && (
+            <>
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                aria-label={`${title} সেটআপের ছবি বড় করে দেখুন`}
+                className="block w-full overflow-hidden rounded-xl border bg-background transition-opacity hover:opacity-90"
+              >
+                <img src={step.image} alt={`${title} সেটআপের ছবি`} loading="lazy" className="max-h-56 w-full object-contain" />
+              </button>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent className="max-w-3xl p-2">
+                  <DialogTitle className="sr-only">{title} সেটআপের ছবি</DialogTitle>
+                  <img src={step.image} alt={`${title} সেটআপের ছবি`} className="max-h-[80vh] w-full rounded-lg object-contain" />
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+        </div>
+      ),
+    });
+  }
+  if (steps.length === 0) return null;
+  if (login) {
+    steps.push({ key: 'login', content: <div className="text-sm">উপরের সার্ভার, এক্সটেনশন আর পাসওয়ার্ড দিয়ে লগইন করুন</div> });
+  }
+
+  return (
+    <div className="rounded-xl border bg-muted/30 p-4">
+      <div className="mb-3 flex items-center gap-2 text-sm font-bold">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-white">
+          <Icon className="h-4 w-4" />
+        </span>
+        {title}
+      </div>
+      <ol className="space-y-3">
+        {steps.map((s, i) => (
+          <li key={s.key} className="flex gap-2.5">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-600/15 text-[11px] font-bold text-teal-700 dark:text-teal-300">
+              {bnDigits(i + 1)}
+            </span>
+            <div className="min-w-0 flex-1">{s.content}</div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 
 /** A service this site runs on top of its package (e.g. IP Number & SMS Service), from CORE. */
 export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
   const status = STATUS[addon.status] ?? STATUS.active;
   const apps = addon.apps ?? [];
-  const copy = (text: string) => navigator.clipboard.writeText(text).then(() => toast.success('কপি হয়েছে'));
+  const access = addon.access;
+  const hasAccess = Boolean(access && (access.server || access.accounts.length > 0 || access.logins.length > 0));
+  const canLogIn = Boolean(access && (access.server || access.accounts.length > 0));
+  const hasSetup = apps.length > 0 || Boolean(addon.guide);
 
   return (
     <Card className="overflow-hidden">
@@ -80,6 +327,35 @@ export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
           </div>
         </div>
 
+        {hasAccess && access && <AccessDetails access={access} />}
+
+        {hasSetup && (
+          <div>
+            <div className="text-sm font-bold">মোবাইল ও কম্পিউটারে সেটআপ</div>
+            {!hasAccess && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                অ্যাপটি নামিয়ে আপনার নম্বর দিয়ে লগইন করুন। লগইনের তথ্য CORE Automation থেকে দেওয়া হবে।
+              </p>
+            )}
+            <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+              <SetupSide
+                title="মোবাইলে"
+                icon={Smartphone}
+                apps={apps.filter((a) => isPhoneApp(a.label))}
+                step={addon.guide?.mobile}
+                login={canLogIn}
+              />
+              <SetupSide
+                title="কম্পিউটারে"
+                icon={Monitor}
+                apps={apps.filter((a) => !isPhoneApp(a.label))}
+                step={addon.guide?.desktop}
+                login={canLogIn}
+              />
+            </div>
+          </div>
+        )}
+
         {addon.rates.length > 0 && (
           <div>
             <div className="mb-2 text-xs font-semibold text-muted-foreground">ব্যবহারের খরচ</div>
@@ -104,38 +380,6 @@ export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
               </li>
             ))}
           </ul>
-        )}
-
-        {apps.length > 0 && (
-          <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30">
-            <div className="text-sm font-bold">মোবাইল ও কম্পিউটার থেকে ব্যবহার করুন</div>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              অ্যাপটি নামিয়ে আপনার নম্বর দিয়ে লগইন করুন। লগইনের তথ্য CORE Automation থেকে দেওয়া হবে।
-            </p>
-            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {apps.map((app) => {
-                const Icon = isPhoneApp(app.label) ? Smartphone : Monitor;
-                return (
-                  <a
-                    key={app.url}
-                    href={app.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border bg-background px-3 py-2.5 transition-colors hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block break-words text-sm font-semibold leading-tight">{app.label}</span>
-                      <span className="block text-[11px] text-muted-foreground">ডাউনলোড করুন</span>
-                    </span>
-                    <Download className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-300" />
-                  </a>
-                );
-              })}
-            </div>
-          </div>
         )}
 
         {(addon.setup || addon.extras.length > 0) && (

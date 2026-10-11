@@ -56,6 +56,21 @@ export interface CoreAddon {
   samples: { title: string; url: string }[];
   /** Apps to use the service with, e.g. a softphone for Windows and Android. */
   apps?: { label: string; url: string }[];
+  /** What this site logs in with: the server (SIP domain), accounts (extensions) and logins (e.g. call records). */
+  access?: CoreAddonAccess;
+  /** How to set it up on a phone and on a computer: a video link and a picture each. */
+  guide?: { mobile: CoreGuideStep; desktop: CoreGuideStep } | null;
+}
+
+export interface CoreAddonAccess {
+  server: string | null;
+  accounts: { username: string; password: string }[];
+  logins: { label: string; url: string | null; username: string | null; password: string | null }[];
+}
+
+export interface CoreGuideStep {
+  video: string | null;
+  image: string | null;
 }
 
 export interface CoreAddonPrice {
