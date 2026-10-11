@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { coreAction, formatTaka, type CoreAddonOffer, type CoreAddonPrice } from '@/lib/coreConnect';
+import CoreDocumentsStep from '@/components/admin/CoreDocumentsStep';
+import { neededKinds, type AccountType, type DocKind, type PickedDoc } from '@/lib/coreDocuments';
 
 const toBn = (s: string) => s.replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[Number(d)]);
 
@@ -65,6 +67,8 @@ export default function CoreAddonOffer({
   const [setupId, setSetupId] = useState(offer.setups[0]?.id ?? '');
   const [extraIds, setExtraIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
+  const [account, setAccount] = useState<AccountType | ''>('');
+  const [docs, setDocs] = useState<Partial<Record<DocKind, PickedDoc>>>({});
   const [sending, setSending] = useState(false);
 
   const plan = offer.plans.find((p) => p.id === planId);
@@ -80,10 +84,28 @@ export default function CoreAddonOffer({
     ...offer.features,
   ];
 
+  const needed = offer.requires_documents ? neededKinds(account) : [];
+  const missing = offer.requires_documents && (!account || needed.some((k) => !docs[k]));
+
   const send = async () => {
+    if (missing) {
+      toast.error(account ? 'দরকারি কাগজগুলোর ছবি দিন।' : 'অ্যাকাউন্টের ধরন বেছে নিন: ব্যক্তিগত না প্রতিষ্ঠান।');
+      document.getElementById('core-documents')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     setSending(true);
     try {
-      await coreAction({ action: 'addon', service_id: offer.id, plan_id: planId || null, setup_id: setupId || null, extra_ids: extraIds, note: note.trim() || undefined });
+      await coreAction({
+        action: 'addon',
+        service_id: offer.id,
+        plan_id: planId || null,
+        setup_id: setupId || null,
+        extra_ids: extraIds,
+        note: note.trim() || undefined,
+        ...(offer.requires_documents && account
+          ? { account_type: account, documents: needed.map((k) => ({ kind: k, name: docs[k]!.name, type: docs[k]!.type, data: docs[k]!.data })) }
+          : {}),
+      });
       toast.success('অর্ডার পাঠানো হয়েছে। CORE শিগগিরই আপনার সাথে যোগাযোগ করবে।');
       setOpen(false);
       onOrdered();
@@ -297,6 +319,10 @@ export default function CoreAddonOffer({
                   </div>
                 )}
               </section>
+            )}
+
+            {offer.requires_documents && (
+              <CoreDocumentsStep number="৪" account={account} onAccount={setAccount} docs={docs} onDocs={setDocs} />
             )}
 
             <section>

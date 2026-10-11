@@ -103,6 +103,16 @@ export interface CoreAddonOffer {
   rates: CoreAddonPrice[];
   /** The site already runs it. */
   running: boolean;
+  /** Ordering it needs the NID card, and an organization's trade licence. */
+  requires_documents?: boolean;
+}
+
+/** An ID document sent with an order: a photo (JPEG) or a PDF, as base64. */
+export interface CoreDocument {
+  kind: 'nid_front' | 'nid_back' | 'trade_license';
+  name: string;
+  type: string;
+  data: string;
 }
 
 export interface CoreInvoice {
@@ -229,7 +239,16 @@ export type CoreAction =
   | { action: 'plan'; package_id: string }
   | { action: 'ticket'; subject: string; description?: string }
   | { action: 'order'; service_id: string; note?: string }
-  | { action: 'addon'; service_id: string; plan_id: string | null; setup_id: string | null; extra_ids: string[]; note?: string };
+  | {
+      action: 'addon';
+      service_id: string;
+      plan_id: string | null;
+      setup_id: string | null;
+      extra_ids: string[];
+      note?: string;
+      account_type?: 'individual' | 'organization';
+      documents?: CoreDocument[];
+    };
 
 export const coreAction = <T = Record<string, unknown>>(body: CoreAction) => call<T>('POST', body);
 
