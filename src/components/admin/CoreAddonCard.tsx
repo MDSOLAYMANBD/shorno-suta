@@ -266,6 +266,9 @@ export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
   const hasAccess = Boolean(access && (access.server || access.accounts.length > 0 || access.logins.length > 0));
   const canLogIn = Boolean(access && (access.server || access.accounts.length > 0));
   const hasSetup = apps.length > 0 || Boolean(addon.guide);
+  // The site's own caller tune, once CORE has made it; the samples are for those without one.
+  const tunes = addon.tunes ?? [];
+  const tookTune = addon.extras.some((label) => /টিউন|tune/i.test(label));
 
   return (
     <Card className="overflow-hidden">
@@ -329,6 +332,32 @@ export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
 
         {hasAccess && access && <AccessDetails access={access} />}
 
+        {tunes.length > 0 ? (
+          <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 dark:border-teal-900 dark:bg-teal-950/20">
+            <div className="flex items-center gap-2 text-sm font-bold">
+              <Music className="h-4 w-4 text-teal-600" /> আপনার কলার টিউন
+            </div>
+            <p className="mt-0.5 text-xs text-muted-foreground">কেউ আপনার নম্বরে কল করলে এটা শুনবেন।</p>
+            <div className="mt-3 space-y-2">
+              {tunes.map((t) => (
+                <div key={t.url} className="flex flex-wrap items-center gap-3 rounded-xl border bg-background px-3 py-2">
+                  <span className="min-w-[110px] flex-1 text-sm font-semibold">{t.title}</span>
+                  <audio controls preload="none" src={t.url} className="h-9 max-w-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          tookTune && (
+            <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm dark:border-amber-900 dark:bg-amber-950/20">
+              <Music className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <span>
+                <span className="font-bold">আপনার কলার টিউন তৈরি হচ্ছে।</span> তৈরি হলে এখানেই শুনতে পাবেন।
+              </span>
+            </div>
+          )
+        )}
+
         {hasSetup && (
           <div>
             <div className="text-sm font-bold">মোবাইল ও কম্পিউটারে সেটআপ</div>
@@ -390,7 +419,7 @@ export default function CoreAddonCard({ addon }: { addon: CoreAddon }) {
 
         {addon.details && <p className="whitespace-pre-line rounded-xl border bg-muted/30 p-3 text-sm">{addon.details}</p>}
 
-        {addon.samples.length > 0 && (
+        {tunes.length === 0 && !tookTune && addon.samples.length > 0 && (
           <div>
             <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
               <Music className="h-3.5 w-3.5" /> কলার টিউনের নমুনা

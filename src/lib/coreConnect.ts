@@ -60,6 +60,8 @@ export interface CoreAddon {
   access?: CoreAddonAccess;
   /** How to set it up on a phone and on a computer: a video link and a picture each. */
   guide?: { mobile: CoreGuideStep; desktop: CoreGuideStep } | null;
+  /** The site's own caller tunes, made by CORE. */
+  tunes?: { title: string; url: string }[];
 }
 
 export interface CoreAddonAccess {
