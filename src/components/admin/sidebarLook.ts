@@ -25,6 +25,7 @@ const TILE_COLOR: Record<string, string> = {
   // CORE Automation's own section
   '/admin/billing': 'from-yellow-400 to-amber-500',
   // the corner at the bottom
+  lang: 'from-sky-400 to-sky-600',
   theme: 'from-indigo-400 to-indigo-600',
   logout: 'from-zinc-400 to-zinc-600',
 };

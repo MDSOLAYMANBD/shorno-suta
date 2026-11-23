@@ -969,6 +969,38 @@
 }
 .animate-flame-soft { animation: flame-soft 2.2s ease-in-out infinite; transform-origin: center bottom; }
 
+/* The admin's dark mode, for the parts written with fixed light colours (bg-white, the
+   grays, the pale -50 tints): they take the dark page's colours. What is printed or shows
+   the website as it looks (memos, the website previews) is marked .keep-light and stays. */
+.dark .admin-shell :is(.bg-white, .bg-gray-50, .bg-slate-50, .bg-neutral-50, .bg-zinc-50):not(.keep-light, .keep-light *, .print-invoice-wrapper *) {
+  background-color: hsl(var(--card));
+}
+.dark .admin-shell :is(.bg-gray-100, .bg-slate-100, .bg-neutral-100, .bg-gray-200, .bg-slate-200):not(.keep-light, .keep-light *, .print-invoice-wrapper *) {
+  background-color: hsl(var(--muted));
+}
+.dark .admin-shell :is(.text-black, .text-gray-900, .text-gray-800, .text-gray-700, .text-slate-900, .text-slate-800, .text-slate-700, .text-neutral-900, .text-neutral-800):not(.keep-light, .keep-light *, .print-invoice-wrapper *) {
+  color: hsl(var(--foreground));
+}
+.dark .admin-shell :is(.text-gray-600, .text-gray-500, .text-gray-400, .text-slate-600, .text-slate-500, .text-slate-400, .text-neutral-600, .text-neutral-500):not(.keep-light, .keep-light *, .print-invoice-wrapper *) {
+  color: hsl(var(--muted-foreground));
+}
+.dark .admin-shell :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-slate-100, .border-slate-200, .border-slate-300, .border-white):not(.keep-light, .keep-light *, .print-invoice-wrapper *) {
+  border-color: hsl(var(--border));
+}
+/* pale tints: the same hue, see-through on the dark page; their dark text lightened */
+.dark .admin-shell .bg-emerald-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-green-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(16 185 129 / 0.12); }
+.dark .admin-shell .bg-amber-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-yellow-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(245 158 11 / 0.12); }
+.dark .admin-shell .bg-orange-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(249 115 22 / 0.12); }
+.dark .admin-shell .bg-red-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-rose-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(239 68 68 / 0.12); }
+.dark .admin-shell .bg-blue-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-sky-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-indigo-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(59 130 246 / 0.12); }
+.dark .admin-shell .bg-purple-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-violet-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *), .dark .admin-shell .bg-pink-50:not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: rgb(168 85 247 / 0.12); }
+.dark .admin-shell :is(.bg-emerald-100, .bg-green-100, .bg-amber-100, .bg-yellow-100, .bg-orange-100, .bg-red-100, .bg-blue-100, .bg-purple-100):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { background-color: hsl(var(--muted)); }
+.dark .admin-shell :is(.text-emerald-700, .text-emerald-800, .text-emerald-900, .text-green-700, .text-green-800):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { color: #6ee7b7; }
+.dark .admin-shell :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-yellow-800, .text-orange-700, .text-orange-800):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { color: #fcd34d; }
+.dark .admin-shell :is(.text-red-700, .text-red-800, .text-red-900, .text-rose-700):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { color: #fca5a5; }
+.dark .admin-shell :is(.text-blue-700, .text-blue-800, .text-blue-900, .text-indigo-700, .text-sky-700):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { color: #93c5fd; }
+.dark .admin-shell :is(.text-purple-700, .text-purple-800, .text-violet-700, .text-pink-700):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { color: #d8b4fe; }
+.dark .admin-shell :is(.border-emerald-200, .border-green-200, .border-amber-200, .border-orange-200, .border-red-200, .border-blue-200, .border-purple-200, .border-yellow-200):not(.keep-light, .keep-light *, .print-invoice-wrapper *) { border-color: hsl(var(--border)); }
 /* form fields the browser draws (dates, selects) follow the admin's dark mode */
 .dark .admin-shell { color-scheme: dark; }
 

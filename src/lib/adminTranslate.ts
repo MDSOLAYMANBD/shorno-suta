@@ -1,0 +1,219 @@
+// The admin in English (admin → ভাষা → EN). The admin is written in Bangla; while it is in
+// English this swaps each Bangla text on the page for its English (the CORE Shop engine's
+// words in admin-en/engineWords.ts, Shorno Suta's own in admin-en/shornoWords.ts) and keeps
+// doing so as pages change. Numbers turn to 0-9, dates and "৩ দিন আগে" to English. A text
+// with no English yet stays Bangla. Back to বাংলা puts every text back as it was.
+//
+// Never translated: what customers get (the printed memos: .print-invoice-wrapper, and
+// anything marked translate="no"), and what is being typed (inputs, textareas, editors).
+
+type Dict = Map<string, string>;
+
+const BANGLA = /[ঀ-৿]/;
+/** Bangla letters and signs (not the digits ০-৯ or ৳). */
+const BN_LETTER = /[অ-ৣ]/;
+/** Nothing inside is translated (customers' memos, code). */
+const NO_TRANSLATE = '[translate="no"],.notranslate,.print-invoice-wrapper,script,style,noscript';
+/** Text being typed or edited keeps its words (its placeholder is still translated). */
+const KEEP_TEXT = 'textarea,code,pre,[contenteditable=""],[contenteditable="true"]';
+const SKIP_TEXT = `${NO_TRANSLATE},${KEEP_TEXT}`;
+const ATTRS = ['placeholder', 'title', 'aria-label'];
+
+const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+const toAscii = (s: string) => s.replace(/[০-৯]/g, (d) => String(d.charCodeAt(0) - 0x09e6));
+
+// Single words in dates, times and counts ("২৩ নভেম্বর ২০২৬", "প্রায় ২ ঘণ্টা আগে", "৫টি").
+const TOKENS: Record<string, string> = {
+  'জানুয়ারি': 'January', 'জানুয়ারী': 'January', 'ফেব্রুয়ারি': 'February', 'ফেব্রুয়ারী': 'February',
+  'মার্চ': 'March', 'এপ্রিল': 'April', 'মে': 'May', 'জুন': 'June', 'জুলাই': 'July', 'আগস্ট': 'August',
+  'আগষ্ট': 'August', 'সেপ্টেম্বর': 'September', 'অক্টোবর': 'October', 'নভেম্বর': 'November',
+  'ডিসেম্বর': 'December',
+  'জানু': 'Jan', 'ফেব্রু': 'Feb', 'সেপ্টে': 'Sep', 'অক্টো': 'Oct', 'নভে': 'Nov', 'ডিসে': 'Dec',
+  'রবিবার': 'Sunday', 'সোমবার': 'Monday', 'মঙ্গলবার': 'Tuesday', 'বুধবার': 'Wednesday',
+  'বৃহস্পতিবার': 'Thursday', 'শুক্রবার': 'Friday', 'শনিবার': 'Saturday',
+  'রবি': 'Sun', 'সোম': 'Mon', 'মঙ্গল': 'Tue', 'বুধ': 'Wed', 'বৃহঃ': 'Thu', 'বৃহস্পতি': 'Thu', 'শুক্র': 'Fri', 'শনি': 'Sat',
+  'সেকেন্ড': 'seconds', 'মিনিট': 'minutes', 'মিনিটের': 'minute', 'ঘণ্টা': 'hours', 'ঘন্টা': 'hours',
+  'দিন': 'days', 'সপ্তাহ': 'weeks', 'মাস': 'months', 'বছর': 'years',
+  'আগে': 'ago', 'পরে': 'later', 'প্রায়': 'about', 'কম': 'less than', 'বেশি': 'more than', 'মধ্যে': 'within',
+  'টি': '', 'টা': '', 'জন': 'people', 'পিস': 'pcs', 'টাকা': 'Tk', 'বার': 'times',
+  'পূর্বাহ্ন': 'AM', 'অপরাহ্ন': 'PM', 'সকাল': 'morning', 'দুপুর': 'noon', 'বিকাল': 'afternoon', 'সন্ধ্যা': 'evening', 'রাত': 'night',
+  'আজ': 'today', 'গতকাল': 'yesterday', 'আগামীকাল': 'tomorrow',
+  'ও': 'and', 'এবং': 'and', 'থেকে': 'from', 'পর্যন্ত': 'to',
+};
+
+/** The English of a text when we know it, else undefined. */
+function lookup(text: string, dict: Dict, depth = 0): string | undefined {
+  const t = norm(text);
+  if (!t) return t;
+  const hit = dict.get(t);
+  if (hit !== undefined) return hit;
+  if (depth > 2) return undefined;
+
+  // emoji, symbols or punctuation around a known text: "📦 অর্ডার", "মোট:", "সেভ করুন!"
+  const m = t.match(/^([^ঀ-৿A-Za-z0-9]*)(.*?)([\s:：।!?.…,\-–—→←)]*)$/u);
+  if (m && (m[1] || m[3]) && m[2]) {
+    const inner = lookup(m[2], dict, depth + 1);
+    if (inner !== undefined) return m[1] + inner + m[3].replace(/।/g, '.');
+  }
+
+  const ascii = toAscii(t);
+  // only numbers, ৳ and signs left ("৳১,২০০" → "৳1,200")
+  if (!BN_LETTER.test(ascii)) return ascii;
+  const glued = ascii.replace(/(\d)(টি|টা|জন|পিস|দিন|মাস|বছর|ঘণ্টা|ঘন্টা|মিনিট)/g, '$1 $2');
+
+  // every word a date / time / count word ("23 নভেম্বর 2026", "প্রায় 2 ঘণ্টা আগে", "5টি")
+  const parts = glued.split(/(\s+|,)/);
+  if (parts.every((p) => !BN_LETTER.test(p) || TOKENS[p] !== undefined)) {
+    return norm(parts.map((p) => (BN_LETTER.test(p) ? TOKENS[p] : p)).join('').replace(/\s+,/g, ','));
+  }
+
+  // a number before or after a known text: "5 জন সিলেক্টেড", "মোট অর্ডার 12"
+  const before = glued.match(/^([৳$]?[\d,.]+%?\s*(?:টি|টা)?)\s*(.+)$/);
+  if (before) {
+    const rest = lookup(before[2], dict, depth + 1);
+    if (rest !== undefined) return `${before[1].replace(/\s*(টি|টা)$/, '').trim()} ${rest}`;
+  }
+  const after = glued.match(/^(.+?)\s*([৳$]?[\d,.]+%?)$/);
+  if (after) {
+    const rest = lookup(after[1], dict, depth + 1);
+    if (rest !== undefined) return `${rest} ${after[2]}`;
+  }
+  // "label: value" where both sides are known or numbers
+  const colon = glued.match(/^(.+?)\s*[:：]\s*(.+)$/);
+  if (colon) {
+    const a = lookup(colon[1], dict, depth + 1);
+    const b = lookup(colon[2], dict, depth + 1);
+    if (a !== undefined && b !== undefined) return `${a}: ${b}`;
+  }
+  return undefined;
+}
+
+/** The text in English, keeping its spaces around; null when it stays as it is. */
+export function translateText(text: string, dict: Dict): string | null {
+  if (!BANGLA.test(text)) return null;
+  const en = lookup(text, dict);
+  if (en === undefined || en === norm(text)) return null;
+  return (text.match(/^\s*/)?.[0] ?? '') + en + (text.match(/\s*$/)?.[0] ?? '');
+}
+
+let dictPromise: Promise<Dict> | null = null;
+function loadDict(): Promise<Dict> {
+  return (dictPromise ??= Promise.all([import('./admin-en/engineWords'), import('./admin-en/shornoWords')]).then(
+    (parts) => {
+      const dict: Dict = new Map();
+      for (const part of parts) for (const [bn, en] of Object.entries(part.default)) dict.set(norm(bn), en);
+      return dict;
+    },
+  ));
+}
+
+// What each text and attribute was before it was put in English, and what was put there:
+// a text React has since changed is translated again; Bangla puts back the original.
+const origText = new WeakMap<Text, string>();
+const shownText = new WeakMap<Text, string>();
+const origAttr = new WeakMap<Element, Record<string, string>>();
+const shownAttr = new WeakMap<Element, Record<string, string>>();
+
+let dict: Dict | null = null;
+let observer: MutationObserver | null = null;
+let wanted = false;
+
+function doText(node: Text, check: boolean) {
+  const data = node.data;
+  if (!dict || shownText.get(node) === data || !BANGLA.test(data)) return;
+  if (check && node.parentElement?.closest(SKIP_TEXT)) return;
+  const en = translateText(data, dict);
+  if (en === null) return;
+  origText.set(node, data);
+  shownText.set(node, en);
+  node.data = en;
+}
+
+function doAttrs(el: Element, only?: string | null) {
+  if (!dict) return;
+  for (const name of only ? [only] : ATTRS) {
+    const value = el.getAttribute(name);
+    if (!value || !BANGLA.test(value) || shownAttr.get(el)?.[name] === value) continue;
+    const en = translateText(value, dict);
+    if (en === null) continue;
+    origAttr.set(el, { ...origAttr.get(el), [name]: value });
+    shownAttr.set(el, { ...shownAttr.get(el), [name]: en });
+    el.setAttribute(name, en);
+  }
+}
+
+function walk(root: Node) {
+  if (root.nodeType === Node.TEXT_NODE) return doText(root as Text, true);
+  if (root.nodeType !== Node.ELEMENT_NODE) return;
+  const top = root as Element;
+  if (top.closest(NO_TRANSLATE)) return;
+  if (top.parentElement?.closest(KEEP_TEXT)) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode: (n) => {
+      if (n.nodeType !== Node.ELEMENT_NODE) return NodeFilter.FILTER_ACCEPT;
+      const el = n as Element;
+      if (el.matches(NO_TRANSLATE)) return NodeFilter.FILTER_REJECT;
+      if (el.matches(KEEP_TEXT)) {
+        doAttrs(el);
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  // the root itself (the walker starts on it without asking acceptNode)
+  if (top.matches(KEEP_TEXT)) return doAttrs(top);
+  for (let n: Node | null = walker.currentNode; n; n = walker.nextNode()) {
+    if (n.nodeType === Node.TEXT_NODE) doText(n as Text, false);
+    else doAttrs(n as Element);
+  }
+}
+
+function restore() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+  for (let n: Node | null = walker.currentNode; n; n = walker.nextNode()) {
+    if (n.nodeType === Node.TEXT_NODE) {
+      const text = n as Text;
+      const bn = origText.get(text);
+      if (bn !== undefined && shownText.get(text) === text.data) text.data = bn;
+      shownText.delete(text);
+    } else {
+      const el = n as Element;
+      const bn = origAttr.get(el);
+      const shown = shownAttr.get(el);
+      if (bn && shown) for (const [name, value] of Object.entries(bn)) if (el.getAttribute(name) === shown[name]) el.setAttribute(name, value);
+      shownAttr.delete(el);
+    }
+  }
+}
+
+/** Puts the admin in English (the words load once, the first time). */
+export function startAdminEnglish() {
+  wanted = true;
+  document.documentElement.lang = 'en';
+  loadDict()
+    .then((d) => {
+      if (!wanted || observer) return;
+      dict = d;
+      walk(document.body);
+      observer = new MutationObserver((records) => {
+        for (const r of records) {
+          if (r.type === 'characterData') doText(r.target as Text, true);
+          else if (r.type === 'childList') r.addedNodes.forEach(walk);
+          else if (r.type === 'attributes' && !(r.target as Element).closest(NO_TRANSLATE)) doAttrs(r.target as Element, r.attributeName);
+        }
+      });
+      observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+    })
+    .catch(() => {
+      /* the words could not load (offline): the admin stays Bangla */
+    });
+}
+
+/** Back to Bangla: every text as it was. */
+export function stopAdminEnglish() {
+  wanted = false;
+  document.documentElement.lang = 'bn';
+  observer?.disconnect();
+  observer = null;
+  if (dict) restore();
+}

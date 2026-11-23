@@ -46,7 +46,7 @@ const OrderInvoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order, items, c
   });
 
   return (
-    <div ref={ref} className="bg-white text-black mx-auto print:m-0 print:shadow-none shadow-lg" style={{ fontFamily: 'Arial, sans-serif', width: '148mm', minHeight: '210mm', display: 'flex', flexDirection: 'column', position: 'relative', boxSizing: 'border-box' }}>
+    <div ref={ref} translate="no" className="keep-light bg-white text-black mx-auto print:m-0 print:shadow-none shadow-lg" style={{ fontFamily: 'Arial, sans-serif', width: '148mm', minHeight: '210mm', display: 'flex', flexDirection: 'column', position: 'relative', boxSizing: 'border-box' }}>
 
       {/* Main content area */}
       <div className="flex-grow">

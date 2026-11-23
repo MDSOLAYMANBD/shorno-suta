@@ -55,7 +55,7 @@ const GiftMemoInvoice = forwardRef<HTMLDivElement, GiftMemoProps>(({ order, item
   });
 
   return (
-    <div ref={ref} className="text-black mx-auto print:m-0 print:shadow-none shadow-lg overflow-hidden" style={{ fontFamily: 'Arial, sans-serif', width: '148mm', height: '210mm', display: 'flex', flexDirection: 'column', position: 'relative', boxSizing: 'border-box', overflow: 'hidden', background: 'linear-gradient(to bottom right, #fff5f7, #ffffff, #fff0f3)' }}>
+    <div ref={ref} translate="no" className="keep-light text-black mx-auto print:m-0 print:shadow-none shadow-lg overflow-hidden" style={{ fontFamily: 'Arial, sans-serif', width: '148mm', height: '210mm', display: 'flex', flexDirection: 'column', position: 'relative', boxSizing: 'border-box', overflow: 'hidden', background: 'linear-gradient(to bottom right, #fff5f7, #ffffff, #fff0f3)' }}>
 
       {/* Main content area */}
       <div className="flex-grow">

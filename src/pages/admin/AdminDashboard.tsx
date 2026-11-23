@@ -3,7 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft, Languages } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -24,6 +24,9 @@ import { useCoreBilling } from '@/hooks/useCoreBilling';
 import CoreLockScreen from '@/components/admin/CoreLockScreen';
 import CoreBillingNotice from '@/components/admin/CoreBillingNotice';
 import UpdateNotice from '@/components/admin/UpdateNotice';
+import AdminLangToggle from '@/components/admin/AdminLangToggle';
+import { useAdminLang, setAdminLang } from '@/lib/adminLang';
+import { startAdminEnglish, stopAdminEnglish } from '@/lib/adminTranslate';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Portal as TooltipPortal } from '@radix-ui/react-tooltip';
 import { tileClass, groupOf, groupLabel, groupRank, rowClass, subRowClass, badgeClass, type NavGroup } from '@/components/admin/sidebarLook';
@@ -132,6 +135,25 @@ export default function AdminDashboard() {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
   }, [isDark]);
+  // Dark mode is the admin's: going from it to the shop's website, the website is light.
+  useEffect(() => () => document.documentElement.classList.remove('dark'), []);
+  // A page printed from the admin (memos, reports) prints light even in dark mode.
+  useEffect(() => {
+    const before = () => document.documentElement.classList.remove('dark');
+    const after = () => document.documentElement.classList.toggle('dark', isDark);
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after); };
+  }, [isDark]);
+
+  // The admin in English (বাং | EN in the menu): its texts are swapped on the page
+  // (lib/adminTranslate.ts); the website stays Bangla.
+  const adminLang = useAdminLang();
+  useEffect(() => {
+    if (adminLang !== 'en') return;
+    startAdminEnglish();
+    return () => stopAdminEnglish();
+  }, [adminLang]);
 
   // Push subscription for background notifications — only after auth confirmed
   usePushSubscription(authReady && isStaff ? userId : '');
@@ -529,6 +551,7 @@ export default function AdminDashboard() {
       {navItems(undefined, true)}
       <div className="mt-auto flex flex-col items-stretch gap-0.5 pt-3">
         <div className="mx-auto mb-1.5 h-px w-6 bg-foreground/10" />
+        {railItem('lang', Languages, adminLang === 'en' ? 'বাংলায় দেখুন' : 'English', { onClick: () => setAdminLang(adminLang === 'en' ? 'bn' : 'en') })}
         {railItem('theme', isDark ? Moon : Sun, isDark ? 'ডার্ক মোড' : 'লাইট মোড', { onClick: () => setIsDark(!isDark) })}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -583,6 +606,11 @@ export default function AdminDashboard() {
       {navItems(onNavigate)}
 
       <div className="mt-auto space-y-0.5 pt-4">
+        <div className="flex items-center gap-3 rounded-[14px] px-2 py-1.5">
+          <span className={tileClass('lang')}><Languages className="h-4 w-4" /></span>
+          <span className="flex-1 text-sm text-foreground/80">ভাষা</span>
+          <AdminLangToggle />
+        </div>
         <div className="flex items-center gap-3 rounded-[14px] px-2 py-1.5">
           <span className={tileClass('theme')}>{isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</span>
           <span className="flex-1 text-sm text-foreground/80">{isDark ? 'ডার্ক মোড' : 'লাইট মোড'}</span>
@@ -644,6 +672,7 @@ export default function AdminDashboard() {
         </Link>
         <div className="flex items-center gap-1 ml-auto">
           <LiveVisitorBadge />
+          <AdminLangToggle compact />
           <AdminNotificationCenter userId={userId} />
           <Button
             variant="ghost"
