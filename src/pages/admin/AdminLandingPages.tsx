@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { SERIES, gridProps, xAxisProps, yAxisProps, crosshair, areaProps, compact, TipBox } from '@/components/admin/chartKit';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { Settings } from 'lucide-react';
@@ -233,20 +234,15 @@ export default function AdminLandingPages() {
               {dailyData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={220}>
                   <AreaChart data={dailyData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="lpRevGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `৳${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`} />
-                    <Tooltip
-                      formatter={(val: number) => [`৳${val.toLocaleString('bn-BD')}`, 'রেভিনিউ']}
-                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                    />
-                    <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} fill="url(#lpRevGradient)" />
+                    <CartesianGrid {...gridProps} />
+                    <XAxis dataKey="date" {...xAxisProps} />
+                    <YAxis {...yAxisProps} width={44} tickFormatter={(v: number) => `৳${compact(v)}`} />
+                    <Tooltip cursor={crosshair} content={({ active, payload, label }) => {
+                      if (!active || !payload?.length) return null;
+                      const v = Number(payload[0]?.value) || 0;
+                      return <TipBox title={String(label ?? '')} rows={[{ color: SERIES[0], value: `৳${v.toLocaleString('bn-BD')}`, name: 'রেভিনিউ' }]} />;
+                    }} />
+                    <Area dataKey="revenue" {...areaProps(SERIES[0])} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (

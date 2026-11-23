@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { SERIES, gridProps, xAxisProps, yAxisProps, crosshair, areaProps, compact, keyPoints, keyPointLabel, TipBox } from '@/components/admin/chartKit';
 import { Loader2, Package, ChevronRight, Eye, ShoppingCart, Users, ClipboardCheck, Facebook, Search, Instagram, MessageCircle, Video, Youtube, Link2, ExternalLink, Phone, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { bn } from 'date-fns/locale';
@@ -147,26 +148,18 @@ export default function AdminVisitorAnalytics() {
 
               <ScrollableChart dataLength={data?.chartData.length || 0} isMobile={isMobile} height={180}>
                 <AreaChart data={data?.chartData || []} width={isMobile ? Math.max((data?.chartData.length || 0) * 40, 320) : undefined} height={180} margin={{ left: -5, right: 5, top: 24, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="visitorGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={isMobile ? 0 : 'preserveStartEnd'} />
-                  <YAxis width={28} tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip content={() => null} />
-                  <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#visitorGrad)">
+                  <CartesianGrid {...gridProps} />
+                  <XAxis dataKey="label" {...xAxisProps} interval={isMobile ? 0 : 'preserveStartEnd'} />
+                  <YAxis {...yAxisProps} width={32} allowDecimals={false} tickFormatter={compact} />
+                  <Tooltip cursor={crosshair} content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const v = Number(payload[0]?.value) || 0;
+                    return <TipBox title={String(label ?? '')} rows={[{ color: SERIES[1], value: v.toLocaleString('bn-BD'), name: 'সেশন' }]} />;
+                  }} />
+                  <Area dataKey="count" {...areaProps(SERIES[1])}>
                     <LabelList
                       dataKey="count"
-                      content={({ x, y, value }: any) => {
-                        const v = Number(value) || 0;
-                        if (v === 0) return null;
-                        return (
-                          <text x={x} y={(y || 0) - 8} textAnchor="middle" fontSize={10} fill="hsl(var(--primary))" fontWeight={600}>{v}</text>
-                        );
-                      }}
+                      content={keyPointLabel(keyPoints(data?.chartData || [], (r: { count: number }) => r.count), data?.chartData.length || 0, (v) => v.toLocaleString('bn-BD'))}
                     />
                   </Area>
                 </AreaChart>

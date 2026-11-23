@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { SERIES, gridProps, xAxisProps, yAxisProps, crosshair, areaProps, compact, keyPoints, keyPointLabel, TipBox } from '@/components/admin/chartKit';
 import { Loader2, Facebook, Globe, MessageCircle, Instagram, Video, Phone, Search, Truck, CalendarIcon } from 'lucide-react';
 import { format, subDays, subMonths, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { bn } from 'date-fns/locale';
@@ -212,6 +213,8 @@ export default function AnalyticsOverview({ onRangeChange }: AnalyticsOverviewPr
 
   const chartDataLength = data?.chartData?.length || 0;
   const courierChartDataLength = data?.courierChartData?.length || 0;
+  // Print a value only at the best day and the latest day; the rest are a tap away.
+  const salesPoints = keyPoints(data?.chartData || [], (r: { revenue: number }) => r.revenue);
 
   return (
     <Card>
@@ -316,34 +319,23 @@ export default function AnalyticsOverview({ onRangeChange }: AnalyticsOverviewPr
               {/* Chart */}
               <ScrollableChart dataLength={chartDataLength} isMobile={isMobile} height={220}>
                 <AreaChart data={data?.chartData || []} width={isMobile ? Math.max(chartDataLength * 48, 320) : undefined} height={220} margin={{ left: -5, right: 5, top: 32, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="analyticsGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={isMobile ? 0 : 'preserveStartEnd'} />
-                  <YAxis width={38} tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`} />
-                  <Tooltip content={() => null} />
-                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#analyticsGrad)">
+                  <CartesianGrid {...gridProps} />
+                  <XAxis dataKey="label" {...xAxisProps} interval={isMobile ? 0 : 'preserveStartEnd'} />
+                  <YAxis {...yAxisProps} width={38} tickFormatter={compact} />
+                  <Tooltip cursor={crosshair} content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0]?.payload;
+                    return (
+                      <TipBox title={String(label ?? '')} rows={[
+                        { color: SERIES[0], value: `৳${(d?.revenue || 0).toLocaleString('bn-BD')}`, name: 'বিক্রি' },
+                        { value: (d?.orders || 0).toLocaleString('bn-BD'), name: 'অর্ডার' },
+                      ]} />
+                    );
+                  }} />
+                  <Area dataKey="revenue" {...areaProps(SERIES[0])}>
                     <LabelList
                       dataKey="revenue"
-                      content={({ x, y, value, index }: any) => {
-                        const v = Number(value) || 0;
-                        const revenueLabel = v >= 1000 ? `৳${(v / 1000).toFixed(1)}k` : `৳${v}`;
-                        const orders = (data?.chartData || [])[index]?.orders || 0;
-                        return (
-                          <g>
-                            <text x={x} y={(y || 0) - 18} textAnchor="middle" fontSize={11} fill="hsl(var(--primary))" fontWeight={600}>
-                              {revenueLabel}
-                            </text>
-                            <text x={x} y={(y || 0) - 6} textAnchor="middle" fontSize={9} fill="hsl(var(--muted-foreground))" fontWeight={500}>
-                              {orders}টি
-                            </text>
-                          </g>
-                        );
-                      }}
+                      content={keyPointLabel(salesPoints, chartDataLength, (v) => `৳${compact(v)}`)}
                     />
                   </Area>
                 </AreaChart>
@@ -372,6 +364,7 @@ function CourierAnalytics({ metrics, chartData, isMobile, courierChartDataLength
 
   const paidPct = metrics.totalPayments > 0 ? ((metrics.paidCount / metrics.totalPayments) * 100).toFixed(0) : '0';
   const pendingPct = metrics.totalPayments > 0 ? ((metrics.pendingCount / metrics.totalPayments) * 100).toFixed(0) : '0';
+  const courierPoints = keyPoints(chartData || [], r => r.receivable);
 
   return (
     <div className="mt-4">
@@ -400,35 +393,23 @@ function CourierAnalytics({ metrics, chartData, isMobile, courierChartDataLength
       {chartData && chartData.length > 0 && (
         <ScrollableChart dataLength={courierChartDataLength} isMobile={isMobile} height={180}>
           <AreaChart data={chartData} width={isMobile ? Math.max(courierChartDataLength * 48, 320) : undefined} height={180} margin={{ left: -5, right: 5, top: 28, bottom: 0 }}>
-            <defs>
-              <linearGradient id="courierGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" vertical={false} />
-            <XAxis dataKey="label" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={isMobile ? 0 : 'preserveStartEnd'} />
-            <YAxis width={38} tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`} />
-            <Tooltip content={() => null} />
-            <Area type="monotone" dataKey="receivable" stroke="hsl(var(--chart-2))" strokeWidth={2.5} fill="url(#courierGrad)">
+            <CartesianGrid {...gridProps} />
+            <XAxis dataKey="label" {...xAxisProps} interval={isMobile ? 0 : 'preserveStartEnd'} />
+            <YAxis {...yAxisProps} width={38} tickFormatter={compact} />
+            <Tooltip cursor={crosshair} content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              const d = payload[0]?.payload;
+              return (
+                <TipBox title={String(label ?? '')} rows={[
+                  { color: SERIES[0], value: `৳${(d?.receivable || 0).toLocaleString('bn-BD')}`, name: 'মোট প্রাপ্য' },
+                  { value: (d?.payments || 0).toLocaleString('bn-BD'), name: 'পেমেন্ট' },
+                ]} />
+              );
+            }} />
+            <Area dataKey="receivable" {...areaProps(SERIES[0])}>
               <LabelList
                 dataKey="receivable"
-                content={({ x, y, value, index }: any) => {
-                  const v = Number(value) || 0;
-                  if (v === 0) return null;
-                  const label = v >= 1000 ? `৳${(v / 1000).toFixed(1)}k` : `৳${v}`;
-                  const payments = (chartData || [])[index]?.payments || 0;
-                  return (
-                    <g>
-                      <text x={x} y={(y || 0) - 18} textAnchor="middle" fontSize={10} fill="hsl(var(--chart-2))" fontWeight={600}>
-                        {label}
-                      </text>
-                      <text x={x} y={(y || 0) - 6} textAnchor="middle" fontSize={9} fill="hsl(var(--muted-foreground))" fontWeight={500}>
-                        {payments}টি
-                      </text>
-                    </g>
-                  );
-                }}
+                content={keyPointLabel(courierPoints, chartData.length, (v) => `৳${compact(v)}`)}
               />
             </Area>
           </AreaChart>

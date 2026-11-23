@@ -9,6 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Phone, User, MapPin, ShoppingCart, Download, Search, Star, Users, TrendingUp, ChevronLeft, ChevronRight, FileText, Upload } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { bn as bnLocale } from 'date-fns/locale';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import CustomerProfileDialog from '@/components/admin/CustomerProfileDialog';
 import { fetchAllRows } from '@/lib/supabaseHelpers';
@@ -17,12 +20,37 @@ const PAGE_SIZE = 500;
 
 type OrderFilter = 'all' | '2+' | '3+' | '5+';
 
+/** The list's order: newest customers first unless the owner picks another. */
+type SortKey = 'new' | 'recent' | 'spent';
+const SORTS: { value: SortKey; label: string }[] = [
+  { value: 'new', label: 'নতুন কাস্টমার আগে' },
+  { value: 'recent', label: 'সাম্প্রতিক অর্ডার আগে' },
+  { value: 'spent', label: 'বেশি কেনাকাটা আগে' },
+];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sorted = (q: any, by: SortKey) =>
+  by === 'spent' ? q.order('total_spent', { ascending: false, nullsFirst: false })
+    : by === 'recent' ? q.order('last_order_date', { ascending: false, nullsFirst: false })
+      : q.order('created_at', { ascending: false }).order('last_order_date', { ascending: false, nullsFirst: false });
+
+/**
+ * "৩ দিন আগে". A date in the future or before 2015 is a wrong one (an import, a typo):
+ * it says so instead of "in 84 years".
+ */
+function lastOrderLabel(d: string) {
+  const t = new Date(d).getTime();
+  if (Number.isNaN(t)) return null;
+  if (t > Date.now() + 864e5 || t < Date.UTC(2015, 0, 1)) return { wrong: true, text: 'অর্ডারের তারিখ ভুল' };
+  return { wrong: false, text: formatDistanceToNow(t, { addSuffix: true, locale: bnLocale }) };
+}
+
 export default function AdminCustomers() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [orderFilter, setOrderFilter] = useState<OrderFilter>('all');
+  const [sort, setSort] = useState<SortKey>('new');
   const [page, setPage] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
@@ -54,7 +82,7 @@ export default function AdminCustomers() {
 
   // Main paginated query
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-customers', page, debouncedSearch, orderFilter, startDate, endDate],
+    queryKey: ['admin-customers', page, debouncedSearch, orderFilter, startDate, endDate, sort],
     queryFn: async () => {
       let query = supabase.from('customers').select('*', { count: 'exact' });
 
@@ -74,7 +102,7 @@ export default function AdminCustomers() {
       if (endDate) query = query.lte('last_order_date', endDate + 'T23:59:59');
 
       // Order & pagination
-      query = query.order('last_order_date', { ascending: false, nullsFirst: false })
+      query = sorted(query, sort)
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       const { data, count, error } = await query;
@@ -122,7 +150,7 @@ export default function AdminCustomers() {
       if (minOrders > 0) q = q.gte('total_orders', minOrders);
       if (startDate) q = q.gte('last_order_date', startDate);
       if (endDate) q = q.lte('last_order_date', endDate + 'T23:59:59');
-      return q.order('last_order_date', { ascending: false, nullsFirst: false });
+      return sorted(q, sort);
     });
   };
 
@@ -255,14 +283,23 @@ export default function AdminCustomers() {
               {f.label}
             </Button>
           ))}
-          <div className="flex gap-2 ml-auto">
+          <div className="grid w-full grid-cols-3 gap-2 sm:ml-auto sm:flex sm:w-auto">
             <div>
-              <label className="text-[10px] text-muted-foreground">From</label>
-              <Input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setPage(0); }} className="w-[130px] h-8 text-xs" />
+              <label className="text-[10px] text-muted-foreground">সাজানো</label>
+              <Select value={sort} onValueChange={(v) => { setSort(v as SortKey); setPage(0); }}>
+                <SelectTrigger className="h-8 w-full text-xs sm:w-[170px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {SORTS.map((o) => <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground">To</label>
-              <Input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setPage(0); }} className="w-[130px] h-8 text-xs" />
+              <label className="text-[10px] text-muted-foreground">থেকে</label>
+              <Input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setPage(0); }} className="w-full sm:w-[130px] h-8 text-xs" />
+            </div>
+            <div>
+              <label className="text-[10px] text-muted-foreground">পর্যন্ত</label>
+              <Input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setPage(0); }} className="w-full sm:w-[130px] h-8 text-xs" />
             </div>
           </div>
         </div>
@@ -276,19 +313,19 @@ export default function AdminCustomers() {
             {selectedIds.size > 0 ? `${selectedIds.size} জন সিলেক্টেড` : 'সব সিলেক্ট'}
           </span>
         </div>
-        <div className="flex gap-2 ml-auto">
+        <div className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap">
           <Link to="/admin/customers/import">
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outline" className="w-full justify-start sm:w-auto">
               <Upload className="h-3.5 w-3.5 mr-1" /> ইম্পোর্ট কাস্টমার
             </Button>
           </Link>
-          <Button onClick={downloadPhoneCSV} size="sm" variant="outline">
+          <Button onClick={downloadPhoneCSV} size="sm" variant="outline" className="w-full justify-start sm:w-auto">
             <Phone className="h-3.5 w-3.5 mr-1" /> নম্বর CSV ({selectedIds.size || totalCount})
           </Button>
-          <Button onClick={downloadFacebookCSV} size="sm" variant="outline">
+          <Button onClick={downloadFacebookCSV} size="sm" variant="outline" className="w-full justify-start sm:w-auto">
             <Download className="h-3.5 w-3.5 mr-1" /> Facebook CSV
           </Button>
-          <Button onClick={downloadGoogleCSV} size="sm" variant="outline">
+          <Button onClick={downloadGoogleCSV} size="sm" variant="outline" className="w-full justify-start sm:w-auto">
             <FileText className="h-3.5 w-3.5 mr-1" /> Google CSV
           </Button>
         </div>
@@ -325,7 +362,10 @@ export default function AdminCustomers() {
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-primary">৳{(c.total_spent || 0).toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><ShoppingCart className="h-3 w-3" /> {c.total_orders} অর্ডার</p>
-                    {c.last_order_date && <p className="text-[10px] text-muted-foreground">{formatDistanceToNow(new Date(c.last_order_date), { addSuffix: true })}</p>}
+                    {c.last_order_date && (() => {
+                      const l = lastOrderLabel(c.last_order_date);
+                      return l && <p className={cn('text-[10px]', l.wrong ? 'font-medium text-amber-600' : 'text-muted-foreground')} title={l.wrong ? new Date(c.last_order_date).toLocaleDateString('bn-BD') : undefined}>{l.text}</p>;
+                    })()}
                   </div>
                 </div>
               </CardContent>

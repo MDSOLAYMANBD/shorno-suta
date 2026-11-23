@@ -37,6 +37,7 @@ import { ensureOfficeSellSaleEntry, deleteOfficeSellSaleEntry } from '@/lib/offi
 import { logAccActivity } from '@/hooks/useAccActivityLog';
 import { getColorPrimaryImage } from '@/lib/productVariants';
 import { FUNCTIONS_URL } from '@/integrations/supabase/config';
+import { OrderQtyBadge } from '@/components/admin/OrderQtyBadge';
 
 function shortTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -1842,7 +1843,10 @@ export default function AdminOrders() {
                         );
                       })()}
                     </TableCell>
-                    <TableCell className="font-medium text-sm">৳{o.total}</TableCell>
+                    <TableCell className="font-medium text-sm">
+                      <div>৳{o.total}</div>
+                      <OrderQtyBadge items={orderItemsMap.get(o.id)} className="mt-1" />
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -2098,7 +2102,10 @@ export default function AdminOrders() {
                           </button>
                         )}
                       </span>
-                      <span className="text-sm font-bold text-foreground">৳{o.total}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-foreground">৳{o.total}</span>
+                        <OrderQtyBadge items={orderItemsMap.get(o.id)} />
+                      </span>
                       {/* Order Items */}
                       {(() => {
                         const items = orderItemsMap.get(o.id);

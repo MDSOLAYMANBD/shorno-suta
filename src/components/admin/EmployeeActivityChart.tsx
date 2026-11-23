@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { SERIES, gridProps, xAxisProps, yAxisProps, barHover, barProps, compact, TipBox, Key } from '@/components/admin/chartKit';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -44,26 +45,16 @@ const ACTION_LABELS: Record<string, string> = {
   payment_update: 'পেমেন্ট আপডেট',
 };
 
-const STACK_COLORS = {
-  orderPlace: '#06b6d4',
-  statusChange: '#10b981',
-  edits: '#3b82f6',
-  notes: '#f59e0b',
-  calls: '#8b5cf6',
-  payments: '#f97316',
-  others: '#ec4899',
-};
-
-const PIE_COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--chart-2))',
-  'hsl(38 92% 50%)',
-  'hsl(var(--destructive))',
-  'hsl(280 67% 55%)',
-  'hsl(180 60% 45%)',
-  'hsl(330 70% 50%)',
-  'hsl(60 70% 45%)',
-];
+// The seven kinds of work, each with its fixed colour slot (chartKit), in stack order.
+const ACTIVITY_SERIES = [
+  { key: 'orderPlace', label: 'অর্ডার প্লেস' },
+  { key: 'statusChange', label: 'স্ট্যাটাস চেঞ্জ' },
+  { key: 'edits', label: 'এডিট' },
+  { key: 'notes', label: 'নোট' },
+  { key: 'calls', label: 'কল' },
+  { key: 'payments', label: 'পেমেন্ট' },
+  { key: 'others', label: 'অন্যান্য' },
+].map((s, i) => ({ ...s, color: SERIES[i] }));
 
 const DAILY_TARGET = 50;
 
@@ -112,6 +103,9 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
       .map(([name, value]) => ({ name: ACTION_LABELS[name] || name.replace(/_/g, ' '), value }))
       .sort((a, b) => b.value - a.value);
   }, [logs]);
+
+  const breakdownMax = Math.max(1, ...breakdownData.map(d => d.value));
+  const peakHour = hourlyData.reduce((best, row, i) => (row.total > (hourlyData[best]?.total ?? 0) ? i : best), -1);
 
   // --- Performance score ---
   const performance = useMemo(() => {
@@ -175,7 +169,7 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
   };
 
   const getBadge = (val: number) => {
-    if (val >= DAILY_TARGET) return <Badge className="bg-chart-2/10 text-chart-2 border-chart-2/20">ভালো</Badge>;
+    if (val >= DAILY_TARGET) return <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-200">ভালো</Badge>;
     if (val >= DAILY_TARGET * 0.5) return <Badge className="bg-accent text-accent-foreground border-accent">মাঝারি</Badge>;
     return <Badge variant="destructive" className="bg-destructive/10">কম</Badge>;
   };
@@ -248,63 +242,44 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
             )}
           </div>
           <div className="flex flex-wrap gap-3 mt-2">
-            {[
-              { key: 'orderPlace', label: 'অর্ডার প্লেস', color: STACK_COLORS.orderPlace },
-              { key: 'statusChange', label: 'স্ট্যাটাস চেঞ্জ', color: STACK_COLORS.statusChange },
-              { key: 'edits', label: 'এডিট', color: STACK_COLORS.edits },
-              { key: 'notes', label: 'নোট', color: STACK_COLORS.notes },
-              { key: 'calls', label: 'কল', color: STACK_COLORS.calls },
-              { key: 'payments', label: 'পেমেন্ট', color: STACK_COLORS.payments },
-              { key: 'others', label: 'অন্যান্য', color: STACK_COLORS.others },
-            ].map(item => (
-              <div key={item.key} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
-                {item.label}
-              </div>
-            ))}
+            {ACTIVITY_SERIES.map(item => <Key key={item.key} shape="box" color={item.color} label={item.label} />)}
           </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={hourlyData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={30} />
+            <BarChart data={hourlyData} margin={{ top: 18, right: 4, left: 0, bottom: 0 }}>
+              <CartesianGrid {...gridProps} />
+              <XAxis dataKey="label" {...xAxisProps} />
+              <YAxis {...yAxisProps} allowDecimals={false} width={32} tickFormatter={compact} />
               <Tooltip
+                cursor={barHover}
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.length) return null;
                   const d = payload[0]?.payload;
                   return (
-                    <div className="rounded-lg border bg-background p-2.5 text-xs shadow-xl space-y-1">
-                      <p className="font-medium">{label}</p>
-                      <p>অর্ডার প্লেস: <span className="font-bold">{d.orderPlace}</span></p>
-                      <p>স্ট্যাটাস চেঞ্জ: <span className="font-bold">{d.statusChange}</span></p>
-                      <p>এডিট: <span className="font-bold">{d.edits}</span></p>
-                      <p>নোট: <span className="font-bold">{d.notes}</span></p>
-                      <p>কল: <span className="font-bold">{d.calls}</span></p>
-                      <p>পেমেন্ট: <span className="font-bold">{d.payments}</span></p>
-                      <p>অন্যান্য: <span className="font-bold">{d.others}</span></p>
-                      <p className="pt-1 border-t font-medium">মোট: {d.total}</p>
-                    </div>
+                    <TipBox
+                      title={String(label ?? '')}
+                      rows={ACTIVITY_SERIES.filter(x => d?.[x.key]).map(x => ({ color: x.color, value: d[x.key], name: x.label }))}
+                      footer={<>{d?.total ?? 0} মোট</>}
+                    />
                   );
                 }}
               />
-              <Bar dataKey="orderPlace" stackId="a" fill={STACK_COLORS.orderPlace} radius={[0, 0, 0, 0]} />
-              <Bar dataKey="statusChange" stackId="a" fill={STACK_COLORS.statusChange} />
-              <Bar dataKey="edits" stackId="a" fill={STACK_COLORS.edits} />
-              <Bar dataKey="notes" stackId="a" fill={STACK_COLORS.notes} />
-              <Bar dataKey="calls" stackId="a" fill={STACK_COLORS.calls} />
-              <Bar dataKey="payments" stackId="a" fill={STACK_COLORS.payments} />
-              <Bar dataKey="others" stackId="a" fill={STACK_COLORS.others} radius={[3, 3, 0, 0]}>
-                <LabelList
-                  dataKey="total"
-                  position="top"
-                  className="fill-foreground"
-                  fontSize={10}
-                  fontWeight={600}
-                  formatter={(v: number) => v > 0 ? v : ''}
-                />
-              </Bar>
+              {ACTIVITY_SERIES.map((x, i) => (
+                // A 2px card-coloured edge keeps the gap between stacked parts.
+                <Bar key={x.key} dataKey={x.key} stackId="a" fill={x.color} stroke="hsl(var(--card))" strokeWidth={2} maxBarSize={24}
+                  radius={i === ACTIVITY_SERIES.length - 1 ? [4, 4, 0, 0] : 0} isAnimationActive={false}>
+                  {i === ACTIVITY_SERIES.length - 1 && (
+                    // Only the busiest hour gets its total printed; the table below has every hour.
+                    <LabelList dataKey="total" content={({ x: lx, y: ly, width, index }) =>
+                      index === peakHour ? (
+                        <text x={Number(lx) + Number(width) / 2} y={Number(ly) - 6} textAnchor="middle" fontSize={11} fontWeight={600} fill="hsl(var(--foreground))">
+                          {hourlyData[index]?.total}
+                        </text>
+                      ) : null} />
+                  )}
+                </Bar>
+              ))}
             </BarChart>
           </ResponsiveContainer>
 
@@ -355,26 +330,17 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
           {breakdownData.length === 0 ? (
             <p className="text-center text-muted-foreground py-8 text-sm">কোনো ডেটা নেই</p>
           ) : (
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width={140} height={140}>
-                <PieChart>
-                  <Pie data={breakdownData} dataKey="value" cx="50%" cy="50%" innerRadius={35} outerRadius={60}>
-                    {breakdownData.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(v: number) => [`${v}টি`, '']} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex-1 space-y-1 text-xs max-h-[140px] overflow-y-auto">
-                {breakdownData.map((d, i) => (
-                  <div key={d.name} className="flex items-center gap-2">
-                    <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                    <span className="truncate flex-1 min-w-0">{d.name}</span>
-                    <span className="font-medium">{d.value}</span>
+            // Ranked bars: easier to compare than a ring, and one colour, so no colour repeats.
+            <div className="space-y-1.5 text-xs max-h-[220px] overflow-y-auto pr-1">
+              {breakdownData.map(d => (
+                <div key={d.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2">
+                  <span className="truncate text-muted-foreground">{d.name}</span>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${(d.value / breakdownMax) * 100}%`, background: SERIES[0] }} />
                   </div>
-                ))}
-              </div>
+                  <span className="font-semibold tabular-nums text-right min-w-[2.5rem]">{d.value.toLocaleString('bn-BD')}</span>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
@@ -388,12 +354,15 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={4} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={25} />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+              <BarChart data={dailyData} margin={{ top: 6, right: 4, left: 0, bottom: 0 }}>
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="label" {...xAxisProps} interval={4} />
+                <YAxis {...yAxisProps} allowDecimals={false} width={32} tickFormatter={compact} />
+                <Tooltip cursor={barHover} content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  return <TipBox title={String(label ?? '')} rows={[{ color: SERIES[0], value: Number(payload[0]?.value) || 0, name: "Activity" }]} />;
+                }} />
+                <Bar dataKey="count" fill={SERIES[0]} {...barProps} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -404,12 +373,15 @@ export default function EmployeeActivityChart({ dailyData, monthlyData, logs, se
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={25} />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[3, 3, 0, 0]} />
+              <BarChart data={monthlyData} margin={{ top: 6, right: 4, left: 0, bottom: 0 }}>
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="label" {...xAxisProps} />
+                <YAxis {...yAxisProps} allowDecimals={false} width={32} tickFormatter={compact} />
+                <Tooltip cursor={barHover} content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  return <TipBox title={String(label ?? '')} rows={[{ color: SERIES[0], value: Number(payload[0]?.value) || 0, name: "Activity" }]} />;
+                }} />
+                <Bar dataKey="count" fill={SERIES[0]} {...barProps} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

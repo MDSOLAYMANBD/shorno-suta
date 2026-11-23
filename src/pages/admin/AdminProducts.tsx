@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Plus, Search, MoreHorizontal, Eye, EyeOff, Pencil, Zap, Package, Power, Trash2, X, Check, Sparkles, Loader2, Copy, ShoppingCart, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Eye, EyeOff, Pencil, Zap, Package, Power, Trash2, X, Check, Sparkles, Loader2, Copy, ShoppingCart, FileSpreadsheet, Download } from 'lucide-react';
+import { downloadImagesWithToast, productPhotos } from '@/lib/downloadImages';
 import { ProductCsvDialog } from '@/components/admin/products/ProductCsvDialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useCategories, getCategoryTree } from '@/hooks/useCategories';
@@ -39,6 +40,20 @@ async function copyImageToClipboard(url: string) {
     try { await navigator.clipboard.writeText(url); toast.success('ছবির লিংক কপি হয়েছে'); }
     catch { toast.error('কপি করা যায়নি'); }
   }
+}
+
+/** Downloads every photo of the product (its own and its colours'), one tap. */
+function DownloadPhotosButton({ product }: { product: { name: string; images?: unknown; variant_images?: unknown } }) {
+  const [busy, setBusy] = useState(false);
+  const photos = productPhotos(product.images, product.variant_images as { color_images?: Record<string, unknown> } | null);
+  if (!photos.length) return null;
+  return (
+    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={busy}
+      title={`সব ছবি ডাউনলোড করুন (${photos.length})`} aria-label="সব ছবি ডাউনলোড করুন"
+      onClick={async () => { setBusy(true); try { await downloadImagesWithToast(photos, product.name); } finally { setBusy(false); } }}>
+      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+    </Button>
+  );
 }
 
 function ProductThumb({ src, alt, size = 'md' }: { src?: string; alt: string; size?: 'sm' | 'md' }) {
@@ -1182,6 +1197,8 @@ export default function AdminProducts() {
                         <span className="ml-2"><InlineStockEditor product={p} onSaved={() => {}} /></span>
                       )}
                     </div>
+                    <div className="flex items-center">
+                    <DownloadPhotosButton product={p} />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1237,6 +1254,7 @@ export default function AdminProducts() {
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1356,11 +1374,14 @@ export default function AdminProducts() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center">
                       <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                         <Link to={`/admin/products/edit/${p.id}`}>
                           <Pencil className="h-4 w-4" />
                         </Link>
                       </Button>
+                      <DownloadPhotosButton product={p} />
+                      </div>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

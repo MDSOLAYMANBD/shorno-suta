@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows, fetchAllByIds } from '@/lib/supabaseHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { RevenueVisitorsCharts } from '@/components/admin/chartKit';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, DollarSign, Package, AlertTriangle, ArrowUpRight, Plus, CheckCircle, Calendar as CalendarIcon, Facebook, Search, MessageCircle, MessageSquare, Instagram, Video, Phone, Globe, Truck, PackageCheck, Scale, XCircle } from 'lucide-react';
@@ -571,45 +571,14 @@ export default function AdminOverview() {
             সর্বশেষ আপডেট: {currentTime}
           </p>
 
-          <div className="flex items-center justify-center gap-3 mb-2 text-[10px]">
-            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-[#22c55e]" /> অর্ডার/আয়</span>
-            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-[#3b82f6]" /> ভিজিটর</span>
-          </div>
-
-          <div className="overflow-hidden">
-          <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={hourlyData} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
-              <defs>
-                <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="visitorsGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" />
-              <XAxis dataKey="time" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={5} />
-              <YAxis yAxisId="left" width={38} tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`} />
-              <YAxis yAxisId="right" orientation="right" width={28} tick={{ fontSize: 9, fill: '#3b82f6' }} stroke="#3b82f6" />
-              <Tooltip content={({ active, payload, label }) => {
-                if (!active || !payload?.length) return null;
-                const data = payload[0]?.payload;
-                return (
-                  <div className="rounded-lg border bg-background px-3 py-2 text-xs shadow-xl">
-                    <p className="font-medium mb-1">{label}</p>
-                    <p className="text-muted-foreground">আয় : <span className="font-semibold text-foreground">৳{(data?.revenue || 0).toLocaleString('bn-BD')}</span></p>
-                    <p className="text-muted-foreground">অর্ডার : <span className="font-semibold text-foreground">{data?.orders || 0}</span></p>
-                    <p className="text-muted-foreground">ভিজিটর : <span className="font-semibold" style={{ color: '#3b82f6' }}>{data?.visitors || 0}</span></p>
-                  </div>
-                );
-              }} />
-              <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} fill="url(#perfGrad)" />
-              <Area yAxisId="right" type="monotone" dataKey="visitors" stroke="#3b82f6" strokeWidth={2} fill="url(#visitorsGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
-          </div>
+          <RevenueVisitorsCharts
+            data={hourlyData}
+            xKey="time"
+            interval={5}
+            syncId="overviewPerf"
+            money={(n) => `৳${n.toLocaleString('bn-BD')}`}
+            num={(n) => n.toLocaleString('bn-BD')}
+          />
         </CardContent>
       </Card>
 

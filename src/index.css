@@ -42,6 +42,24 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Charts: a fixed colour set checked for colour-blind readers on the admin's
+       light and dark cards (same eight hues in both modes, stepped per mode).
+       Status colours mean good / warning / bad only, never a series.
+       The same set as the CORE Shop engine (components/admin/chartKit.tsx). */
+    --chart-1: #2a78d6;
+    --chart-2: #eb6834;
+    --chart-3: #1baf7a;
+    --chart-4: #eda100;
+    --chart-5: #e87ba4;
+    --chart-6: #008300;
+    --chart-7: #6250d6;
+    --chart-8: #e34948;
+    --chart-grid: #e8e8e6;
+    --chart-axis: #cfcfca;
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-critical: #d03b3b;
   }
 
   .dark {
@@ -64,6 +82,17 @@
     --border: 36 15% 18%;
     --input: 36 15% 18%;
     --ring: 42 69% 43%;
+
+    --chart-1: #3987e5;
+    --chart-2: #d95926;
+    --chart-3: #199e70;
+    --chart-4: #c98500;
+    --chart-5: #d55181;
+    --chart-6: #0ca30c;
+    --chart-7: #9085e9;
+    --chart-8: #e66767;
+    --chart-grid: #232322;
+    --chart-axis: #383835;
   }
 }
 
@@ -939,3 +968,40 @@
   50% { transform: translateY(-1px) scale(1.06); }
 }
 .animate-flame-soft { animation: flame-soft 2.2s ease-in-out infinite; transform-origin: center bottom; }
+
+/* form fields the browser draws (dates, selects) follow the admin's dark mode */
+.dark .admin-shell { color-scheme: dark; }
+
+/* The admin sidebar: a floating glass panel (components/admin/sidebarLook.ts), the same as
+   the CORE Shop engine's admin. A soft glow in the shop's colours (gold and maroon) sits
+   behind the admin so the glass has something to show. */
+@media (min-width: 768px) {
+  .admin-shell {
+    background:
+      radial-gradient(800px 560px at 0% 0%, hsl(var(--primary) / 0.16), transparent 65%),
+      radial-gradient(700px 520px at 0% 100%, hsl(var(--accent) / 0.12), transparent 62%),
+      radial-gradient(600px 420px at 30% 45%, hsl(38 92% 60% / 0.07), transparent 60%),
+      hsl(var(--muted) / 0.4);
+    background-attachment: fixed;
+  }
+  .dark .admin-shell {
+    background:
+      radial-gradient(800px 560px at 0% 0%, hsl(var(--primary) / 0.12), transparent 65%),
+      radial-gradient(700px 520px at 0% 100%, hsl(var(--accent) / 0.14), transparent 62%),
+      hsl(var(--background));
+    background-attachment: fixed;
+  }
+}
+.glass-sidebar {
+  border-radius: 28px;
+  background: linear-gradient(160deg, hsl(0 0% 100% / 0.62), hsl(0 0% 100% / 0.36) 45%, hsl(0 0% 100% / 0.5));
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  backdrop-filter: blur(28px) saturate(1.8);
+  border: 1px solid hsl(0 0% 100% / 0.7);
+  box-shadow: 0 24px 60px -22px rgb(0 0 0 / 0.3), inset 0 1px 0 hsl(0 0% 100% / 0.9), inset 0 0 0 1px hsl(0 0% 100% / 0.12);
+}
+.dark .glass-sidebar {
+  background: linear-gradient(160deg, hsl(0 0% 16% / 0.62), hsl(0 0% 8% / 0.5) 45%, hsl(0 0% 12% / 0.58));
+  border-color: hsl(0 0% 100% / 0.09);
+  box-shadow: 0 24px 60px -22px rgb(0 0 0 / 0.75), inset 0 1px 0 hsl(0 0% 100% / 0.07);
+}

@@ -3,7 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -23,33 +23,37 @@ import { AUTH_STORAGE_KEY } from '@/integrations/supabase/config';
 import { useCoreBilling } from '@/hooks/useCoreBilling';
 import CoreLockScreen from '@/components/admin/CoreLockScreen';
 import CoreBillingNotice from '@/components/admin/CoreBillingNotice';
+import UpdateNotice from '@/components/admin/UpdateNotice';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Portal as TooltipPortal } from '@radix-ui/react-tooltip';
+import { tileClass, groupOf, groupLabel, groupRank, rowClass, subRowClass, badgeClass, type NavGroup } from '@/components/admin/sidebarLook';
 
 const ALL_SIDEBAR_LINKS = [
-  { label: 'ড্যাশবোর্ড', to: '/admin/dashboard', icon: LayoutDashboard, section: 'dashboard', hasSubLinks: true, iconColor: 'bg-blue-100 text-blue-600',
+  { label: 'ড্যাশবোর্ড', to: '/admin/dashboard', icon: LayoutDashboard, section: 'dashboard', hasSubLinks: true,
     subLinks: [
       { label: 'এনালিটিক্স', to: '/admin/analytics', icon: BarChart3, section: 'dashboard' },
       { label: 'ভিজিটর অ্যানালিটিক্স', to: '/admin/visitor-analytics', icon: Eye, section: 'dashboard' },
     ]
   },
-  { label: 'হিসাব', to: '/admin/accounting', icon: Calculator, section: 'accounting', hasSubLinks: true, iconColor: 'bg-yellow-100 text-yellow-600',
+  { label: 'হিসাব', to: '/admin/accounting', icon: Calculator, section: 'accounting', hasSubLinks: true,
     subLinks: [
       { label: 'পেমেন্ট', to: '/admin/courier', icon: Truck, section: 'courier' },
       { label: 'সেটিংস', to: '/admin/accounting/settings', icon: Settings, section: 'accounting' },
     ]
   },
-  { label: 'লাইভ চ্যাট', to: '/admin/live-chat', icon: MessageCircle, section: 'live_chat', hasBadge: true, hasSubLinks: true, iconColor: 'bg-emerald-100 text-emerald-600',
+  { label: 'লাইভ চ্যাট', to: '/admin/live-chat', icon: MessageCircle, section: 'live_chat', hasBadge: true, hasSubLinks: true,
     subLinks: [
       { label: 'লাইভ চ্যাট সেটিংস', to: '/admin/live-chat/settings', icon: Settings, section: 'live_chat' },
       { label: 'AI চ্যাট সেটিংস', to: '/admin/ai-chat-settings', icon: Sparkles, section: 'live_chat' },
       { label: 'হিউম্যান সাপোর্ট রিকোয়েস্ট', to: '/admin/ai-support-requests', icon: MessageCircle, section: 'live_chat' },
     ]
   },
-  { label: 'স্মার্ট ইনবক্স', to: '/admin/smart-inbox', icon: Inbox, section: 'smart_inbox', hasSubLinks: true, iconColor: 'bg-rose-100 text-rose-600',
+  { label: 'স্মার্ট ইনবক্স', to: '/admin/smart-inbox', icon: Inbox, section: 'smart_inbox', hasSubLinks: true,
     subLinks: [
       { label: 'ইন্টিগ্রেশন', to: '/admin/smart-inbox/integrations', icon: Plug, section: 'smart_inbox' },
     ]
   },
-  { label: 'অর্ডার', to: '/admin/orders', icon: ShoppingCart, section: 'orders', hasSubLinks: true, iconColor: 'bg-green-100 text-green-600',
+  { label: 'অর্ডার', to: '/admin/orders', icon: ShoppingCart, section: 'orders', hasSubLinks: true,
     subLinks: [
       { label: 'অসম্পূর্ণ', to: '/admin/abandoned-checkouts', icon: AlertTriangle, section: 'orders' },
       { label: 'ফ্রড ম্যানেজমেন্ট', to: '/admin/fraud-management', icon: Shield, section: 'orders' },
@@ -57,13 +61,13 @@ const ALL_SIDEBAR_LINKS = [
     ]
   },
   
-  { label: 'প্রোডাক্ট', to: '/admin/products', icon: Package, section: 'products', iconColor: 'bg-purple-100 text-purple-600' },
-  { label: 'ক্যাটাগরি', to: '/admin/categories', icon: Tag, section: 'categories', hasSubLinks: true, iconColor: 'bg-orange-100 text-orange-600',
+  { label: 'প্রোডাক্ট', to: '/admin/products', icon: Package, section: 'products' },
+  { label: 'ক্যাটাগরি', to: '/admin/categories', icon: Tag, section: 'categories', hasSubLinks: true,
     subLinks: [
       { label: 'সাইজ/কালার', to: '/admin/sizes-colors', icon: Palette, section: 'sizes_colors' },
     ]
   },
-  { label: 'কাস্টমার', to: '/admin/customers', icon: Users, section: 'customers', hasSubLinks: true, iconColor: 'bg-cyan-100 text-cyan-600',
+  { label: 'কাস্টমার', to: '/admin/customers', icon: Users, section: 'customers', hasSubLinks: true,
     subLinks: [
       { label: 'কুপন', to: '/admin/coupons', icon: Ticket, section: 'coupons' },
       { label: 'রিভিউ', to: '/admin/reviews', icon: Store, section: 'customers' },
@@ -75,13 +79,13 @@ const ALL_SIDEBAR_LINKS = [
       { label: '🚚 ফ্রি ডেলিভারি সিস্টেম', to: '/admin/free-shipping', icon: Truck, section: 'customers' },
     ]
   },
-  { label: 'ল্যান্ডিং পেজ', to: '/admin/landing-pages', icon: Globe, section: 'landing_pages', iconColor: 'bg-teal-100 text-teal-600' },
-  { label: 'মিডিয়া', to: '/admin/media', icon: ImageIcon, section: 'media', hasSubLinks: true, iconColor: 'bg-indigo-100 text-indigo-600',
+  { label: 'ল্যান্ডিং পেজ', to: '/admin/landing-pages', icon: Globe, section: 'landing_pages' },
+  { label: 'মিডিয়া', to: '/admin/media', icon: ImageIcon, section: 'media', hasSubLinks: true,
     subLinks: [
       { label: 'AI ব্যানার (Gemini)', to: '/admin/banner-generator', icon: Sparkles, section: 'media' },
     ]
   },
-  { label: 'সেটিংস', to: '/admin/settings', icon: Settings, section: 'settings', hasSubLinks: true, iconColor: 'bg-slate-100 text-slate-600',
+  { label: 'সেটিংস', to: '/admin/settings', icon: Settings, section: 'settings', hasSubLinks: true,
     subLinks: [
       { label: 'সাইট এডিটর', to: '/admin/site-editor', icon: PenTool, section: 'site_editor' },
       { label: 'এমপ্লয়ী', to: '/admin/employees', icon: UserCog, section: 'employees' },
@@ -91,9 +95,9 @@ const ALL_SIDEBAR_LINKS = [
       { label: 'AI Keys', to: '/admin/ai-keys', icon: Sparkles, section: 'settings' },
     ]
   },
-  { label: 'CRM', to: '/admin/crm', icon: Contact, section: 'crm', iconColor: 'bg-violet-100 text-violet-600' },
-  { label: 'ব্রডকাস্ট', to: '/admin/broadcast', icon: Megaphone, section: 'marketing', iconColor: 'bg-fuchsia-100 text-fuchsia-600' },
-  { label: 'বিল ও প্যাকেজ', to: '/admin/billing', icon: Crown, section: 'billing', iconColor: 'bg-amber-100 text-amber-700' },
+  { label: 'CRM', to: '/admin/crm', icon: Contact, section: 'crm' },
+  { label: 'ব্রডকাস্ট', to: '/admin/broadcast', icon: Megaphone, section: 'marketing' },
+  { label: 'বিল ও প্যাকেজ', to: '/admin/billing', icon: Crown, section: 'billing' },
 ];
 
 export default function AdminDashboard() {
@@ -101,6 +105,9 @@ export default function AdminDashboard() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const [mobileOpen, setMobileOpen] = useState(false);
+  // the desktop sidebar folded to a rail of icons, remembered on this device
+  const [railOnly, setRailOnly] = useState(() => localStorage.getItem('admin-sidebar-rail') === '1');
+  useEffect(() => { localStorage.setItem('admin-sidebar-rail', railOnly ? '1' : '0'); }, [railOnly]);
 
   // Unified admin auth (replaces brittle local getSession + 10s timeout flow).
   const { ready: authReady, user, isStaff, roleChecked, roleCheckFailed, retryRoleCheck, signOut: authSignOut } = useAdminAuth();
@@ -372,7 +379,7 @@ export default function AdminDashboard() {
   const displayName = myProfile?.full_name || 'স্বর্ণ সুতা';
   const avatarUrl = myProfile?.avatar_url || '';
 
-  const isDashboardExpanded = location.pathname.startsWith('/admin/dashboard') || location.pathname.startsWith('/admin/analytics');
+  const isDashboardExpanded = location.pathname.startsWith('/admin/dashboard') || location.pathname.startsWith('/admin/analytics') || location.pathname.startsWith('/admin/visitor-analytics');
   const isOrdersExpanded = location.pathname.startsWith('/admin/orders') || location.pathname.startsWith('/admin/abandoned') || location.pathname.startsWith('/admin/fraud') || location.pathname.startsWith('/admin/giveaway');
   const isAccountingExpanded = location.pathname.startsWith('/admin/accounting') || location.pathname.startsWith('/admin/courier');
   const isCategoriesExpanded = location.pathname.startsWith('/admin/categories') || location.pathname.startsWith('/admin/sizes-colors');
@@ -380,135 +387,245 @@ export default function AdminDashboard() {
   const isSettingsExpanded = location.pathname.startsWith('/admin/settings') || location.pathname.startsWith('/admin/site-editor') || location.pathname.startsWith('/admin/employees') || location.pathname.startsWith('/admin/performance') || location.pathname.startsWith('/admin/ai-keys');
   const isSmartInboxExpanded = location.pathname.startsWith('/admin/smart-inbox');
   const isLiveChatExpanded = location.pathname.startsWith('/admin/live-chat') || location.pathname.startsWith('/admin/ai-chat-settings') || location.pathname.startsWith('/admin/ai-support-requests');
+  const isMediaExpanded = location.pathname.startsWith('/admin/media') || location.pathname.startsWith('/admin/banner-generator');
 
-  const NavItems = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <nav className="space-y-2">
-      {sidebarLinks.map((l, index) => (
-        <div key={l.to} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}>
-          <Link to={l.to} onClick={onNavigate}
-            className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300',
-              isActive(l.to) || (l.section === 'orders' && location.pathname.startsWith('/admin/abandoned'))
-                ? 'bg-primary/10 border border-primary/30 shadow-sm text-foreground'
-                : 'bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted/80 hover:shadow-md hover:scale-[1.02]'
-            )}>
-            <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', l.iconColor)}>
-              <l.icon className="h-[18px] w-[18px]" />
+  type NavLink = { label: string; to: string; icon: typeof LayoutDashboard; section: string; hasBadge?: boolean; subLinks?: { label: string; to: string; icon: typeof LayoutDashboard; section: string }[] };
+  const linkActive = (l: NavLink) => isActive(l.to) || (l.section === 'orders' && location.pathname.startsWith('/admin/abandoned'));
+  const navBadge = (l: NavLink) =>
+    l.section === 'orders' && abandonedCount > 0 ? abandonedCount
+      : l.hasBadge && l.section === 'live_chat' && chatUnreadCount > 0 ? chatUnreadCount : 0;
+  const subOpen = (l: NavLink) =>
+    (l.section === 'dashboard' && isDashboardExpanded) ||
+    (l.section === 'orders' && isOrdersExpanded) ||
+    (l.section === 'categories' && isCategoriesExpanded) ||
+    (l.section === 'customers' && isCustomersExpanded) ||
+    (l.section === 'accounting' && isAccountingExpanded) ||
+    (l.section === 'settings' && isSettingsExpanded) ||
+    (l.section === 'smart_inbox' && isSmartInboxExpanded) ||
+    (l.section === 'live_chat' && isLiveChatExpanded) ||
+    (l.section === 'media' && isMediaExpanded);
+  // the shop's pages grouped under their headings (a stable sort keeps each heading's own order);
+  // the bill sits apart, under CORE Automation
+  const navLinks = (sidebarLinks as NavLink[])
+    .filter((l) => l.section !== 'billing')
+    .sort((a, b) => groupRank(groupOf(a.to)) - groupRank(groupOf(b.to)));
+  const coreLinks = (sidebarLinks as NavLink[]).filter((l) => l.section === 'billing');
+  const showGroups = new Set(navLinks.map((l) => groupOf(l.to))).size > 1;
+
+  /** A page on the folded rail: its tile grows under the pointer; the name shows beside it. */
+  const railItem = (key: string, icon: typeof LayoutDashboard, label: string, opts: { to?: string; onClick?: () => void; active?: boolean; badge?: number }) => {
+    const Icon = icon;
+    const inner = (
+      <>
+        {opts.active && <span className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-foreground/60" />}
+        <span className={cn(tileClass(key, 'lg'), 'transition-transform duration-200 ease-out group-hover:scale-110 group-focus-visible:scale-110', opts.active && 'scale-105')}>
+          <Icon className="h-5 w-5" />
+        </span>
+        {!!opts.badge && <span className={cn(badgeClass, 'absolute -top-1 right-0.5 ring-2 ring-white dark:ring-neutral-900')}>{opts.badge}</span>}
+      </>
+    );
+    const cls = 'group relative flex w-full justify-center py-1 outline-none';
+    return (
+      <Tooltip key={key + label}>
+        <TooltipTrigger asChild>
+          {opts.to
+            ? <Link to={opts.to} aria-label={label} className={cls}>{inner}</Link>
+            : <button type="button" aria-label={label} onClick={opts.onClick} className={cls}>{inner}</button>}
+        </TooltipTrigger>
+        {/* drawn outside the panel, which scrolls and would cut it off */}
+        <TooltipPortal>
+          <TooltipContent side="right" sideOffset={10} className="flex items-center gap-2 rounded-full border-white/60 bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/90">
+            {label}
+            {!!opts.badge && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{opts.badge} নতুন</span>}
+          </TooltipContent>
+        </TooltipPortal>
+      </Tooltip>
+    );
+  };
+
+  const navItems = (onNavigate?: () => void, rail = false) => {
+    let lastGroup: NavGroup | null = null;
+    const shown = new Set<NavGroup>();
+    return (
+      <nav className={rail ? 'flex flex-col items-stretch gap-0.5' : 'space-y-0.5'}>
+        {navLinks.map((l) => {
+          const g = groupOf(l.to);
+          const heading = showGroups && g !== lastGroup && !shown.has(g);
+          lastGroup = g;
+          if (heading) shown.add(g);
+          const active = linkActive(l);
+          const badge = navBadge(l);
+          const open = !!l.subLinks && subOpen(l);
+          return (
+            <div key={l.to}>
+              {heading && (rail
+                ? <div className="mx-auto my-1.5 h-px w-6 bg-foreground/10" />
+                : <p className="px-2 pb-1 pt-3 text-[11px] font-medium text-muted-foreground/80">{groupLabel(g)}</p>)}
+              {rail ? railItem(l.to, l.icon, l.label, { to: l.to, active, badge }) : (
+                <Link to={l.to} onClick={onNavigate} className={rowClass(active)}>
+                  <span className={tileClass(l.to)}><l.icon className="h-[17px] w-[17px]" /></span>
+                  <span className="flex-1 truncate">{l.label}</span>
+                  {badge > 0 ? (
+                    <span className={badgeClass}>{badge}</span>
+                  ) : l.subLinks ? (
+                    <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform duration-200', open && 'rotate-180')} />
+                  ) : null}
+                </Link>
+              )}
+              {!rail && open && l.subLinks!.map((sub) => can(sub.section) && (
+                <Link key={sub.to} to={sub.to} onClick={onNavigate} className={cn(subRowClass(isActive(sub.to)), 'mt-0.5')}>
+                  <sub.icon className="h-3.5 w-3.5" />
+                  <span className="truncate">{sub.label}</span>
+                  {sub.to === '/admin/abandoned-checkouts' && abandonedCount > 0 && (
+                    <span className={cn(badgeClass, 'ml-auto h-4 min-w-[16px] text-[9px]')}>{abandonedCount}</span>
+                  )}
+                </Link>
+              ))}
             </div>
-            <span className="flex-1">{l.label}</span>
-            {l.section === 'orders' && abandonedCount > 0 ? (
-              <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
-                {abandonedCount}
-              </span>
-            ) : l.hasBadge && l.section === 'live_chat' && chatUnreadCount > 0 ? (
-              <span className="bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
-                {chatUnreadCount}
-              </span>
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-            )}
-          </Link>
-          {/* Generic subLinks for orders, categories, customers, settings */}
-          {(l as any).subLinks && (
-            (l.section === 'dashboard' && isDashboardExpanded) ||
-            (l.section === 'orders' && isOrdersExpanded) ||
-            (l.section === 'categories' && isCategoriesExpanded) ||
-            (l.section === 'customers' && isCustomersExpanded) ||
-            (l.section === 'accounting' && isAccountingExpanded) ||
-            (l.section === 'settings' && isSettingsExpanded) ||
-            (l.section === 'smart_inbox' && isSmartInboxExpanded) ||
-            (l.section === 'live_chat' && isLiveChatExpanded)
-          ) && (l as any).subLinks.map((sub: any) => (
-            can(sub.section) && (
-              <Link key={sub.to} to={sub.to} onClick={onNavigate}
-                className={cn(
-                  'flex items-center gap-2 pl-14 pr-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 mt-1',
-                  isActive(sub.to)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                )}>
-                <sub.icon className="h-3.5 w-3.5" />
-                {sub.label}
-                {sub.to === '/admin/abandoned-checkouts' && abandonedCount > 0 && (
-                  <span className="ml-auto bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
-                    {abandonedCount}
-                  </span>
-                )}
+          );
+        })}
+        {coreLinks.length > 0 && (rail ? (
+          <>
+            <div className="mx-auto my-1.5 h-px w-6 bg-foreground/10" />
+            {coreLinks.map((l) => railItem(l.to, l.icon, l.label, { to: l.to, active: isActive(l.to) }))}
+          </>
+        ) : (
+          <div className="space-y-0.5 pt-1">
+            <p className="px-2 pb-1 pt-3 text-[11px] font-medium text-muted-foreground/80">CORE Automation</p>
+            {coreLinks.map((l) => (
+              <Link key={l.to} to={l.to} onClick={onNavigate} className={rowClass(isActive(l.to))}>
+                <span className={tileClass(l.to)}><l.icon className="h-[17px] w-[17px]" /></span>
+                <span className="flex-1 truncate">{l.label}</span>
               </Link>
-            )
-          ))}
-        </div>
-      ))}
-    </nav>
+            ))}
+          </div>
+        ))}
+      </nav>
+    );
+  };
+
+  const profilePath = `/admin/employees/${userId}`;
+  const logout = async () => { await authSignOut(); navigate('/admin'); };
+  const shopName = 'স্বর্ণ সুতা';
+
+  /** The shop's mark: the person's photo, or the shop's first letter on its colour. */
+  const shopAvatar = (className: string) => (
+    <Avatar className={cn('ring-2 ring-primary/25 ring-offset-1 ring-offset-background', className)}>
+      <AvatarImage src={avatarUrl} className="object-cover" />
+      <AvatarFallback className="rounded-[inherit] bg-primary text-primary-foreground text-sm font-bold">
+        {displayName[0]?.toUpperCase() || 'স'}
+      </AvatarFallback>
+    </Avatar>
   );
 
-  const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
+  /** The folded panel: the shop's mark, a column of tiles, the person's corner at the foot. */
+  const railContent = () => (
     <>
-      <div className="flex items-center justify-between px-3 mb-8">
-        <Link
-          to={`/admin/employees/${userId}`}
-          onClick={onNavigate}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0"
-        >
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback className="text-xs font-bold">
-              {displayName[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <h2 className="font-bold text-base truncate">স্বর্ণ সুতা</h2>
-            <p className="text-[10px] text-muted-foreground truncate">{displayName}</p>
-          </div>
-        </Link>
+      <div className="mb-2 flex flex-col items-center gap-1.5">
+        <Link to={profilePath} aria-label={shopName}>{shopAvatar('h-11 w-11 rounded-[14px]')}</Link>
         <AdminNotificationCenter userId={userId} />
       </div>
+      <div className="mx-auto mb-1.5 h-px w-6 bg-foreground/10" />
+      {navItems(undefined, true)}
+      <div className="mt-auto flex flex-col items-stretch gap-0.5 pt-3">
+        <div className="mx-auto mb-1.5 h-px w-6 bg-foreground/10" />
+        {railItem('theme', isDark ? Moon : Sun, isDark ? 'ডার্ক মোড' : 'লাইট মোড', { onClick: () => setIsDark(!isDark) })}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link to={profilePath} aria-label="আমার প্রোফাইল" className="flex justify-center py-1.5">
+              <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm dark:ring-white/10">
+                <AvatarImage src={avatarUrl} className="object-cover" />
+                <AvatarFallback className="bg-primary/15 text-primary text-sm font-bold">{(displayName || '?').slice(0, 1)}</AvatarFallback>
+              </Avatar>
+            </Link>
+          </TooltipTrigger>
+          <TooltipPortal><TooltipContent side="right" sideOffset={10}>{displayName}</TooltipContent></TooltipPortal>
+        </Tooltip>
+        {railItem('logout', LogOut, 'লগআউট', { onClick: logout })}
+      </div>
+    </>
+  );
 
-      <LiveVisitorBadge compactBelowSm={false} className="mx-1 mb-3 w-fit" />
+  /** The open panel (desktop, and the phone's drawer). */
+  const panelContent = (onNavigate?: () => void) => (
+    <>
+      <div className="mb-3 flex items-center gap-2 px-1 pt-1">
+        <Link to={profilePath} onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5 transition-opacity hover:opacity-80">
+          {shopAvatar('h-10 w-10 rounded-[12px]')}
+          <span className="min-w-0">
+            <span className="block truncate text-[15px] font-bold leading-tight text-foreground">{shopName}</span>
+            <span className="block truncate text-[11px] text-muted-foreground">{displayName}</span>
+          </span>
+        </Link>
+        <div className="flex shrink-0 items-center">
+          <AdminNotificationCenter userId={userId} />
+        </div>
+      </div>
+
+      <LiveVisitorBadge compactBelowSm={false} className="mx-1 mb-2 w-fit" />
 
       {notifUnreadCount > 0 && (
-        <Link to={`/admin/employees/${userId}?tab=notifications`} onClick={onNavigate}
-          className="block mx-1 mb-3 p-3 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Bell className="h-5 w-5 animate-bounce" />
-              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-400 rounded-full animate-ping" />
-              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-400 rounded-full" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold">{notifUnreadCount} নতুন বার্তা আছে!</p>
-              <p className="text-[11px] text-white/80 mt-0.5">পড়ুন →</p>
-            </div>
-          </div>
+        <Link to={`${profilePath}?tab=notifications`} onClick={onNavigate}
+          className="mx-1 mb-2 flex items-center gap-3 rounded-2xl bg-white/80 p-2.5 shadow-sm ring-1 ring-black/5 transition-all hover:shadow-md dark:bg-white/10 dark:ring-white/10">
+          <span className="relative">
+            <span className={tileClass('/admin/live-chat')}><Bell className="h-4 w-4" /></span>
+            <span className={cn(badgeClass, 'absolute -right-2 -top-2 h-4 min-w-[16px] text-[9px] ring-2 ring-white dark:ring-neutral-900')}>{notifUnreadCount}</span>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold text-foreground">{notifUnreadCount} নতুন বার্তা আছে!</span>
+            <span className="block text-[11px] text-muted-foreground">পড়ুন →</span>
+          </span>
         </Link>
       )}
 
-
       <CoreBillingNotice core={core} onNavigate={onNavigate} />
 
-      <NavItems onNavigate={onNavigate} />
+      {navItems(onNavigate)}
 
-      <div className="mt-auto pt-6 space-y-2">
-        <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-muted/40">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            <span>{isDark ? 'ডার্ক মোড' : 'লাইট মোড'}</span>
-          </div>
+      <div className="mt-auto space-y-0.5 pt-4">
+        <div className="flex items-center gap-3 rounded-[14px] px-2 py-1.5">
+          <span className={tileClass('theme')}>{isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</span>
+          <span className="flex-1 text-sm text-foreground/80">{isDark ? 'ডার্ক মোড' : 'লাইট মোড'}</span>
           <Switch checked={isDark} onCheckedChange={setIsDark} />
         </div>
-        <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive"
-          onClick={async () => { await authSignOut(); navigate('/admin'); }}>
-          <LogOut className="h-4 w-4 mr-2" /> লগআউট
-        </Button>
+        {/* the person's own corner: their profile, attendance, work and notifications */}
+        <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/60 p-1.5 ring-1 ring-black/5 dark:bg-white/5 dark:ring-white/10">
+          <Link to={profilePath} onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl p-1 transition-colors hover:bg-white/70 dark:hover:bg-white/10">
+            <Avatar className="h-9 w-9 shrink-0 ring-2 ring-white dark:ring-white/10">
+              <AvatarImage src={avatarUrl} className="object-cover" />
+              <AvatarFallback className="bg-primary/15 text-primary text-sm font-bold">{(displayName || '?').slice(0, 1)}</AvatarFallback>
+            </Avatar>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-foreground">{displayName}</span>
+              <span className="block truncate text-[11px] text-muted-foreground">আমার কাজ, হাজিরা ও তথ্য</span>
+            </span>
+          </Link>
+          <button type="button" onClick={logout} aria-label="লগআউট" title="লগআউট"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive dark:hover:bg-red-500/10">
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen flex bg-background overflow-x-clip">
-      <aside className="admin-sidebar w-64 bg-background border-r border-border p-4 hidden md:flex flex-col shrink-0 sticky top-0 h-screen overflow-y-auto scrollbar-hide print:!hidden">
-        <SidebarContent />
-      </aside>
+    <div className="admin-shell min-h-screen flex bg-muted/40 overflow-x-clip">
+      {/* The sidebar: a floating glass panel that folds to a rail of icons (remembered). */}
+      <div className="admin-sidebar relative hidden md:block shrink-0 sticky top-0 h-screen py-3 pl-3 print:!hidden">
+        <aside className={cn('glass-sidebar flex h-full flex-col overflow-y-auto scrollbar-hide transition-[width] duration-300 ease-out', railOnly ? 'w-[76px] px-2 py-3' : 'w-64 p-3')}>
+          {railOnly ? railContent() : panelContent()}
+        </aside>
+        <button
+          type="button"
+          onClick={() => setRailOnly((v) => !v)}
+          aria-label={railOnly ? 'মেনু খুলুন' : 'মেনু ছোট করুন'}
+          title={railOnly ? 'মেনু খুলুন' : 'মেনু ছোট করুন'}
+          className="absolute -right-3.5 top-9 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white text-foreground/70 shadow-md ring-1 ring-black/5 transition-colors hover:text-foreground dark:bg-neutral-800 dark:ring-white/10"
+        >
+          {railOnly ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
 
       <div className="admin-mobile-header md:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-14 flex items-center px-4 print:!hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -517,16 +634,13 @@ export default function AdminDashboard() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-60 p-4 flex flex-col overflow-y-auto">
-            <SidebarContent onNavigate={() => setMobileOpen(false)} />
+          <SheetContent side="left" overlayClassName="bg-black/20 backdrop-blur-0" className="glass-sidebar inset-y-2 left-2 h-auto w-[300px] max-w-[85vw] flex flex-col overflow-y-auto p-3 [&>button:last-child]:hidden">
+            {panelContent(() => setMobileOpen(false))}
           </SheetContent>
         </Sheet>
         <Link to="/admin/dashboard" className="flex items-center gap-2 ml-2">
-          <Avatar className="h-7 w-7">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback className="text-xs">{displayName[0]?.toUpperCase() || 'U'}</AvatarFallback>
-          </Avatar>
-          <span className="font-bold text-sm truncate max-w-[150px]">স্বর্ণ সুতা</span>
+          {shopAvatar('h-8 w-8')}
+          <span className="font-bold text-sm truncate max-w-[150px]">{shopName}</span>
         </Link>
         <div className="flex items-center gap-1 ml-auto">
           <LiveVisitorBadge />
@@ -559,6 +673,8 @@ export default function AdminDashboard() {
       <AdminBottomNav />
       {/* Global incoming call ringer — works on any admin page */}
       <IncomingCallNotification />
+      {/* a deploy since this page was opened: offer a reload */}
+      <UpdateNotice />
     </div>
   );
 }
