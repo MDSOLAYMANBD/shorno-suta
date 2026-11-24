@@ -38,6 +38,7 @@ import { logAccActivity } from '@/hooks/useAccActivityLog';
 import { getColorPrimaryImage } from '@/lib/productVariants';
 import { FUNCTIONS_URL } from '@/integrations/supabase/config';
 import { OrderQtyBadge } from '@/components/admin/OrderQtyBadge';
+import { useSupplierProducts } from '@/components/admin/products/SupplierNote';
 
 function shortTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -179,6 +180,8 @@ const ORDERS_PER_PAGE = 100;
 
 export default function AdminOrders() {
   const qc = useQueryClient();
+  // Shadamon (dropshipping) is a courier once the shop sells its products
+  const { data: supplierProducts } = useSupplierProducts();
 
   // Realtime: auto-refresh order list when courier_status changes (via webhook)
   // so admins never have to click a manual sync button.
@@ -1217,9 +1220,11 @@ export default function AdminOrders() {
     steadfast: { fn: 'steadfast-courier', label: 'Steadfast' },
     pathao:    { fn: 'pathao-courier',    label: 'Pathao' },
     redx:      { fn: 'redx-courier',      label: 'RedX' },
+    // dropshipping: Shadamon ships the orders of its own products (admin → ড্রপশিপিং)
+    shadamon:  { fn: 'supplier',          label: 'Shadamon' },
   };
 
-  const bulkCourier = async (provider: 'steadfast' | 'pathao' | 'redx') => {
+  const bulkCourier = async (provider: 'steadfast' | 'pathao' | 'redx' | 'shadamon') => {
     const cfg = COURIER_FUNCTIONS[provider];
     // Skip orders already sent to any courier
     const eligible = orders.filter((o: any) => selectedOrders.includes(o.id) && !o.courier_consignment_id);
@@ -1238,7 +1243,7 @@ export default function AdminOrders() {
     const failMessages: string[] = [];
 
     try {
-      if (provider === 'steadfast') {
+      if (provider === 'steadfast' || provider === 'shadamon') {
         const res = await fetch(`${FUNCTIONS_URL}/${cfg.fn}?action=bulk_create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
@@ -1288,7 +1293,7 @@ export default function AdminOrders() {
       const { data: { session } } = await supabase.auth.getSession();
       // Group selected orders by their provider; orders without provider default to steadfast
       const selected = orders.filter((o: any) => selectedOrders.includes(o.id) && o.courier_consignment_id);
-      const byProvider: Record<string, string[]> = { steadfast: [], pathao: [], redx: [] };
+      const byProvider: Record<string, string[]> = { steadfast: [], pathao: [], redx: [], shadamon: [] };
       selected.forEach((o: any) => {
         const p = (o.courier_provider || 'steadfast').toLowerCase();
         if (byProvider[p]) byProvider[p].push(o.id);
@@ -1332,6 +1337,7 @@ export default function AdminOrders() {
         { name: 'steadfast', fn: 'steadfast-courier' },
         { name: 'pathao', fn: 'pathao-courier' },
         { name: 'redx', fn: 'redx-courier' },
+        ...((supplierProducts?.size ?? 0) > 0 ? [{ name: 'shadamon', fn: 'supplier' }] : []),
       ];
 
       let totalUpdated = 0;
@@ -1634,6 +1640,11 @@ export default function AdminOrders() {
                   <DropdownMenuItem onClick={() => bulkCourier('redx')} className="text-xs cursor-pointer">
                     <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />RedX
                   </DropdownMenuItem>
+                  {(supplierProducts?.size ?? 0) > 0 && (
+                    <DropdownMenuItem onClick={() => bulkCourier('shadamon')} className="text-xs cursor-pointer">
+                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 mr-2" />Shadamon
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button size="sm" variant="outline" onClick={bulkStatusSync} disabled={bulkLoading}>

@@ -12,13 +12,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SUPABASE_URL } from '@/integrations/supabase/config';
+import { useSupplierProducts } from '@/components/admin/products/SupplierNote';
 
-type CourierProvider = 'steadfast' | 'pathao' | 'redx' | 'manual';
+type CourierProvider = 'steadfast' | 'pathao' | 'redx' | 'shadamon' | 'manual';
 
 const PROVIDER_CONFIG: Record<CourierProvider, { label: string; color: string; functionName: string }> = {
   steadfast: { label: 'Steadfast', color: 'bg-blue-100 text-blue-700', functionName: 'steadfast-courier' },
   pathao: { label: 'Pathao', color: 'bg-green-100 text-green-700', functionName: 'pathao-courier' },
   redx: { label: 'RedX', color: 'bg-red-100 text-red-700', functionName: 'redx-courier' },
+  // dropshipping: Shadamon packs and ships the orders of its own products (admin → ড্রপশিপিং)
+  shadamon: { label: 'Shadamon', color: 'bg-emerald-100 text-emerald-800', functionName: 'supplier' },
   manual: { label: 'ম্যানুয়াল', color: 'bg-gray-100 text-gray-700', functionName: '' },
 };
 
@@ -36,6 +39,8 @@ export default function CourierActions({ orderId, orderNumber, consignmentId, co
   const [loading, setLoading] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  // Shadamon is offered once the shop sells its products
+  const { data: supplierProducts } = useSupplierProducts();
 
   const resolvedProvider: CourierProvider = (courierProvider as CourierProvider) || 'steadfast';
   const providerInfo = PROVIDER_CONFIG[resolvedProvider] || PROVIDER_CONFIG.steadfast;
@@ -96,6 +101,11 @@ export default function CourierActions({ orderId, orderNumber, consignmentId, co
             <DropdownMenuItem onClick={() => sendToCourier('redx')}>
               <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />RedX
             </DropdownMenuItem>
+            {(supplierProducts?.size ?? 0) > 0 && (
+              <DropdownMenuItem onClick={() => sendToCourier('shadamon')}>
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 mr-2" />Shadamon
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => setManualOpen(true)}>
               <span className="inline-block w-2 h-2 rounded-full bg-gray-400 mr-2" />ম্যানুয়াল এন্ট্রি
             </DropdownMenuItem>

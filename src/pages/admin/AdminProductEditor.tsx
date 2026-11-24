@@ -21,6 +21,7 @@ import { optimizeMultiple, optimizeImage } from '@/lib/imageOptimizer';
 import { sanitizeHtml } from '@/lib/sanitize';
 import VisualDescriptionEditor from '@/components/admin/VisualDescriptionEditor';
 import { syncLinkedProducts, syncSuggestedProducts } from '@/hooks/useProducts';
+import SupplierNote from '@/components/admin/products/SupplierNote';
 
 // Global sizes fetched from DB instead of hardcoded
 // const FIXED_SIZES removed - now dynamic
@@ -882,6 +883,7 @@ export default function AdminProductEditor() {
                   />
                 </div>
               </div>
+              <SupplierNote productId={isEditing ? id : undefined} price={Number(form.original_price) > 0 && Number(form.original_price) < Number(form.price) ? Number(form.original_price) : Number(form.price)} />
 
               {/* Stock Clearance Offer */}
               <div className="mt-4 p-3 rounded-lg border border-rose-200 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20">

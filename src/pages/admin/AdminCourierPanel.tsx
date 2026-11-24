@@ -1347,7 +1347,7 @@ function OtherCourierPaymentSection() {
       const { data, error } = await supabase
         .from('courier_payments')
         .select('*')
-        .not('courier_provider', 'in', '("steadfast","pathao","redx")')
+        .not('courier_provider', 'in', '("steadfast","pathao","redx","shadamon")')
         .order('date', { ascending: false });
       if (error) throw error;
       return data || [];

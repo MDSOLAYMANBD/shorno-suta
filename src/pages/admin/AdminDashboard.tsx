@@ -3,7 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft, Languages } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft, Languages, PackagePlus } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -65,6 +65,8 @@ const ALL_SIDEBAR_LINKS = [
   },
   
   { label: 'প্রোডাক্ট', to: '/admin/products', icon: Package, section: 'products' },
+  // Dropshipping: Shadamon Shop's products, sold in the shop and shipped by Shadamon (supplier edge function)
+  { label: 'ড্রপশিপিং', to: '/admin/shadamon', icon: PackagePlus, section: 'products' },
   { label: 'ক্যাটাগরি', to: '/admin/categories', icon: Tag, section: 'categories', hasSubLinks: true,
     subLinks: [
       { label: 'সাইজ/কালার', to: '/admin/sizes-colors', icon: Palette, section: 'sizes_colors' },

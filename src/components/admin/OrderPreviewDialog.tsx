@@ -312,6 +312,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
       steadfast: 'steadfast-courier',
       pathao: 'pathao-courier',
       redx: 'redx-courier',
+      shadamon: 'supplier',
     };
     const fn = funcMap[provider];
     if (!fn) return;
@@ -654,7 +655,7 @@ export default function OrderPreviewDialog({ order, open, onOpenChange }: OrderP
       return;
     }
     const provider = order.courier_provider || 'steadfast';
-    const fnMap: Record<string, string> = { steadfast: 'steadfast-courier', pathao: 'pathao-courier', redx: 'redx-courier' };
+    const fnMap: Record<string, string> = { steadfast: 'steadfast-courier', pathao: 'pathao-courier', redx: 'redx-courier', shadamon: 'supplier' };
     const fnName = fnMap[provider];
     if (!fnName) return;
     try {

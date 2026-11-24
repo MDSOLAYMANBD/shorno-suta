@@ -87,6 +87,17 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Shadamon (dropshipping, the supplier function): its product changes (stock, price, on/off)
+  // into the shop and the progress of the orders sent to it. Nothing until CORE links the shop.
+  try {
+    const r = await callProvider('supplier', 'sync', {});
+    results.shadamon = r;
+    console.log(`[poll] shadamon sync: ${r.status} body=${r.text.slice(0, 200)}`);
+  } catch (e: any) {
+    results.shadamon = { ok: false, error: e?.message || String(e) };
+    console.error('[poll] shadamon sync error:', e?.message);
+  }
+
   // Step 2: timeline scrape for active Steadfast orders (rider/hub/dispatch events)
   const timelineResults: any[] = [];
   try {

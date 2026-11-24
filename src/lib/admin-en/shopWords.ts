@@ -368,6 +368,8 @@ const words: Record<string, string> = {
   'ফাইলগুলো একসাথে বেশি বড়। PDF-এর বদলে ছবি দিন।': 'The files are too big together. Use photos instead of PDFs.',
   'অ্যাকাউন্টের ধরন': 'Account type',
   'JPG, PNG বা PDF': 'JPG, PNG or PDF',
+  // dropshipping (pages/admin/AdminShadamon.tsx; the rest is in enginePairs.ts)
+  'যোগ হচ্ছে…': 'Adding…',
 };
 
 export default words;

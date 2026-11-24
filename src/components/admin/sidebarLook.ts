@@ -17,6 +17,7 @@ const TILE_COLOR: Record<string, string> = {
   '/admin/crm': 'from-violet-400 to-violet-600',
   '/admin/broadcast': 'from-pink-400 to-pink-600',
   '/admin/products': 'from-amber-400 to-orange-500',
+  '/admin/shadamon': 'from-rose-400 to-rose-600',
   '/admin/categories': 'from-teal-400 to-teal-600',
   '/admin/customers': 'from-indigo-400 to-indigo-600',
   '/admin/landing-pages': 'from-cyan-400 to-cyan-600',
@@ -44,6 +45,7 @@ export type NavGroup = 'main' | 'shop' | 'site';
 
 const GROUP_OF: Record<string, NavGroup> = {
   '/admin/products': 'shop',
+  '/admin/shadamon': 'shop',
   '/admin/categories': 'shop',
   '/admin/customers': 'shop',
   '/admin/crm': 'shop',

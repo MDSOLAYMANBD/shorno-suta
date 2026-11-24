@@ -91,6 +91,7 @@ const AdminOverview = lazy(() => lazyRetry(() => import("./pages/admin/AdminOver
 const AdminOrders = lazy(() => lazyRetry(() => import("./pages/admin/AdminOrders")));
 const AdminProducts = lazy(() => lazyRetry(() => import("./pages/admin/AdminProducts")));
 const AdminProductEditor = lazy(() => lazyRetry(() => import("./pages/admin/AdminProductEditor")));
+const AdminShadamon = lazy(() => lazyRetry(() => import("./pages/admin/AdminShadamon")));
 const AdminCategories = lazy(() => lazyRetry(() => import("./pages/admin/AdminCategories")));
 const AdminSettings = lazy(() => lazyRetry(() => import("./pages/admin/AdminSettings")));
 const AdminIntegrations = lazy(() => lazyRetry(() => import("./pages/admin/AdminIntegrations")));
@@ -318,6 +319,7 @@ const App = () => (
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="products/new" element={<AdminProductEditor />} />
                 <Route path="products/edit/:id" element={<AdminProductEditor />} />
+                <Route path="shadamon" element={<AdminShadamon />} />
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="customers" element={<AdminCustomers />} />
                 <Route path="customers/import" element={<AdminCustomerImport />} />

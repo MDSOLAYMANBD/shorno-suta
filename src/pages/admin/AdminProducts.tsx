@@ -11,9 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Plus, Search, MoreHorizontal, Eye, EyeOff, Pencil, Zap, Package, Power, Trash2, X, Check, Sparkles, Loader2, Copy, ShoppingCart, FileSpreadsheet, Download } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Eye, EyeOff, Pencil, Zap, Package, PackagePlus, Power, Trash2, X, Check, Sparkles, Loader2, Copy, ShoppingCart, FileSpreadsheet, Download } from 'lucide-react';
 import { downloadImagesWithToast, productPhotos } from '@/lib/downloadImages';
 import { ProductCsvDialog } from '@/components/admin/products/ProductCsvDialog';
+import { SupplierBadge } from '@/components/admin/products/SupplierNote';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useCategories, getCategoryTree } from '@/hooks/useCategories';
 import HoverImagePreview from '@/components/admin/HoverImagePreview';
@@ -946,6 +947,9 @@ export default function AdminProducts() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl md:text-2xl font-bold">📦 পণ্য ম্যানেজমেন্ট</h1>
         <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" asChild title="ড্রপশিপিং: Shadamon-এর পণ্য">
+            <Link to="/admin/shadamon"><PackagePlus className="h-4 w-4 mr-1" /> ড্রপশিপিং</Link>
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setCsvOpen(true)}>
             <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
           </Button>
@@ -1133,6 +1137,7 @@ export default function AdminProducts() {
                     {p.categories?.name && (
                       <Badge variant="outline" className="text-[10px]">{p.categories.name}</Badge>
                     )}
+                    <SupplierBadge productId={p.id} price={Number(p.original_price) > 0 && Number(p.original_price) < Number(p.price) ? Number(p.original_price) : Number(p.price)} />
                     {p.bump_product_id && (() => {
                       const bp = bumpProductMap.get(p.bump_product_id);
                       return bp ? (
@@ -1301,6 +1306,7 @@ export default function AdminProducts() {
                       {p.categories?.name && (
                         <Badge variant="outline" className="text-[10px] mt-0.5">{p.categories.name}</Badge>
                       )}
+                      <div className="mt-0.5"><SupplierBadge productId={p.id} price={Number(p.original_price) > 0 && Number(p.original_price) < Number(p.price) ? Number(p.original_price) : Number(p.price)} /></div>
                       {p.bump_product_id && (() => {
                         const bp = bumpProductMap.get(p.bump_product_id);
                         return bp ? (
