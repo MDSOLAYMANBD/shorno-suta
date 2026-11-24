@@ -7,6 +7,7 @@ import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useCustomerProfile } from '@/hooks/useCustomerProfile';
 import { trackVisitorActivity } from '@/hooks/useVisitorTracking';
 import { cn } from '@/lib/utils';
+import { useLang } from '@/lib/i18n';
 
 const CONTACT_CLICK_TYPE: Record<string, 'call_click' | 'whatsapp_click' | 'messenger_click'> = {
   phone: 'call_click',
@@ -45,6 +46,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
   const { data: savedBtnConfig } = useSiteConfig('buttons_config');
   const { user } = useCustomerAuth();
   const { avatarUrl } = useCustomerProfile();
+  const { menu } = useLang();
 
   const whatsappNumber = settings?.whatsapp_number || '8801843711211';
   const messengerLink = settings?.messenger_link || 'https://m.me/shornosuta';
@@ -65,6 +67,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
             const isActive = isLink && location.pathname === item.to;
             const IconComponent = ICON_MAP[item.icon_type] || Home;
             const isAccountItem = item.icon_type === 'account';
+            const label = menu(item.label as string, isLink ? item.to : null);
 
             let href = item.href || '';
             if (item.icon_type === 'whatsapp' && !href) href = `https://wa.me/${whatsappNumber}`;
@@ -112,7 +115,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
                 </span>
                 {isActive && (
                   <span className="ml-2 text-[12px] font-semibold whitespace-nowrap animate-fade-in">
-                    {item.label}
+                    {label}
                   </span>
                 )}
               </>
@@ -127,7 +130,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
                   target="_blank"
                   rel="noopener noreferrer"
                   className={baseWrap}
-                  aria-label={item.label}
+                  aria-label={label}
                   onClick={clickType ? () => trackVisitorActivity(clickType) : undefined}
                 >
                   {content}
@@ -136,7 +139,7 @@ export default function MobileBottomNav({ matchFooterBg = false }: { matchFooter
             }
 
             return (
-              <Link key={index} to={item.to || '/'} className={baseWrap} aria-label={item.label}>
+              <Link key={index} to={item.to || '/'} className={baseWrap} aria-label={label}>
                 {content}
               </Link>
             );

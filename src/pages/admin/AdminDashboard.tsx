@@ -26,7 +26,7 @@ import CoreBillingNotice from '@/components/admin/CoreBillingNotice';
 import UpdateNotice from '@/components/admin/UpdateNotice';
 import AdminLangToggle from '@/components/admin/AdminLangToggle';
 import { useAdminLang, setAdminLang } from '@/lib/adminLang';
-import { startAdminEnglish, stopAdminEnglish } from '@/lib/adminTranslate';
+import { startEnglish, stopEnglish } from '@/lib/pageTranslate';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Portal as TooltipPortal } from '@radix-ui/react-tooltip';
 import { tileClass, groupOf, groupLabel, groupRank, rowClass, subRowClass, badgeClass, type NavGroup } from '@/components/admin/sidebarLook';
@@ -147,12 +147,12 @@ export default function AdminDashboard() {
   }, [isDark]);
 
   // The admin in English (বাং | EN in the menu): its texts are swapped on the page
-  // (lib/adminTranslate.ts); the website stays Bangla.
+  // (lib/pageTranslate.ts); the website stays Bangla.
   const adminLang = useAdminLang();
   useEffect(() => {
     if (adminLang !== 'en') return;
-    startAdminEnglish();
-    return () => stopAdminEnglish();
+    startEnglish('admin');
+    return () => stopEnglish('admin');
   }, [adminLang]);
 
   // Push subscription for background notifications — only after auth confirmed

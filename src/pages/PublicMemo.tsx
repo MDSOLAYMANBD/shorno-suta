@@ -4,6 +4,7 @@ import { Phone, Globe, Package, Facebook, Youtube } from 'lucide-react';
 import { getOrderDiscount } from '@/lib/orderDiscount';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { FUNCTIONS_URL } from '@/integrations/supabase/config';
+import { trNow } from '@/lib/i18n';
 
 export default function PublicMemo() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -38,8 +39,8 @@ export default function PublicMemo() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="text-center">
           <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <h1 className="text-lg font-bold text-gray-800">মেমো পাওয়া যায়নি</h1>
-          <p className="text-sm text-gray-500 mt-1">এই লিংকটি সঠিক নয় অথবা মেয়াদ শেষ হয়ে গেছে।</p>
+          <h1 className="text-lg font-bold text-gray-800">{trNow('মেমো পাওয়া যায়নি', 'Memo not found')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{trNow('এই লিংকটি সঠিক নয় অথবা মেয়াদ শেষ হয়ে গেছে।', 'This link is wrong or has expired.')}</p>
         </div>
         <MobileBottomNav />
       </div>
@@ -198,12 +199,12 @@ export default function PublicMemo() {
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-lg">✓</div>
                     <div>
-                      <p className="text-[13px] font-bold text-green-700 leading-tight">সম্পূর্ণ পরিশোধিত (PAID)</p>
+                      <p className="text-[13px] font-bold text-green-700 leading-tight">{trNow('সম্পূর্ণ পরিশোধিত (PAID)', 'Fully paid (PAID)')}</p>
                       <p className="text-[9px] text-green-600 uppercase tracking-wide">Paid via {method}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-[9px] text-green-600 font-semibold">পরিশোধিত</p>
+                    <p className="text-[9px] text-green-600 font-semibold">{trNow('পরিশোধিত', 'Paid')}</p>
                     <p className="text-[15px] font-bold text-green-700">৳{paid || total}</p>
                   </div>
                 </div>
@@ -223,22 +224,22 @@ export default function PublicMemo() {
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-white text-sm">◐</div>
                     <div>
-                      <p className="text-[13px] font-bold text-amber-800 leading-tight">আংশিক পরিশোধিত</p>
+                      <p className="text-[13px] font-bold text-amber-800 leading-tight">{trNow('আংশিক পরিশোধিত', 'Partly paid')}</p>
                       <p className="text-[9px] text-amber-700 uppercase tracking-wide">{method}</p>
                     </div>
                   </div>
                 </div>
                 <div className="px-4 py-2 grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-[9px] text-gray-600 font-semibold">মোট বিল</p>
+                    <p className="text-[9px] text-gray-600 font-semibold">{trNow('মোট বিল', 'Total bill')}</p>
                     <p className="text-[12px] font-bold text-gray-800">৳{total}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-green-700 font-semibold">পরিশোধিত</p>
+                    <p className="text-[9px] text-green-700 font-semibold">{trNow('পরিশোধিত', 'Paid')}</p>
                     <p className="text-[12px] font-bold text-green-700">৳{paid}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-red-600 font-semibold">বকেয়া</p>
+                    <p className="text-[9px] text-red-600 font-semibold">{trNow('বকেয়া', 'Due')}</p>
                     <p className="text-[12px] font-bold text-red-600">৳{due}</p>
                   </div>
                 </div>
@@ -251,12 +252,12 @@ export default function PublicMemo() {
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-lg">!</div>
                   <div>
-                    <p className="text-[13px] font-bold text-red-700 leading-tight">বিল বকেয়া</p>
+                    <p className="text-[13px] font-bold text-red-700 leading-tight">{trNow('বিল বকেয়া', 'Bill due')}</p>
                     <p className="text-[9px] text-red-600 uppercase tracking-wide">Payment Due · {method}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[9px] text-red-600 font-semibold">পরিশোধ্য</p>
+                  <p className="text-[9px] text-red-600 font-semibold">{trNow('পরিশোধ্য', 'Payable')}</p>
                   <p className="text-[15px] font-bold text-red-700">৳{total}</p>
                 </div>
               </div>
@@ -271,7 +272,7 @@ export default function PublicMemo() {
               <div className="flex items-center gap-2">
                 <span className="text-[18px]">{order.order_origin === 'exchange' ? '🙏' : '🎁'}</span>
                 <span className="text-white font-bold text-[13px] tracking-wide">
-                  {order.order_origin === 'exchange' ? 'ক্ষমা ও পরিবর্তন' : 'উপহার / ছাড়'}
+                  {order.order_origin === 'exchange' ? trNow('ক্ষমা ও পরিবর্তন', 'Apology & exchange') : trNow('উপহার / ছাড়', 'Gift / discount')}
                 </span>
               </div>
             </div>

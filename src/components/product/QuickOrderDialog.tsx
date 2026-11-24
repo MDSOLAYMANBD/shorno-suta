@@ -27,6 +27,8 @@ import { FreeShippingProgress } from '@/components/freeShipping/FreeShippingProg
 import { useEnabledPaymentMethods } from '@/hooks/usePaymentMethods';
 import { optimizedImageUrl } from '@/lib/imageUrl';
 import { getColorPrimaryImage } from '@/lib/productVariants';
+import { knownNow, nameNow, trNow } from '@/lib/i18n';
+import { variantLabel } from '@/lib/variantPresets';
 
 interface QuickOrderDialogProps {
   open: boolean;
@@ -229,16 +231,16 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) {
-      toast.error('অনুগ্রহ করে শর্তাবলীতে সম্মতি দিন');
+      toast.error(trNow('অনুগ্রহ করে শর্তাবলীতে সম্মতি দিন', 'Please agree to the terms'));
       return;
     }
     if (!form.customer_name || !form.customer_phone || !form.customer_address) {
-      toast.error('নাম, ফোন ও ঠিকানা দিন');
+      toast.error(trNow('নাম, ফোন ও ঠিকানা দিন', 'Enter your name, phone and address'));
       return;
     }
     const phoneClean = form.customer_phone.replace(/[\s-]/g, '').replace(/^\+?88/, '');
     if (!/^01[3-9]\d{8}$/.test(phoneClean)) {
-      toast.error('সঠিক ফোন নম্বর দিন');
+      toast.error(trNow('সঠিক ফোন নম্বর দিন', 'Enter a valid phone number'));
       return;
     }
 
@@ -313,7 +315,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
           return;
         }
         if (errorBody?.error === 'blocked') {
-          toast.error('আপনার এই নম্বর থেকে অর্ডার করা সম্ভব নয়।');
+          toast.error(trNow('আপনার এই নম্বর থেকে অর্ডার করা সম্ভব নয়।', 'Orders cannot be placed from this number.'));
           setLoading(false);
           return;
         }
@@ -325,7 +327,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
         return;
       }
       if (data?.error === 'blocked') {
-        toast.error('আপনার এই নম্বর থেকে অর্ডার করা সম্ভব নয়।');
+        toast.error(trNow('আপনার এই নম্বর থেকে অর্ডার করা সম্ভব নয়।', 'Orders cannot be placed from this number.'));
         setLoading(false);
         return;
       }
@@ -343,7 +345,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
           },
         });
         if (payError || payData?.error) {
-          toast.error(payData?.error || 'পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+          toast.error(payData?.error || trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
           setLoading(false);
           return;
         }
@@ -356,7 +358,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
           body: { order_id: data.order.id },
         });
         if (payError || payData?.error) {
-          toast.error(payData?.error || 'পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+          toast.error(payData?.error || trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
           setLoading(false);
           return;
         }
@@ -407,7 +409,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
       onOpenChange(false);
       navigate('/thank-you');
     } catch {
-      toast.error('অর্ডার দিতে সমস্যা হয়েছে');
+      toast.error(trNow('অর্ডার দিতে সমস্যা হয়েছে', 'Could not place the order'));
     } finally {
       setLoading(false);
     }
@@ -433,7 +435,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
       size: localSize || undefined,
       color: localColor || undefined,
     });
-    toast.success('কার্টে যোগ করা হয়েছে!');
+    toast.success(trNow('কার্টে যোগ করা হয়েছে!', 'Added to cart!'));
     onOpenChange(false);
     navigate('/shop');
   };
@@ -468,10 +470,10 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
           <div className="border border-primary/20 rounded-xl p-3 bg-primary/5 space-y-2.5">
             <div className="flex items-center gap-3">
               <div className="w-20 h-28 rounded-lg overflow-hidden bg-muted flex-shrink-0 border-2 border-primary/30 shadow-sm">
-                <img src={optimizedImageUrl(productImage, 160, 224)} alt={product.name_bn || product.name} className="w-full h-full object-cover object-top" loading="lazy" />
+                <img src={optimizedImageUrl(productImage, 160, 224)} alt={nameNow(product.name_bn, product.name)} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
               <div className="flex-1 min-w-0 text-sm">
-                <p className="font-semibold text-base line-clamp-2">{product.name_bn || product.name}</p>
+                <p className="font-semibold text-base line-clamp-2">{nameNow(product.name_bn, product.name)}</p>
                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                   <span className="text-primary font-bold text-lg">৳{effectivePrice}</span>
                   {effectiveOriginal && (
@@ -487,7 +489,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
             {/* Size selection */}
             {availableSizes.length > 0 && (
               <div>
-                <Label className="text-xs font-medium mb-1.5 block">সাইজ</Label>
+                <Label className="text-xs font-medium mb-1.5 block">{trNow('সাইজ', 'Size')}</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {availableSizes.map(s => (
                     <button
@@ -501,7 +503,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
                           : 'border-border bg-background hover:border-primary/50'
                       )}
                     >
-                      {s}
+                      {variantLabel(s)}
                     </button>
                   ))}
                 </div>
@@ -562,7 +564,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
 
             {/* Quantity control */}
             <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2">
-              <Label className="text-xs font-medium">পরিমাণ</Label>
+              <Label className="text-xs font-medium">{trNow('পরিমাণ', 'Quantity')}</Label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -589,10 +591,10 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
               <Checkbox checked={addonChecked} onCheckedChange={(v) => setAddonChecked(!!v)} className="mt-0.5" />
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {addonConfig.image && (
-                  <img src={optimizedImageUrl(addonConfig.image, 80, 70)} alt={addonConfig.name_bn || addonConfig.name} className="w-10 h-10 rounded object-cover border border-border flex-shrink-0" loading="lazy" />
+                  <img src={optimizedImageUrl(addonConfig.image, 80, 70)} alt={nameNow(addonConfig.name_bn, addonConfig.name)} className="w-10 h-10 rounded object-cover border border-border flex-shrink-0" loading="lazy" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium line-clamp-1">{addonConfig.name_bn || addonConfig.name}</p>
+                  <p className="text-xs font-medium line-clamp-1">{nameNow(addonConfig.name_bn, addonConfig.name)}</p>
                   <p className="text-xs text-primary font-bold">৳{addonConfig.price}</p>
                 </div>
               </div>
@@ -605,14 +607,14 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
               <Checkbox checked={bumpChecked} onCheckedChange={(v) => setBumpChecked(!!v)} className="mt-0.5" />
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {bumpProduct.images?.[0] && (
-                  <img src={optimizedImageUrl(bumpProduct.images[0], 80, 70)} alt={bumpProduct.name_bn || bumpProduct.name} className="w-10 h-10 rounded object-cover border border-border flex-shrink-0" loading="lazy" />
+                  <img src={optimizedImageUrl(bumpProduct.images[0], 80, 70)} alt={nameNow(bumpProduct.name_bn, bumpProduct.name)} className="w-10 h-10 rounded object-cover border border-border flex-shrink-0" loading="lazy" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <Gift className="h-3 w-3 text-accent" />
-                    <span className="text-[10px] text-accent font-semibold">এটিও নিন</span>
+                    <span className="text-[10px] text-accent font-semibold">{trNow('এটিও নিন', 'Add this too')}</span>
                   </div>
-                  <p className="text-xs font-medium line-clamp-1">{bumpProduct.name_bn || bumpProduct.name}</p>
+                  <p className="text-xs font-medium line-clamp-1">{nameNow(bumpProduct.name_bn, bumpProduct.name)}</p>
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-primary font-bold">৳{bumpPrice}</span>
                     {bumpDiscount > 0 && (
@@ -669,7 +671,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
               <div className="flex items-start gap-1.5">
                 <CheckCircle className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <span className="font-medium">{product.name_bn || product.name}</span>
+                  <span className="font-medium">{nameNow(product.name_bn, product.name)}</span>
                   <div className="text-muted-foreground mt-0.5">
                     {localColor && <span>{localColor}</span>}
                     {localColor && localSize && <span> • </span>}
@@ -683,7 +685,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
 
             {/* Delivery Charge */}
             <div>
-              <Label className="text-xs font-medium flex items-center gap-1.5 mb-1.5">🚚 ডেলিভারি চার্জ</Label>
+              <Label className="text-xs font-medium flex items-center gap-1.5 mb-1.5">🚚 {trNow('ডেলিভারি চার্জ', 'Delivery')}</Label>
               <RadioGroup
                 value={form.delivery_area}
                 onValueChange={(val) => update('delivery_area', val)}
@@ -699,7 +701,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
                     )}
                   >
                     <RadioGroupItem value={opt.value} />
-                    <span className="flex-1 text-xs font-medium">{opt.label}</span>
+                    <span className="flex-1 text-xs font-medium">{knownNow(opt.label)}</span>
                     <span className={cn(
                       'text-xs font-bold',
                       form.delivery_area === opt.value ? 'text-primary' : 'text-muted-foreground'
@@ -756,7 +758,7 @@ export default function QuickOrderDialog({ open, onOpenChange, product, selected
                       )}>
                         <Icon className={cn("h-4 w-4", brand ? brand.iconColor : 'text-accent')} />
                       </div>
-                      <span className="relative z-10 text-[11px] font-semibold">{method.labelBn}</span>
+                      <span className="relative z-10 text-[11px] font-semibold">{trNow(method.labelBn, method.label)}</span>
                     </button>
                   );
                 })}

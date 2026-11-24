@@ -32,6 +32,8 @@ import { trackVisitorActivity } from '@/hooks/useVisitorTracking';
 import { useAllSettings } from '@/hooks/useAllSettings';
 import { applyClearance } from '@/lib/clearancePrice';
 import { getColorImageList, getColorPrimaryImage, findColorBySlug } from '@/lib/productVariants';
+import { trNow, nameNow, ownNow } from '@/lib/i18n';
+import { variantLabel } from '@/lib/variantPresets';
 const LandingGiftService = lazy(() => import('@/components/landing/LandingGiftService'));
 
 function WishlistButton({ productId }: { productId: string }) {
@@ -43,7 +45,7 @@ function WishlistButton({ productId }: { productId: string }) {
     <button
       onClick={() => toggleWishlist(productId)}
       className="p-2 rounded-full border border-border hover:bg-muted transition-colors shrink-0"
-      title={liked ? 'ফেভারিট থেকে সরান' : 'ফেভারিটে যোগ করুন'}
+      title={liked ? trNow('ফেভারিট থেকে সরান', 'Remove from favourites') : trNow('ফেভারিটে যোগ করুন', 'Add to favourites')}
     >
       <Heart className={`h-5 w-5 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
     </button>
@@ -67,13 +69,13 @@ function BumpProductCard({ productId, discount }: { productId: string; discount:
 
   return (
     <div className="border border-border rounded-xl p-3 sm:p-4 bg-muted/30 mb-3 sm:mb-4">
-      <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 এটিও পছন্দ হতে পারে</p>
+      <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 {trNow('এটিও পছন্দ হতে পারে', 'You may also like')}</p>
       <div className="flex items-center gap-3">
         {bumpData.images?.[0] && (
           <img src={optimizedImageUrl(bumpData.images[0], 100, 70)} alt="" className="w-16 h-20 rounded-lg object-cover" loading="lazy" />
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate">{bumpData.name_bn || bumpData.name}</p>
+          <p className="text-sm font-semibold truncate">{nameNow(bumpData.name_bn, bumpData.name)}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-sm font-bold text-primary">৳{bumpPrice}</span>
             {discount > 0 && (
@@ -94,10 +96,10 @@ function BumpProductCard({ productId, discount }: { productId: string; discount:
               image: bumpData.images?.[0] || '',
               slug: bumpData.slug,
             }, 1);
-            toast.success('কার্টে যোগ করা হয়েছে!');
+            toast.success(trNow('কার্টে যোগ করা হয়েছে!', 'Added to cart!'));
           }}
         >
-          <ShoppingBag className="h-3.5 w-3.5 mr-1" /> যোগ করুন
+          <ShoppingBag className="h-3.5 w-3.5 mr-1" /> {trNow('যোগ করুন', 'Add')}
         </Button>
       </div>
     </div>
@@ -541,7 +543,7 @@ export default function ProductDetail() {
       </div>
     </Layout>
   );
-  if (!product) return <Layout><div className="max-w-7xl mx-auto px-4 py-16 text-center text-muted-foreground">পণ্য পাওয়া যায়নি</div></Layout>;
+  if (!product) return <Layout><div className="max-w-7xl mx-auto px-4 py-16 text-center text-muted-foreground">{trNow('পণ্য পাওয়া যায়নি', 'Product not found')}</div></Layout>;
 
   const actualPrice = displaySalePrice || displayPrice;
   const originalPriceForDisplay = displaySalePrice ? displayPrice : 0;
@@ -578,7 +580,7 @@ export default function ProductDetail() {
     ? Math.round(((originalPriceForDisplay - actualPrice) / originalPriceForDisplay) * 100)
     : 0;
   const priceLine = discountPct > 0
-    ? `৳${actualPrice} (আগে ৳${originalPriceForDisplay}, -${discountPct}%)`
+    ? trNow(`৳${actualPrice} (আগে ৳${originalPriceForDisplay}, -${discountPct}%)`, `৳${actualPrice} (was ৳${originalPriceForDisplay}, -${discountPct}%)`)
     : `৳${actualPrice}`;
   const whatsappMsg = encodeURIComponent(
 `━━━━━━━━━━━━━━━━
@@ -675,7 +677,7 @@ export default function ProductDetail() {
                   )}
                 </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">ছবি নেই</div>
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">{trNow('ছবি নেই', 'No photo')}</div>
               )}
             </div>
             {images.length > 1 && (
@@ -708,7 +710,7 @@ export default function ProductDetail() {
           {/* Info */}
           <div>
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{product.name_bn || product.name}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{nameNow(product.name_bn, product.name)}</h1>
               <WishlistButton productId={product.id} />
             </div>
 
@@ -722,10 +724,10 @@ export default function ProductDetail() {
                 <div className="px-3 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2.5 text-white">
                   <Flame className="clr-flame h-5 w-5 sm:h-6 sm:w-6 fill-current shrink-0 drop-shadow" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm sm:text-base font-extrabold leading-tight">🔥 স্টক ক্লিয়ারেন্স সেল চলছে!</div>
-                    <div className="text-[11px] sm:text-xs text-white/90 leading-tight mt-0.5">সীমিত সময়ের জন্য বিশেষ ছাড় — দ্রুত শেষ হয়ে যাবে!</div>
+                    <div className="text-sm sm:text-base font-extrabold leading-tight">🔥 {trNow('স্টক ক্লিয়ারেন্স সেল চলছে!', 'Clearance sale on now!')}</div>
+                    <div className="text-[11px] sm:text-xs text-white/90 leading-tight mt-0.5">{trNow('সীমিত সময়ের জন্য বিশেষ ছাড় — দ্রুত শেষ হয়ে যাবে!', 'Special prices for a short time — going fast!')}</div>
                   </div>
-                  <span className="hidden sm:inline-flex text-[11px] font-bold bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full ring-1 ring-white/30 group-hover:bg-white/30 transition">সব দেখুন →</span>
+                  <span className="hidden sm:inline-flex text-[11px] font-bold bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full ring-1 ring-white/30 group-hover:bg-white/30 transition">{trNow('সব দেখুন →', 'See all →')}</span>
                 </div>
               </Link>
             )}
@@ -748,10 +750,10 @@ export default function ProductDetail() {
               {(product as any)?.created_at && (Date.now() - new Date((product as any).created_at).getTime()) < 30 * 24 * 60 * 60 * 1000 && (
                 <span
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-white/40"
-                  title="নতুন এসেছে — গত ৩০ দিনে আপলোড"
+                  title={trNow('নতুন এসেছে — গত ৩০ দিনে আপলোড', 'New — added in the last 30 days')}
                 >
                   <Sparkles className="h-3 w-3 fill-current" />
-                  <span className="text-[11px] font-bold leading-none tracking-wide">নতুন</span>
+                  <span className="text-[11px] font-bold leading-none tracking-wide">{trNow('নতুন', 'NEW')}</span>
                 </span>
               )}
               {/* Trending / Top Rated badge */}
@@ -765,7 +767,7 @@ export default function ProductDetail() {
                     <button
                       onClick={() => navigate('/trending')}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-amber-950 shadow-[0_0_12px_rgba(234,179,8,0.5)] ring-1 ring-white/60 hover:scale-105 transition-all cursor-pointer"
-                      title={`Top Rated — ${totalSold}+ বিক্রি হয়েছে। সব দেখুন`}
+                      title={trNow(`Top Rated — ${totalSold}+ বিক্রি হয়েছে। সব দেখুন`, `Top rated — ${totalSold}+ sold. See all`)}
                     >
                       <Star className="h-3 w-3 fill-current" />
                       <span className="text-[11px] font-extrabold leading-none tracking-wide">Top Rated</span>
@@ -777,7 +779,7 @@ export default function ProductDetail() {
                     <button
                       onClick={() => navigate('/trending')}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md ring-1 ring-white/40 hover:scale-105 hover:shadow-lg transition-all cursor-pointer"
-                      title={`Trending — ${totalSold}+ বিক্রি হয়েছে। সব Trending products দেখুন`}
+                      title={trNow(`Trending — ${totalSold}+ বিক্রি হয়েছে। সব Trending products দেখুন`, `Trending — ${totalSold}+ sold. See all trending products`)}
                     >
                       <Zap className="h-3 w-3 fill-current" />
                       <span className="text-[11px] font-bold leading-none tracking-wide">Trending</span>
@@ -812,14 +814,14 @@ export default function ProductDetail() {
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[11px] text-muted-foreground">
                       <Eye className="h-3 w-3" />
                       <span className="font-semibold text-foreground">{fmt(v)}</span>
-                      <span>জন দেখেছে</span>
+                      <span>{trNow('জন দেখেছে', 'views')}</span>
                     </span>
                   )}
                   {s >= 1 && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-[11px] text-primary">
                       <ShoppingBag className="h-3 w-3" />
                       <span className="font-semibold">{fmt(s)}</span>
-                      <span>পিস বিক্রি</span>
+                      <span>{trNow('পিস বিক্রি', 'sold')}</span>
                     </span>
                   )}
                 </div>
@@ -863,7 +865,7 @@ export default function ProductDetail() {
 
             {(product.colors?.length > 0 || linkedColorProducts.length > 0) && (
               <div className="mb-3 sm:mb-4">
-                <label className="text-sm font-semibold mb-1.5 sm:mb-2 block text-accent">রঙ নির্বাচন করুন</label>
+                <label className="text-sm font-semibold mb-1.5 sm:mb-2 block text-accent">{trNow('রঙ নির্বাচন করুন', 'Choose a colour')}</label>
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   {product.colors?.map((c: string) => (
                     <button key={c} onClick={() => { setSelectedColor(c); setColorOverride(true); }}
@@ -871,16 +873,16 @@ export default function ProductDetail() {
                       {getColorImage(c) && (
                         <img src={optimizedImageUrl(getColorImage(c)!, 48, 70)} alt={c} className="w-6 h-6 rounded object-cover" loading="lazy" />
                       )}
-                      {c}
+                      {variantLabel(c)}
                     </button>
                   ))}
                   {linkedColorProducts.length > 0 && (
                     <>
                       <div
                         className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-md overflow-hidden border-2 border-primary ring-2 ring-primary/30 shrink-0"
-                        title={product.name_bn || product.name}
+                        title={nameNow(product.name_bn, product.name)}
                       >
-                        <img src={optimizedImageUrl(images[0], 100, 70)} alt={product.name_bn || product.name} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={optimizedImageUrl(images[0], 100, 70)} alt={nameNow(product.name_bn, product.name)} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                       {linkedColorProducts.map((p: any) => (
                         <button
@@ -888,9 +890,9 @@ export default function ProductDetail() {
                           type="button"
                           onClick={() => handleLinkedColorClick(p)}
                           className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-md overflow-hidden border-2 border-border hover:border-primary/50 transition-colors shrink-0"
-                          title={p.name_bn || p.name}
+                          title={nameNow(p.name_bn, p.name)}
                         >
-                          <img src={optimizedImageUrl(p.images?.[0], 100, 70)} alt={p.name_bn || p.name} className="w-full h-full object-cover" loading="lazy" />
+                          <img src={optimizedImageUrl(p.images?.[0], 100, 70)} alt={nameNow(p.name_bn, p.name)} className="w-full h-full object-cover" loading="lazy" />
                         </button>
                       ))}
                     </>
@@ -946,7 +948,7 @@ export default function ProductDetail() {
                 >
                   <span className="relative z-20 inline-flex items-center justify-center gap-2">
                     <Zap className="h-4 w-4 animate-fs-float group-hover/btn:scale-125 group-hover/btn:-rotate-12 transition-transform [transition-duration:300ms]" />
-                    {btnCfg.order_button?.text || '🛒 এখনই অর্ডার করুন'}
+                    {ownNow(btnCfg.order_button?.text || '🛒 এখনই অর্ডার করুন', '🛒 Order now')}
                   </span>
                   <span className="pointer-events-none absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-fs-shimmer z-10" />
                   <span className="pointer-events-none absolute inset-0 rounded-full ring-0 group-hover/btn:ring-2 ring-white/40 transition-all duration-300 z-10" />
@@ -969,7 +971,7 @@ export default function ProductDetail() {
                 >
                   <span className="relative z-20 inline-flex items-center justify-center gap-2">
                     <ShoppingBag className="h-4 w-4 animate-fs-float group-hover/cart:scale-125 transition-transform [transition-duration:300ms]" />
-                    {btnCfg.cart_button?.text || 'কার্টে যোগ করুন'}
+                    {ownNow(btnCfg.cart_button?.text || 'কার্টে যোগ করুন', 'Add to cart')}
                   </span>
                   <span className="pointer-events-none absolute inset-0 bg-[hsl(var(--primary)/0.1)] opacity-0 group-hover/cart:opacity-100 transition-opacity [transition-duration:300ms] z-10" />
                   <span className="pointer-events-none absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-transparent via-[hsl(var(--primary)/0.25)] to-transparent animate-fs-shimmer z-10" />
@@ -1050,7 +1052,7 @@ export default function ProductDetail() {
                           is_addon: true,
                           parent_product_id: product.id,
                         }, 1);
-                        toast.success(`${ac.name} যোগ করা হয়েছে!`);
+                        toast.success(trNow(`${ac.name} যোগ করা হয়েছে!`, `${ac.name} added!`));
                       }
                     }}
                   />
@@ -1059,8 +1061,8 @@ export default function ProductDetail() {
                       <img src={optimizedImageUrl((product as any).addon_config.image, 90, 70)} alt="" className="w-12 h-12 rounded-lg object-cover" loading="lazy" />
                     )}
                     <div>
-                      <p className="text-sm text-foreground"><span className="font-bold">{(product as any).addon_config.name}</span> নিতে পারেন</p>
-                      <p className="text-xs text-primary font-bold">৳{(product as any).addon_config.price} — যোগ করুন</p>
+                      <p className="text-sm text-foreground"><span className="font-bold">{(product as any).addon_config.name}</span>{trNow(' নিতে পারেন', ' — want this too?')}</p>
+                      <p className="text-xs text-primary font-bold">৳{(product as any).addon_config.price} — {trNow('যোগ করুন', 'add')}</p>
                     </div>
                   </div>
                 </label>
@@ -1076,7 +1078,7 @@ export default function ProductDetail() {
             {product.description_bn && (
               <div className="border border-border rounded-lg overflow-hidden">
                 <button onClick={() => setDescExpanded(!descExpanded)} className="flex items-center justify-between w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 bg-muted/50 hover:bg-muted transition-colors">
-                  <h3 className="font-semibold text-accent text-sm sm:text-base">📋 বিবরণ</h3>
+                  <h3 className="font-semibold text-accent text-sm sm:text-base">📋 {trNow('বিবরণ', 'Description')}</h3>
                   {descExpanded ? <ChevronUp className="h-4 w-4 text-accent" /> : <ChevronDown className="h-4 w-4 text-accent" />}
                 </button>
                 {descExpanded && (
@@ -1146,12 +1148,12 @@ export default function ProductDetail() {
               return (
                 <div className="border border-border rounded-lg overflow-hidden">
                   <button onClick={() => setGiftExpanded(!giftExpanded)} className="flex items-center justify-between w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 bg-muted/50 hover:bg-muted transition-colors">
-                    <h3 className="font-semibold text-accent text-sm sm:text-base">🎁 প্রিয়জনকে সারপ্রাইজ দিন! ফ্রি-তে!</h3>
+                    <h3 className="font-semibold text-accent text-sm sm:text-base">🎁 {trNow('প্রিয়জনকে সারপ্রাইজ দিন! ফ্রি-তে!', 'Surprise someone you love — free!')}</h3>
                     {giftExpanded ? <ChevronUp className="h-4 w-4 text-accent" /> : <ChevronDown className="h-4 w-4 text-accent" />}
                   </button>
                   {giftExpanded && (
                     <div className="border-t border-border">
-                      <Suspense fallback={<div className="p-4 text-center text-muted-foreground text-sm">লোড হচ্ছে...</div>}>
+                      <Suspense fallback={<div className="p-4 text-center text-muted-foreground text-sm">{trNow('লোড হচ্ছে...', 'Loading...')}</div>}>
                         <LandingGiftService
                           heading={giftConfig.heading}
                           description={giftConfig.description}
@@ -1194,9 +1196,9 @@ export default function ProductDetail() {
             <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <span className="text-xl">🔥</span>
               <div>
-                <h2 className="text-lg sm:text-xl font-bold leading-tight">জনপ্রিয় পণ্য</h2>
+                <h2 className="text-lg sm:text-xl font-bold leading-tight">{trNow('জনপ্রিয় পণ্য', 'Popular products')}</h2>
                 {discoverySection.label && (
-                  <p className="text-xs text-muted-foreground">{discoverySection.label} থেকে বাছাই করা সেরা পণ্য</p>
+                  <p className="text-xs text-muted-foreground">{trNow(`${discoverySection.label} থেকে বাছাই করা সেরা পণ্য`, `The best of ${discoverySection.label}`)}</p>
                 )}
               </div>
             </div>

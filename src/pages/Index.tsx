@@ -26,6 +26,7 @@ import { estimateReviewCount } from '@/lib/reviewCount';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
 import { explodeProductsByColor, getVariantCount } from '@/lib/productVariants';
+import { knownNow, ownNow, trNow, nameNow } from '@/lib/i18n';
 
 function ScrollAnimatedSection({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
@@ -468,7 +469,7 @@ const Index = () => {
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2 text-lg">
                             {section.icon && <span>{section.icon}</span>}
-                            {section.heading}
+                            {knownNow(section.heading)}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -579,7 +580,7 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
 }) {
   const PAGE_SIZE = sectionCfg.limit || 40;
   const sortMode = sectionCfg.sort || 'default';
-  const allHeading = sectionCfg.heading || 'সব পণ্য';
+  const allHeading = ownNow(sectionCfg.heading || 'সব পণ্য', 'All products');
 
   const sortedProducts = useMemo(() => {
     if (!allProducts) return [];
@@ -616,7 +617,7 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold">{allHeading}</h2>
-            <p className="text-muted-foreground">{sectionCfg.subheading}</p>
+            <p className="text-muted-foreground">{ownNow(sectionCfg.subheading, 'See everything we sell')}</p>
           </div>
         </div>
         {isLoading && loaded === 0 ? <ProductGridSkeleton /> : (
@@ -629,7 +630,7 @@ function AllProductsSection({ sectionCfg, sectionStyle, allProducts, isLoading, 
             {hasMore && (
               <div className="text-center mt-8">
                 <Button onClick={() => onLoadMore?.((currentLimit || loaded) + PAGE_SIZE)} disabled={isLoading} size="lg" variant="outline" className="rounded-full gap-2 border-primary text-primary hover:bg-primary/5 btn-pulse-glow btn-arrow-hover">
-                  {isLoading ? 'লোড হচ্ছে...' : 'আরো দেখুন'} <ArrowRight className="h-4 w-4 arrow-icon" />
+                  {isLoading ? trNow('লোড হচ্ছে...', 'Loading...') : trNow('আরো দেখুন', 'Show more')} <ArrowRight className="h-4 w-4 arrow-icon" />
                 </Button>
               </div>
             )}
@@ -728,7 +729,7 @@ function CategoryCarousel({ categories, isLoading, heading, subheading, sectionS
                           )}
                         </div>
                         <p className="font-medium text-xs sm:text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                          {category.name_bn || category.name}
+                          {nameNow(category.name_bn, category.name)}
                         </p>
                       </Link>
                     </div>
@@ -767,6 +768,7 @@ function CategoryCarousel({ categories, isLoading, heading, subheading, sectionS
 const PRODUCT_BLOCK_SELECT = 'id, slug, name, name_bn, price, original_price, clearance_price, clearance_active, images, is_active, category_id, stock, colors, sizes, product_type, created_at, variant_images';
 
 function ProductBlockSection({ block, sectionStyle, wrapSection, sKey }: { block: any; sectionStyle: React.CSSProperties; wrapSection: (key: string, content: React.ReactNode) => React.ReactNode; sKey: string }) {
+  const { data: categories } = useCategories();
   const { data: savedBtnConfig } = useSiteConfig('buttons_config');
   const { data: salesMap } = useProductSalesCounts();
   const { data: viewsMap } = useProductViewCounts();
@@ -843,6 +845,11 @@ function ProductBlockSection({ block, sectionStyle, wrapSection, sKey }: { block
     displayProducts = products.slice(0, block.limit || 8);
   }
   if (!displayProducts || displayProducts.length === 0) return null;
+
+  // The heading on the English website when the shop's own Bangla heading has no English:
+  // the category's English name, or what the block shows
+  const blockCategory = block.category_id ? categories?.find((c) => c.id === block.category_id) : null;
+  const headingEn = blockCategory?.name || (block.source_type === 'manual' ? 'Picked for you' : block.source_type === 'newest' ? '🆕 New arrivals' : 'Products');
 
   // Build "see all" link — manual blocks pass product IDs + title
   const seeAllLink = block.source_type === 'manual' && block.product_ids?.length > 0
@@ -1056,16 +1063,16 @@ function TrendingNowSection({ block, sectionStyle, wrapSection, sKey }: { block:
         <div className="mb-4">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl md:text-2xl font-bold animate-heading-slide">{block.heading}</h2>
+              <h2 className="text-xl md:text-2xl font-bold animate-heading-slide">{ownNow(block.heading, '⚡ Trending now')}</h2>
               <span className="trending-pill inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-extrabold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-md">
                 ⚡ HOT
               </span>
             </div>
             <Button asChild variant="ghost" size="sm" className="gap-1 btn-arrow-hover">
-              <Link to={seeAllLink}>সব দেখুন <ArrowRight className="h-4 w-4 arrow-icon" /></Link>
+              <Link to={seeAllLink}>{trNow('সব দেখুন', 'See all')} <ArrowRight className="h-4 w-4 arrow-icon" /></Link>
             </Button>
           </div>
-          {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{block.subheading}</p>}
+          {block.subheading && <p className="text-xs md:text-sm text-muted-foreground mt-1 animate-heading-slide">{ownNow(block.subheading, 'What people are buying and loving most')}</p>}
         </div>
         {/* Mobile: horizontal snap slider */}
         <div className="sm:hidden -mx-3 px-3 flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

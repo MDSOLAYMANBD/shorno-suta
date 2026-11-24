@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CartItem } from '@/contexts/CartContext';
 import { getOrderOrigin, getOrderAttribution } from '@/hooks/useUtmCapture';
+import { trNow } from '@/lib/i18n';
 
 interface OrderData {
   customer_name: string;
@@ -83,7 +84,7 @@ export function usePlaceOrder() {
           throw {
             type: 'blocked_order',
             reason: errorBody.reason,
-            message: 'আপনার এই নম্বর/IP থেকে অর্ডার করা সম্ভব নয়। সাহায্যের জন্য যোগাযোগ করুন।',
+            message: trNow('আপনার এই নম্বর/IP থেকে অর্ডার করা সম্ভব নয়। সাহায্যের জন্য যোগাযোগ করুন।', 'Orders cannot be placed from this number / network. Please contact us for help.'),
           } as BlockedOrderError;
         }
         if (errorBody?.error) throw new Error(errorBody.error);
@@ -98,7 +99,7 @@ export function usePlaceOrder() {
         throw {
           type: 'blocked_order',
           reason: data.reason,
-          message: 'আপনার এই নম্বর/IP থেকে অর্ডার করা সম্ভব নয়। সাহায্যের জন্য যোগাযোগ করুন।',
+          message: trNow('আপনার এই নম্বর/IP থেকে অর্ডার করা সম্ভব নয়। সাহায্যের জন্য যোগাযোগ করুন।', 'Orders cannot be placed from this number / network. Please contact us for help.'),
         } as BlockedOrderError;
       }
       

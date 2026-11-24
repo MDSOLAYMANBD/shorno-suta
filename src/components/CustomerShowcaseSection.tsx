@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { getLoyaltyTier } from '@/lib/customerLoyalty';
 import { useLoyaltyTiers } from '@/hooks/useLoyaltyTiers';
+import { trNow, knownNow } from '@/lib/i18n';
 
 interface CustomerRow { name: string; address: string; total_orders: number; delivered_orders?: number; total_spent?: number; avatar_url?: string | null }
 interface RecentCustomer { name: string; address: string; total_orders: number; delivered_orders?: number; total_spent?: number; avatar_url?: string | null; created_at: string | null }
@@ -37,15 +38,15 @@ function formatTimeAgo(iso: string | null): string {
   if (!iso) return '';
   const diff = Math.max(0, Date.now() - new Date(iso).getTime());
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'এইমাত্র';
-  if (m < 60) return `${m} মিনিট আগে`;
+  if (m < 1) return trNow('এইমাত্র', 'just now');
+  if (m < 60) return trNow(`${m} মিনিট আগে`, `${m} min ago`);
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} ঘন্টা আগে`;
+  if (h < 24) return trNow(`${h} ঘন্টা আগে`, `${h} h ago`);
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d} দিন আগে`;
+  if (d < 30) return trNow(`${d} দিন আগে`, `${d} days ago`);
   const mo = Math.floor(d / 30);
-  if (mo < 12) return `${mo} মাস আগে`;
-  return `${Math.floor(mo / 12)} বছর আগে`;
+  if (mo < 12) return trNow(`${mo} মাস আগে`, `${mo} months ago`);
+  return trNow(`${Math.floor(mo / 12)} বছর আগে`, `${Math.floor(mo / 12)} years ago`);
 }
 
 export default function CustomerShowcaseSection() {
@@ -102,9 +103,9 @@ export default function CustomerShowcaseSection() {
   }, [recent, listOpen]);
 
   const dialogTitle =
-    listOpen === 'repeat' ? 'রিপিট কাস্টমার'
-    : listOpen === 'top' ? 'টপ ১০০ কাস্টমার'
-    : 'সকল রেজিস্টার্ড কাস্টমার';
+    listOpen === 'repeat' ? trNow('রিপিট কাস্টমার', 'Repeat customers')
+    : listOpen === 'top' ? trNow('টপ ১০০ কাস্টমার', 'Top 100 customers')
+    : trNow('সকল রেজিস্টার্ড কাস্টমার', 'All registered customers');
 
   return (
     <section className="py-10 sm:py-12 bg-gradient-to-b from-background via-primary/5 to-background border-t border-border/40">
@@ -112,10 +113,10 @@ export default function CustomerShowcaseSection() {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] sm:text-xs font-medium mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            লাইভ কাস্টমার আপডেট
+            {trNow('লাইভ কাস্টমার আপডেট', 'Live customer update')}
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold">আমাদের সম্মানিত ক্রেতাগণ</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">প্রতিদিন বাড়ছে আমাদের পরিবার</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold">{trNow('আমাদের সম্মানিত ক্রেতাগণ', 'Our valued customers')}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">{trNow('প্রতিদিন বাড়ছে আমাদের পরিবার', 'Our family grows every day')}</p>
         </div>
 
         {/* Stat cards - clickable */}
@@ -131,8 +132,8 @@ export default function CustomerShowcaseSection() {
                 <Users className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xl sm:text-3xl font-extrabold tabular-nums">{animTotal.toLocaleString('bn-BD')}</div>
-                <div className="text-[11px] sm:text-xs text-muted-foreground">মোট রেজিস্টার্ড কাস্টমার</div>
+                <div className="text-xl sm:text-3xl font-extrabold tabular-nums">{animTotal.toLocaleString(trNow('bn-BD', 'en-US'))}</div>
+                <div className="text-[11px] sm:text-xs text-muted-foreground">{trNow('মোট রেজিস্টার্ড কাস্টমার', 'Registered customers')}</div>
               </div>
               <ChevronRight className="h-4 w-4 text-primary/60 group-hover:translate-x-0.5 transition-transform" />
             </div>
@@ -149,8 +150,8 @@ export default function CustomerShowcaseSection() {
                 <Repeat className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xl sm:text-3xl font-extrabold tabular-nums">{animRepeat.toLocaleString('bn-BD')}</div>
-                <div className="text-[11px] sm:text-xs text-muted-foreground">রিপিট কাস্টমার</div>
+                <div className="text-xl sm:text-3xl font-extrabold tabular-nums">{animRepeat.toLocaleString(trNow('bn-BD', 'en-US'))}</div>
+                <div className="text-[11px] sm:text-xs text-muted-foreground">{trNow('রিপিট কাস্টমার', 'Repeat customers')}</div>
               </div>
               <ChevronRight className="h-4 w-4 text-amber-500/70 group-hover:translate-x-0.5 transition-transform" />
             </div>
@@ -165,9 +166,9 @@ export default function CustomerShowcaseSection() {
         >
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent">
             <Trophy className="h-4 w-4 text-amber-500" />
-            <h3 className="text-sm sm:text-base font-bold">টপ ১০০ কাস্টমার</h3>
+            <h3 className="text-sm sm:text-base font-bold">{trNow('টপ ১০০ কাস্টমার', 'Top 100 customers')}</h3>
             <span className="ml-auto flex items-center gap-1 text-[10px] sm:text-xs text-primary font-medium">
-              সম্পূর্ণ লিস্ট দেখুন
+              {trNow('সম্পূর্ণ লিস্ট দেখুন', 'See the full list')}
               <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
             </span>
           </div>
@@ -179,14 +180,14 @@ export default function CustomerShowcaseSection() {
               ))}
             </div>
           ) : top.length === 0 ? (
-            <div className="p-6 text-center text-sm text-muted-foreground">এখনও কোনো কাস্টমার তথ্য নেই।</div>
+            <div className="p-6 text-center text-sm text-muted-foreground">{trNow('এখনও কোনো কাস্টমার তথ্য নেই।', 'No customers yet.')}</div>
           ) : (
             <div className="divide-y divide-border">
               {preview.map((c, i) => (
                 <CustomerRowItem key={i} c={c} index={i} />
               ))}
               <div className="px-4 py-2.5 text-center text-[11px] sm:text-xs text-muted-foreground bg-muted/20">
-                + আরও {Math.max(0, top.length - preview.length)} জন কাস্টমার দেখতে ক্লিক করুন
+                {trNow(`+ আরও ${Math.max(0, top.length - preview.length)} জন কাস্টমার দেখতে ক্লিক করুন`, `+ ${Math.max(0, top.length - preview.length)} more customers: tap to see`)}
               </div>
             </div>
           )}
@@ -202,7 +203,7 @@ export default function CustomerShowcaseSection() {
                 : <Users className="h-4 w-4 text-primary shrink-0" />}
               <span className="truncate">{dialogTitle}</span>
               <span className="ml-auto text-xs font-normal text-muted-foreground shrink-0 bg-background/70 rounded-full px-2 py-0.5 border">
-                {listOpen === 'top' ? top.length : filteredRecent.length} জন
+                {listOpen === 'top' ? top.length : filteredRecent.length} {trNow('জন', 'people')}
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -216,7 +217,7 @@ export default function CustomerShowcaseSection() {
                 ))}
               </div>
             ) : filteredRecent.length === 0 ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">কোনো কাস্টমার পাওয়া যায়নি।</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">{trNow('কোনো কাস্টমার পাওয়া যায়নি।', 'No customers found.')}</div>
             ) : (
               filteredRecent.map((c, i) => <RecentCustomerRow key={i} c={c} />)
             )}
@@ -233,7 +234,7 @@ function LoyaltyTierTag({ deliveredOrders }: { deliveredOrders: number | undefin
   if (tier.key === 'new') return null;
   return (
     <span className={`inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold rounded-full px-1.5 py-0.5 border ${tier.className}`}>
-      <span>{tier.emoji}</span> {tier.shortLabel}
+      <span>{tier.emoji}</span> {knownNow(tier.shortLabel)}
     </span>
   );
 }
@@ -269,9 +270,9 @@ function CustomerRowItem({ c, index }: { c: CustomerRow; index: number }) {
         )}
       </div>
       <div className="flex-shrink-0 text-right">
-        <div className="text-xs sm:text-sm font-bold text-primary tabular-nums">{c.total_orders} অর্ডার</div>
+        <div className="text-xs sm:text-sm font-bold text-primary tabular-nums">{c.total_orders} {trNow('অর্ডার', 'orders')}</div>
         {(c.total_spent || 0) > 0 && (
-          <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">৳{(c.total_spent || 0).toLocaleString('bn-BD')}</div>
+          <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">৳{(c.total_spent || 0).toLocaleString(trNow('bn-BD', 'en-US'))}</div>
         )}
       </div>
     </div>
@@ -309,9 +310,9 @@ function RecentCustomerRow({ c }: { c: RecentCustomer }) {
         </div>
       </div>
       <div className="flex-shrink-0 text-right">
-        <div className="text-xs sm:text-sm font-bold text-primary tabular-nums">{c.total_orders || 0} অর্ডার</div>
+        <div className="text-xs sm:text-sm font-bold text-primary tabular-nums">{c.total_orders || 0} {trNow('অর্ডার', 'orders')}</div>
         {(c.total_spent || 0) > 0 && (
-          <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">৳{(c.total_spent || 0).toLocaleString('bn-BD')}</div>
+          <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">৳{(c.total_spent || 0).toLocaleString(trNow('bn-BD', 'en-US'))}</div>
         )}
       </div>
     </div>

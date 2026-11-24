@@ -5,6 +5,7 @@ import SEOHead from '@/components/SEOHead';
 import { useHomepageAllProducts, useProductSalesCounts, useProductViewCounts } from '@/hooks/useProducts';
 import { estimateReviewCount } from '@/lib/reviewCount';
 import { Zap, Flame, TrendingUp, Sparkles } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 export default function TrendingProducts() {
   const { data: products, isLoading } = useHomepageAllProducts(2000);
@@ -46,10 +47,10 @@ export default function TrendingProducts() {
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight flex items-center gap-2 flex-wrap">
             <Zap className="h-6 w-6 sm:h-10 sm:w-10 fill-current drop-shadow" />
-            Trending এখন
+            {trNow('Trending এখন', 'Trending now')}
           </h1>
           <p className="mt-1.5 sm:mt-2 text-xs sm:text-base text-white/90 max-w-2xl leading-relaxed">
-            যে product গুলো আমাদের customer-রা সবচেয়ে বেশি কিনছেন ও পছন্দ করছেন।
+            {trNow('যে product গুলো আমাদের customer-রা সবচেয়ে বেশি কিনছেন ও পছন্দ করছেন।', 'What our customers are buying and loving most.')}
           </p>
 
           {/* Stat cards */}
@@ -62,7 +63,7 @@ export default function TrendingProducts() {
                   <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wide">Top Rated</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-extrabold leading-none">{topRatedCount}</div>
-                <div className="text-[10px] sm:text-xs font-medium mt-1 opacity-80">১০০+ রিভিউ</div>
+                <div className="text-[10px] sm:text-xs font-medium mt-1 opacity-80">{trNow('১০০+ রিভিউ', '100+ reviews')}</div>
               </div>
             )}
             <div className="relative overflow-hidden rounded-2xl bg-white text-orange-600 shadow-lg p-3 sm:p-4">
@@ -72,7 +73,7 @@ export default function TrendingProducts() {
                 <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wide">Trending</span>
               </div>
               <div className="text-2xl sm:text-3xl font-extrabold leading-none">{trendingCount}</div>
-              <div className="text-[10px] sm:text-xs font-medium mt-1 opacity-80">২০+ রিভিউ</div>
+              <div className="text-[10px] sm:text-xs font-medium mt-1 opacity-80">{trNow('২০+ রিভিউ', '20+ reviews')}</div>
             </div>
           </div>
         </div>
@@ -89,8 +90,8 @@ export default function TrendingProducts() {
         ) : trending.length === 0 ? (
           <div className="text-center py-20">
             <Zap className="h-14 w-14 mx-auto text-muted-foreground/40 mb-3" />
-            <h2 className="text-lg font-semibold mb-1">এখনো কোনো Trending Product নেই</h2>
-            <p className="text-sm text-muted-foreground">শীঘ্রই যোগ হবে — চোখ রাখুন!</p>
+            <h2 className="text-lg font-semibold mb-1">{trNow('এখনো কোনো Trending Product নেই', 'Nothing trending yet')}</h2>
+            <p className="text-sm text-muted-foreground">{trNow('শীঘ্রই যোগ হবে — চোখ রাখুন!', 'Coming soon — keep an eye out!')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Check, LayoutGrid } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
+import { trNow, nameNow } from '@/lib/i18n';
 
 interface Props {
   currentCategoryId?: string | null;
@@ -23,13 +24,13 @@ export default function ProductCategoryStrip({ currentCategoryId }: Props) {
     <section className="mt-8 sm:mt-12">
       <div className="flex items-center gap-2 mb-3">
         <LayoutGrid className="h-4 w-4 text-primary" />
-        <h2 className="text-base sm:text-lg font-bold">আরও ক্যাটাগরি ঘুরে দেখুন</h2>
+        <h2 className="text-base sm:text-lg font-bold">{trNow('আরও ক্যাটাগরি ঘুরে দেখুন', 'More categories')}</h2>
       </div>
       <div className="relative">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin sm:flex-wrap sm:overflow-visible">
           {sorted.map((cat: any) => {
             const isCurrent = cat.id === currentCategoryId;
-            const label = cat.name_bn || cat.name;
+            const label = nameNow(cat.name_bn, cat.name);
             return (
               <button
                 key={cat.id}
@@ -39,7 +40,7 @@ export default function ProductCategoryStrip({ currentCategoryId }: Props) {
                     ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-primary shadow-md hover:shadow-lg'
                     : 'bg-background text-foreground border-border hover:border-primary hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm'
                 }`}
-                aria-label={`${label} ক্যাটাগরি দেখুন`}
+                aria-label={trNow(`${label} ক্যাটাগরি দেখুন`, `See ${label}`)}
               >
                 {isCurrent && <Check className="h-3.5 w-3.5" />}
                 <span>{label}</span>

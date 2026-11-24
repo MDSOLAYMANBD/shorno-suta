@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react';
 import { useSiteConfig, DEFAULT_FOOTER_CONFIG } from '@/hooks/useSiteConfig';
+import { trNow, ownNow } from '@/lib/i18n';
 
 export default function MapAddressCard() {
   const { data: savedFooterConfig } = useSiteConfig('footer_config');
@@ -13,7 +14,7 @@ export default function MapAddressCard() {
         href="https://maps.app.goo.gl/6yTAKU5mCaJ8ajYH9"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Google Maps এ আমাদের ঠিকানা দেখুন"
+        aria-label={trNow('Google Maps এ আমাদের ঠিকানা দেখুন', 'See our address on Google Maps')}
         className="group relative block rounded-2xl border border-border bg-card hover:bg-accent/30 hover:border-primary/40 p-3 sm:p-4 transition-all duration-300 hover:shadow-[0_6px_24px_-8px_hsl(var(--primary)/0.35)]"
       >
         <div className="flex items-start gap-3">
@@ -35,11 +36,11 @@ export default function MapAddressCard() {
               </span>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Maps</span>
               <span className="ml-auto text-[10px] sm:text-xs font-semibold text-emerald-600 group-hover:text-emerald-700">
-                লোকেশন দেখুন →
+                {trNow('লোকেশন দেখুন →', 'Open map →')}
               </span>
             </div>
             <p className="text-sm leading-snug text-foreground group-hover:text-primary transition-colors">
-              {address}
+              {ownNow(address, 'House 64, Nursery Goli, Road 12, Kamrangirchar, Dhaka 1211')}
             </p>
           </div>
         </div>

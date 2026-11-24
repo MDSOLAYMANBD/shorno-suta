@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { trNow } from '@/lib/i18n';
 
 interface PolicyAgreementProps {
   checked: boolean;
@@ -33,7 +34,7 @@ export default function PolicyAgreement({ checked, onChange, className }: Policy
         onClick={() => onChange(!checked)}
         className="text-xs sm:text-sm leading-relaxed cursor-pointer select-none break-words min-w-0 flex-1"
       >
-        আমি{' '}
+        {trNow('আমি ', 'I have read and agree to the ')}
         <a
           href="/terms-and-conditions"
           target="_blank"
@@ -53,7 +54,7 @@ export default function PolicyAgreement({ checked, onChange, className }: Policy
         >
           Privacy Policy
         </a>{' '}
-        ও{' '}
+        {trNow('ও ', 'and ')}
         <a
           href="/return-policy"
           target="_blank"
@@ -63,7 +64,7 @@ export default function PolicyAgreement({ checked, onChange, className }: Policy
         >
           Refund and Return Policy
         </a>{' '}
-        পড়েছি এবং সম্মত আছি।
+        {trNow('পড়েছি এবং সম্মত আছি।', '')}
       </label>
     </div>
   );

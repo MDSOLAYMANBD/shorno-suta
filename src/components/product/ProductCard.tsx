@@ -13,6 +13,7 @@ import { estimateReviewCount } from '@/lib/reviewCount';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { colorSlug } from '@/lib/productVariants';
+import { nameNow } from '@/lib/i18n';
 
 interface ButtonConfig {
   order_button?: { text?: string; bg_color?: string; text_color?: string; enabled?: boolean };
@@ -216,7 +217,7 @@ const ProductCard = memo(function ProductCard({ slug, name, name_bn, price, orig
             )}
           </div>
           <div className="px-2 pt-1.5 pb-1">
-            <h3 className="text-[11px] font-semibold leading-tight line-clamp-1 tracking-tight">{name_bn || name}</h3>
+            <h3 className="text-[11px] font-semibold leading-tight line-clamp-1 tracking-tight">{nameNow(name_bn, name)}</h3>
 
             <div className="flex items-center gap-0.5 mt-0.5 overflow-hidden whitespace-nowrap">
               <span className="text-[11px] font-bold text-primary">৳{displayPrice}</span>

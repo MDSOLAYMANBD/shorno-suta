@@ -21,6 +21,7 @@ import ChatProfileCompleteGate from './ChatProfileCompleteGate';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import VoiceMessage from './VoiceMessage';
 import VoiceCallDialog, { VoiceCallMiniBar } from './VoiceCallDialog';
+import { trNow } from '@/lib/i18n';
 
 interface ChatMessage {
   id: string;
@@ -211,7 +212,7 @@ export default function AIChatWidget() {
     }
     // Detect last staff replier for header
     const lastStaff = [...next].reverse().find((m) => m.sender_type === 'staff');
-    if (lastStaff) setActiveStaff({ name: lastStaff.sender_name || 'এজেন্ট', avatar: lastStaff.sender_avatar });
+    if (lastStaff) setActiveStaff({ name: lastStaff.sender_name || trNow('এজেন্ট', 'Agent'), avatar: lastStaff.sender_avatar });
     return next;
   }, [sessionId, sessionToken]);
 
@@ -311,11 +312,11 @@ export default function AIChatWidget() {
     if (typeof document === 'undefined') return;
     const original = document.title;
     if (hasNewMsg && !open) {
-      document.title = `🔔 নতুন বার্তা · ${original.replace(/^🔔\s*নতুন বার্তা\s*·\s*/, '')}`;
+      document.title = `🔔 ${trNow('নতুন বার্তা', 'New message')} · ${original.replace(/^🔔\s*(নতুন বার্তা|New message)\s*·\s*/, '')}`;
     } else {
-      document.title = original.replace(/^🔔\s*নতুন বার্তা\s*·\s*/, '');
+      document.title = original.replace(/^🔔\s*(নতুন বার্তা|New message)\s*·\s*/, '');
     }
-    return () => { document.title = original.replace(/^🔔\s*নতুন বার্তা\s*·\s*/, ''); };
+    return () => { document.title = original.replace(/^🔔\s*(নতুন বার্তা|New message)\s*·\s*/, ''); };
   }, [hasNewMsg, open]);
 
   // Ask for browser notification permission on first chat open
@@ -346,7 +347,7 @@ export default function AIChatWidget() {
         message: greet,
         image_url: null,
         created_at: new Date().toISOString(),
-        metadata: { quick_replies: ['ডেলিভারি কত দিনে?', 'নতুন প্রোডাক্ট দেখান', 'অর্ডার ট্র্যাক'] },
+        metadata: { quick_replies: trNow(['ডেলিভারি কত দিনে?', 'নতুন প্রোডাক্ট দেখান', 'অর্ডার ট্র্যাক'], ['How long is delivery?', 'Show new products', 'Track my order']) },
       }]);
       setGreetingShown(true);
     }
@@ -364,7 +365,7 @@ export default function AIChatWidget() {
       if (user) { try { await supabase.rpc('link_chat_session_to_user', { p_session_id: sid, p_session_token: tok }); } catch { /* ignore */ } }
       return { sid, tok };
     } catch (e: any) {
-      console.error(e); toast.error('সেশন তৈরি ব্যর্থ');
+      console.error(e); toast.error(trNow('সেশন তৈরি ব্যর্থ', 'Could not start the chat'));
       return null;
     }
   }, [user]);
@@ -395,7 +396,7 @@ export default function AIChatWidget() {
     setMessages([]); setName(''); setPhone('');
     setShowAuthGate(false); setShowProfileGate(false);
     setGreetingShown(false);
-    toast.success('লগ আউট হয়েছে');
+    toast.success(trNow('লগ আউট হয়েছে', 'Signed out'));
   };
 
   const sendMessageWith = async (sid: string, tok: string, text: string) => {
@@ -445,7 +446,7 @@ export default function AIChatWidget() {
         setTimeout(() => { loadMessages(); }, 2000);
       }
     } catch (e: any) {
-      console.error(e); toast.error('পাঠাতে সমস্যা');
+      console.error(e); toast.error(trNow('পাঠাতে সমস্যা', 'Could not send'));
       setAiTyping(false);
     } finally {
       setSending(false);
@@ -467,10 +468,10 @@ export default function AIChatWidget() {
     if (!s) return;
     try {
       await recorder.start();
-      toast.success('🎤 কথা বলুন...', { duration: 1500 });
+      toast.success(trNow('🎤 কথা বলুন...', '🎤 Speak now...'), { duration: 1500 });
     } catch (e: any) {
       console.error('[voice start failed]', e);
-      toast.error(e?.message || 'মাইক্রোফোন চালু করা যায়নি', { duration: 5000 });
+      toast.error(e?.message || trNow('মাইক্রোফোন চালু করা যায়নি', 'Could not turn on the microphone'), { duration: 5000 });
     }
   };
 
@@ -478,7 +479,7 @@ export default function AIChatWidget() {
     if (!recorder.recording) return;
     const result = await recorder.stop();
     if (!result || !sessionId || !sessionToken) return;
-    if (result.durationMs < 500) { toast.info('আরও বেশি কথা বলুন'); return; }
+    if (result.durationMs < 500) { toast.info(trNow('আরও বেশি কথা বলুন', 'Please speak a little longer')); return; }
     setUploadingVoice(true);
     setAiTyping(true);
     try {
@@ -499,7 +500,7 @@ export default function AIChatWidget() {
         session_id: sessionId,
         sender_type: 'visitor',
         sender_name: name || displayName || 'Visitor',
-        message: '🎤 ভয়েস মেসেজ',
+        message: trNow('🎤 ভয়েস মেসেজ', '🎤 Voice message'),
         voice_url: publicUrl,
         voice_duration_ms: result.durationMs,
       } as any);
@@ -512,7 +513,7 @@ export default function AIChatWidget() {
       });
       if (tErr) {
         console.error('transcribe err', tErr);
-        toast.error('ভয়েস বুঝতে সমস্যা — text-এ লিখুন');
+        toast.error(trNow('ভয়েস বুঝতে সমস্যা — text-এ লিখুন', 'Could not understand the voice; please type'));
         setAiTyping(false);
         return;
       }
@@ -534,7 +535,7 @@ export default function AIChatWidget() {
         setAiTyping(false);
       }
     } catch (e: any) {
-      console.error(e); toast.error('ভয়েস পাঠাতে সমস্যা'); setAiTyping(false);
+      console.error(e); toast.error(trNow('ভয়েস পাঠাতে সমস্যা', 'Could not send the voice')); setAiTyping(false);
     } finally {
       setUploadingVoice(false);
       setTimeout(() => setAiTyping(false), 15000);
@@ -550,13 +551,13 @@ export default function AIChatWidget() {
     setCallOpen(true);
     setCallMinimized(false);
     if (!agentOnline) {
-      toast.info(`এখন এজেন্ট অফলাইন (সকাল ${startHour}টা-রাত ${endHour - 12}টা পর্যন্ত live সাপোর্ট) — তবু কল চেষ্টা করছি`, { duration: 4500 });
+      toast.info(trNow(`এখন এজেন্ট অফলাইন (সকাল ${startHour}টা-রাত ${endHour - 12}টা পর্যন্ত live সাপোর্ট) — তবু কল চেষ্টা করছি`, `Agents are offline now (live support ${startHour} am to ${endHour - 12} pm), trying the call anyway`), { duration: 4500 });
     }
     try {
       await call.startCall();
     } catch (e: any) {
       console.error('[call start failed]', e);
-      toast.error(e?.message || 'কল শুরু করা যায়নি');
+      toast.error(e?.message || trNow('কল শুরু করা যায়নি', 'Could not start the call'));
     }
   };
 
@@ -634,9 +635,9 @@ export default function AIChatWidget() {
             <div className="relative px-5 pt-4 pb-3 border-b border-border/50">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_theme(colors.emerald.500)]" />
-                <h3 className="text-sm font-bold tracking-tight">কীভাবে যোগাযোগ করবেন?</h3>
+                <h3 className="text-sm font-bold tracking-tight">{trNow('কীভাবে যোগাযোগ করবেন?', 'How would you like to talk?')}</h3>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">আপনার পছন্দের চ্যানেল বেছে নিন</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{trNow('আপনার পছন্দের চ্যানেল বেছে নিন', 'Pick the channel you like')}</p>
             </div>
 
             {/* Options */}
@@ -654,10 +655,10 @@ export default function AIChatWidget() {
                     <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-background" />
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm font-semibold leading-tight">হোয়াটসঅ্যাপ</div>
-                    <div className="text-[11px] text-muted-foreground truncate">সবচেয়ে দ্রুত রেসপন্স</div>
+                    <div className="text-sm font-semibold leading-tight">{trNow('হোয়াটসঅ্যাপ', 'WhatsApp')}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">{trNow('সবচেয়ে দ্রুত রেসপন্স', 'The fastest reply')}</div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#128C7E] shrink-0">দ্রুত</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#128C7E] shrink-0">{trNow('দ্রুত', 'Fast')}</span>
                 </a>
               )}
 
@@ -673,8 +674,8 @@ export default function AIChatWidget() {
                     <svg viewBox="0 0 24 24" className="h-5 w-5 text-white" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg>
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm font-semibold leading-tight">মেসেঞ্জার</div>
-                    <div className="text-[11px] text-muted-foreground truncate">Facebook দিয়ে চ্যাট</div>
+                    <div className="text-sm font-semibold leading-tight">{trNow('মেসেঞ্জার', 'Messenger')}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">{trNow('Facebook দিয়ে চ্যাট', 'Chat on Facebook')}</div>
                   </div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0084FF]/15 text-[#0084FF] shrink-0">Meta</span>
                 </a>
@@ -690,21 +691,21 @@ export default function AIChatWidget() {
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="text-sm font-semibold leading-tight flex items-center gap-1.5">
-                    লাইভ চ্যাট
+                    {trNow('লাইভ চ্যাট', 'Live chat')}
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-gradient-to-r from-primary to-secondary text-primary-foreground">AI</span>
                   </div>
                   <div className="text-[11px] text-muted-foreground truncate">
-                    {agentOnline ? '🟢 এজেন্ট + AI অনলাইন' : '🤖 AI ২৪/৭ সহায়তায়'}
+                    {agentOnline ? trNow('🟢 এজেন্ট + AI অনলাইন', '🟢 Agents + AI online') : trNow('🤖 AI ২৪/৭ সহায়তায়', '🤖 AI help 24/7')}
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary shrink-0">২৪/৭</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary shrink-0">{trNow('২৪/৭', '24/7')}</span>
               </button>
             </div>
 
             {/* Footer */}
             <div className="relative px-4 py-2.5 border-t border-border/50 bg-muted/30">
               <p className="text-[10px] text-center text-muted-foreground">
-                ⚡ গড় রেসপন্স টাইম <span className="font-semibold text-foreground">২ মিনিট</span>
+                ⚡ {trNow('গড় রেসপন্স টাইম', 'Average reply time')} <span className="font-semibold text-foreground">{trNow('২ মিনিট', '2 minutes')}</span>
               </p>
             </div>
           </div>
@@ -752,17 +753,17 @@ export default function AIChatWidget() {
                 'h-10 px-3 rounded-full flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0',
                 'bg-primary-foreground text-primary shadow-md hover:scale-105 hover:shadow-lg ring-2 ring-primary-foreground/30'
               )}
-              title={agentOnline ? 'এজেন্টকে লাইভ কল করুন' : `এখন এজেন্ট অফলাইন · কিন্তু কল চেষ্টা করতে পারবেন`}
+              title={agentOnline ? trNow('এজেন্টকে লাইভ কল করুন', 'Call an agent live') : trNow('এখন এজেন্ট অফলাইন · কিন্তু কল চেষ্টা করতে পারবেন', 'Agents are offline now, but you can try a call')}
               aria-label="Call agent"
             >
               <Phone className="h-4 w-4 animate-pulse" />
-              <span className="hidden sm:inline">লাইভ কল</span>
+              <span className="hidden sm:inline">{trNow('লাইভ কল', 'Live call')}</span>
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   className="h-9 w-9 rounded-full bg-foreground/55 text-background hover:bg-foreground/70 ring-2 ring-primary-foreground/60 hover:ring-primary-foreground/90 shadow-md flex items-center justify-center shrink-0 transition-all"
-                  title="অ্যাকাউন্ট / লগ আউট"
+                  title={trNow('অ্যাকাউন্ট / লগ আউট', 'Account / sign out')}
                   aria-label="Account menu"
                 >
                   <MoreVertical className="h-5 w-5" strokeWidth={2.5} />
@@ -772,17 +773,17 @@ export default function AIChatWidget() {
                 {user ? (
                   <>
                     <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">
-                      {displayName || user.email || 'লগইন করা'}
+                      {displayName || user.email || trNow('লগইন করা', 'Signed in')}
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer text-xs">
-                      <LogOut className="h-3.5 w-3.5 mr-2" /> লগ আউট
+                      <LogOut className="h-3.5 w-3.5 mr-2" /> {trNow('লগ আউট', 'Sign out')}
                     </DropdownMenuItem>
                   </>
                 ) : (
                   <div className="px-2 py-2 text-xs text-muted-foreground">
-                    এখনো লগইন করেননি।<br />
-                    <span className="opacity-80">চ্যাট শুরু করতে Google দিয়ে লগইন করুন।</span>
+                    {trNow('এখনো লগইন করেননি।', 'Not signed in yet.')}<br />
+                    <span className="opacity-80">{trNow('চ্যাট শুরু করতে Google দিয়ে লগইন করুন।', 'Sign in with Google to start the chat.')}</span>
                   </div>
                 )}
               </DropdownMenuContent>
@@ -827,9 +828,9 @@ export default function AIChatWidget() {
               {recorder.recording && (
                 <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/30 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-                  <span className="text-xs flex-1 tabular-nums">রেকর্ড হচ্ছে · {Math.floor(recorder.elapsedMs / 1000)}s / 60s</span>
+                  <span className="text-xs flex-1 tabular-nums">{trNow('রেকর্ড হচ্ছে', 'Recording')} · {Math.floor(recorder.elapsedMs / 1000)}s / 60s</span>
                   <Button size="sm" variant="ghost" onClick={cancelVoice} className="h-7"><Trash2 className="h-3.5 w-3.5" /></Button>
-                  <Button size="sm" onClick={finishVoice} className="h-7 gap-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"><StopCircle className="h-3.5 w-3.5" /> পাঠান</Button>
+                  <Button size="sm" onClick={finishVoice} className="h-7 gap-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"><StopCircle className="h-3.5 w-3.5" /> {trNow('পাঠান', 'Send')}</Button>
                 </div>
               )}
 
@@ -840,7 +841,7 @@ export default function AIChatWidget() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                    placeholder={uploadingVoice ? 'ভয়েস আপলোড হচ্ছে...' : 'আপনার প্রশ্ন লিখুন...'}
+                    placeholder={uploadingVoice ? trNow('ভয়েস আপলোড হচ্ছে...', 'Uploading the voice...') : trNow('আপনার প্রশ্ন লিখুন...', 'Write your question...')}
                     className="flex-1 rounded-full"
                     disabled={sending || uploadingVoice}
                   />
@@ -854,7 +855,7 @@ export default function AIChatWidget() {
                       onClick={startVoice}
                       disabled={uploadingVoice}
                       className="rounded-full bg-gradient-to-br from-primary to-secondary shrink-0"
-                      title="ভয়েস মেসেজ"
+                      title={trNow('ভয়েস মেসেজ', 'Voice message')}
                     >
                       {uploadingVoice ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
                     </Button>
@@ -862,7 +863,7 @@ export default function AIChatWidget() {
                 </div>
               )}
               <div className="px-3 pb-2 text-[10px] text-center text-muted-foreground">
-                ⚡ Powered by AI · উত্তর সবসময় ১০০% সঠিক নাও হতে পারে
+                ⚡ Powered by AI · {trNow('উত্তর সবসময় ১০০% সঠিক নাও হতে পারে', 'answers may not always be 100% right')}
               </div>
             </>
           )}
@@ -977,9 +978,9 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-xs line-clamp-2 leading-tight">{p.name}</div>
                     <div className="flex items-baseline gap-1.5 mt-0.5 flex-wrap">
-                      <span className="font-bold text-primary text-sm">৳{Number(showPrice).toLocaleString('bn-BD')}</span>
+                      <span className="font-bold text-primary text-sm">৳{Number(showPrice).toLocaleString(trNow('bn-BD', 'en-US'))}</span>
                       {strikePrice && strikePrice > showPrice && (
-                        <span className="text-[10px] line-through text-muted-foreground">৳{Number(strikePrice).toLocaleString('bn-BD')}</span>
+                        <span className="text-[10px] line-through text-muted-foreground">৳{Number(strikePrice).toLocaleString(trNow('bn-BD', 'en-US'))}</span>
                       )}
                       {discount > 0 && (
                         <span className="text-[9px] font-bold bg-destructive text-destructive-foreground rounded-full px-1.5 py-px">-{discount}%</span>
@@ -987,7 +988,7 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
                     </div>
                   </div>
                   <span className="text-[10px] font-semibold text-primary border border-primary/40 rounded-full px-2 py-0.5 shrink-0">
-                    অর্ডার →
+                    {trNow('অর্ডার →', 'Order →')}
                   </span>
                 </Link>
               );
@@ -998,7 +999,7 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
               to={meta.category_link}
               className="block text-center text-[11px] text-primary font-semibold py-1 hover:underline"
             >
-              আরও দেখুন →
+              {trNow('আরও দেখুন →', 'See more →')}
             </Link>
           )}
         </div>
@@ -1011,7 +1012,7 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
             <span className="font-bold">{meta.order_card.order_number}</span>
             <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium uppercase">{meta.order_card.status}</span>
           </div>
-          <div className="text-muted-foreground">৳{meta.order_card.total} · {new Date(meta.order_card.created_at).toLocaleDateString('bn-BD')}</div>
+          <div className="text-muted-foreground">৳{meta.order_card.total} · {new Date(meta.order_card.created_at).toLocaleDateString(trNow('bn-BD', 'en-GB'))}</div>
         </div>
       )}
 
@@ -1021,7 +1022,7 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
           <div className="flex items-start gap-1.5">
             <span>📍</span>
             <div className="flex-1">
-              <div className="font-semibold text-emerald-900 dark:text-emerald-100 mb-0.5">অফিস ঠিকানা</div>
+              <div className="font-semibold text-emerald-900 dark:text-emerald-100 mb-0.5">{trNow('অফিস ঠিকানা', 'Office address')}</div>
               <div className="text-emerald-800 dark:text-emerald-200 leading-relaxed">{meta.address_card.address}</div>
             </div>
           </div>
@@ -1062,7 +1063,7 @@ function MessageBubble({ m, onQuickReply }: { m: ChatMessage; onQuickReply: (t: 
               )}
             >
               {(q === 'Talk to Human' || q === '📞 লাইভ কল') && <Phone className="h-3 w-3" />}
-              {q === 'Talk to Human' ? '📞 লাইভ কল' : q}
+              {q === 'Talk to Human' ? trNow('📞 লাইভ কল', '📞 Live call') : q}
             </button>
           ))}
         </div>

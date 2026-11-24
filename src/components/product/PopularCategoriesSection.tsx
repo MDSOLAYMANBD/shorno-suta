@@ -5,6 +5,7 @@ import { usePopularCategories } from '@/hooks/usePopularCategories';
 import { useCategories } from '@/hooks/useCategories';
 import { useCategoryPreviewImages, resolveTileImages } from '@/hooks/useProducts';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
+import { trNow } from '@/lib/i18n';
 
 export default function PopularCategoriesSection() {
   const { data: cats = [], isLoading } = usePopularCategories(12);
@@ -33,8 +34,8 @@ export default function PopularCategoriesSection() {
             <Flame className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold leading-tight">জনপ্রিয় ক্যাটাগরি</h2>
-            <p className="text-[11px] sm:text-xs text-muted-foreground">সবচেয়ে বেশি দেখা ক্যাটাগরি</p>
+            <h2 className="text-base sm:text-lg font-bold leading-tight">{trNow('জনপ্রিয় ক্যাটাগরি', 'Popular categories')}</h2>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">{trNow('সবচেয়ে বেশি দেখা ক্যাটাগরি', 'The most viewed categories')}</p>
           </div>
         </div>
 

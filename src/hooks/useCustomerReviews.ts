@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { trNow } from '@/lib/i18n';
 
 export interface CustomerReview {
   id: string;
@@ -115,7 +116,7 @@ export function useUpdateReviewStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customer-reviews'] });
-      toast.success('রিভিউ আপডেট হয়েছে');
+      toast.success(trNow('রিভিউ আপডেট হয়েছে', 'Review updated'));
     },
   });
 }
@@ -133,7 +134,7 @@ export function useDeleteReview() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customer-reviews'] });
-      toast.success('রিভিউ ডিলিট হয়েছে');
+      toast.success(trNow('রিভিউ ডিলিট হয়েছে', 'Review deleted'));
     },
   });
 }
@@ -141,7 +142,7 @@ export function useDeleteReview() {
 // Upload review image to storage
 export async function uploadReviewImage(file: File): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('রিভিউ ছবি আপলোডের জন্য লগইন করুন');
+  if (!user) throw new Error(trNow('রিভিউ ছবি আপলোডের জন্য লগইন করুন', 'Log in to add review photos'));
   const ext = file.name.split('.').pop();
   const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
   const { error } = await supabase.storage

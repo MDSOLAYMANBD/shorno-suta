@@ -14,6 +14,7 @@ import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import TrendingProducts from "./pages/TrendingProducts";
 import ClearanceProducts from "./pages/ClearanceProducts";
+import LangRoot from "@/components/LangRoot";
 
 // Retry wrapper: auto-reload on stale chunk errors (deploy cache mismatch)
 const isChunkLoadError = (err: any) => {
@@ -267,6 +268,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ThemeLoader />
+          {/* বাংলা / English: the pages are drawn again in the reader's language */}
+          <LangRoot>
           <Suspense fallback={<SimpleLoading />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -382,6 +385,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </LangRoot>
         </BrowserRouter>
       </TooltipProvider>
     </CartProvider>

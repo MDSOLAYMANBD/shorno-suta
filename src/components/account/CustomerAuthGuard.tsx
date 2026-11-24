@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { ShoppingBag } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 interface Props {
   children: React.ReactNode;

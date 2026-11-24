@@ -1,3 +1,4 @@
+import { trNow } from '@/lib/i18n';
 // Free Shipping System — shared evaluator
 // Pure, no React imports.
 
@@ -213,8 +214,9 @@ export function evaluateFreeShipping(
   };
 }
 
-// Convert digits to Bangla numerals for friendlier display
+// Convert digits to Bangla numerals for friendlier display (English website: as they are)
 function toBn(n: number | string): string {
+  if (trNow(false, true)) return String(n);
   const map: Record<string, string> = { '0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯' };
   return String(n).replace(/[0-9]/g, (d) => map[d] || d);
 }
@@ -227,21 +229,21 @@ export function formatFreeShippingMessage(e: FreeShippingEvalForCampaign): { tit
   // Build a crystal-clear rule line, e.g. "নিয়ম: ৩টি আইটেম অর্ডার করলেই ফ্রি ডেলিভারি"
   let rule = '';
   if (c.rule_type === 'amount' || c.rule_type === 'product_amount') {
-    rule = `নিয়ম: ৳${toBn(minA)} বা তার বেশি অর্ডার করলেই ফ্রি ডেলিভারি`;
+    rule = trNow(`নিয়ম: ৳${toBn(minA)} বা তার বেশি অর্ডার করলেই ফ্রি ডেলিভারি`, `Free delivery on orders of ৳${minA} or more`);
   } else if (
     c.rule_type === 'quantity' ||
     c.rule_type === 'category_quantity' ||
     c.rule_type === 'product_quantity'
   ) {
-    rule = `নিয়ম: ${toBn(minQ)}টি আইটেম অর্ডার করলেই ফ্রি ডেলিভারি`;
+    rule = trNow(`নিয়ম: ${toBn(minQ)}টি আইটেম অর্ডার করলেই ফ্রি ডেলিভারি`, `Free delivery when you order ${minQ} items`);
   } else if (c.rule_type === 'combo') {
-    const join = c.combine_logic === 'and' ? 'এবং' : 'অথবা';
-    rule = `নিয়ম: ${toBn(minQ)}টি আইটেম ${join} ৳${toBn(minA)} অর্ডার করলেই ফ্রি ডেলিভারি`;
+    const join = c.combine_logic === 'and' ? trNow('এবং', 'and') : trNow('অথবা', 'or');
+    rule = trNow(`নিয়ম: ${toBn(minQ)}টি আইটেম ${join} ৳${toBn(minA)} অর্ডার করলেই ফ্রি ডেলিভারি`, `Free delivery for ${minQ} items ${join} ৳${minA}`);
   }
 
   if (e.qualified) {
     return {
-      title: '✅ অভিনন্দন! আপনি ফ্রি ডেলিভারি আনলক করেছেন',
+      title: trNow('✅ অভিনন্দন! আপনি ফ্রি ডেলিভারি আনলক করেছেন', '✅ Well done! You get free delivery'),
       sub: rule || c.name,
       tone: 'success',
     };
@@ -255,14 +257,14 @@ export function formatFreeShippingMessage(e: FreeShippingEvalForCampaign): { tit
 
   if (ruleNeedsQty && e.missingQty > 0) {
     const have = Math.max(0, minQ - e.missingQty);
-    const title = `🎁 ${toBn(minQ)}টি আইটেম অর্ডার করলেই ফ্রি ডেলিভারি`;
-    const sub = `আপনার কার্টে ${toBn(have)}টি আছে — আর মাত্র ${toBn(e.missingQty)}টি যোগ করুন!`;
+    const title = trNow(`🎁 ${toBn(minQ)}টি আইটেম অর্ডার করলেই ফ্রি ডেলিভারি`, `🎁 Free delivery when you order ${minQ} items`);
+    const sub = trNow(`আপনার কার্টে ${toBn(have)}টি আছে — আর মাত্র ${toBn(e.missingQty)}টি যোগ করুন!`, `You have ${have} in your cart — add just ${e.missingQty} more!`);
     return { title, sub, tone: e.progress >= 0.66 ? 'urgent' : 'info' };
   }
   if (e.missingAmount > 0) {
     const amount = Math.ceil(e.missingAmount);
-    const title = `🎁 ৳${toBn(minA)} অর্ডার করলেই ফ্রি ডেলিভারি`;
-    const sub = `আর মাত্র ৳${toBn(amount)} যোগ করুন — ফ্রি ডেলিভারি আনলক!`;
+    const title = trNow(`🎁 ৳${toBn(minA)} অর্ডার করলেই ফ্রি ডেলিভারি`, `🎁 Free delivery on orders of ৳${minA}`);
+    const sub = trNow(`আর মাত্র ৳${toBn(amount)} যোগ করুন — ফ্রি ডেলিভারি আনলক!`, `Add just ৳${amount} more for free delivery!`);
     return { title, sub, tone: e.progress >= 0.66 ? 'urgent' : 'info' };
   }
   return { title: rule || c.name, sub: c.description || '', tone: 'info' };

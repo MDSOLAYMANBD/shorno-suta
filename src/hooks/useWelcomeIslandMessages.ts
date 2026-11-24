@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSiteConfig, DEFAULT_WELCOME_ISLAND_CONFIG } from '@/hooks/useSiteConfig';
+import { knownNow, trNow } from '@/lib/i18n';
 
 const STORAGE_KEY = 'customer_welcome_shown';
 const FINAL_HOLD = 3000;
@@ -9,11 +10,11 @@ const PERSISTENT_APPEAR_DELAY = 150;
 
 function getGreeting(): string {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return '🌞 শুভ সকাল!';
-  if (h >= 12 && h < 16) return '☀️ শুভ দুপুর!';
-  if (h >= 16 && h < 19) return '🌇 শুভ বিকাল!';
-  if (h >= 19 && h < 23) return '🌙 শুভ সন্ধ্যা!';
-  return '🌃 শুভ রাত্রি!';
+  if (h >= 5 && h < 12) return trNow('🌞 শুভ সকাল!', '🌞 Good morning!');
+  if (h >= 12 && h < 16) return trNow('☀️ শুভ দুপুর!', '☀️ Good afternoon!');
+  if (h >= 16 && h < 19) return trNow('🌇 শুভ বিকাল!', '🌇 Good afternoon!');
+  if (h >= 19 && h < 23) return trNow('🌙 শুভ সন্ধ্যা!', '🌙 Good evening!');
+  return trNow('🌃 শুভ রাত্রি!', '🌃 Good night!');
 }
 
 // Shared message-cycling logic for the welcome island — used by both the
@@ -35,9 +36,10 @@ export function useWelcomeIslandMessages(opts?: { persistent?: boolean }) {
   const [fading, setFading] = useState(false);
 
   const messages = useMemo(() => {
-    const list = (cfg.messages || []).map((m: string) => (m || '').trim()).filter(Boolean);
+    // the shop's own messages in English where we know them (lib/i18nKnown.ts)
+    const list = (cfg.messages || []).map((m: string) => knownNow((m || '').trim())).filter(Boolean);
     if (cfg.use_time_based_greeting) {
-      return [getGreeting(), '🤲 আসসালামু আলাইকুম', '😊 কেমন আছেন?', ...list].filter(Boolean);
+      return [getGreeting(), trNow('🤲 আসসালামু আলাইকুম', '🤲 Assalamu alaikum'), trNow('😊 কেমন আছেন?', '😊 How are you?'), ...list].filter(Boolean);
     }
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Layout from '@/components/layout/Layout';
 import { Skeleton } from '@/components/ui/skeleton';
 import SEOHead from '@/components/SEOHead';
-import { useSiteConfig, DEFAULT_NAVBAR_CONFIG } from '@/hooks/useSiteConfig';
+import { useSiteConfig, DEFAULT_NAVBAR_CONFIG, useFooterConfig } from '@/hooks/useSiteConfig';
 import AddGiveawayDialog from '@/components/admin/AddGiveawayDialog';
 import { getColorPrimaryImage } from '@/lib/productVariants';
 import GiveawayOrderDialog from '@/components/admin/GiveawayOrderDialog';
@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { trNow, useLang } from '@/lib/i18n';
 
 interface GiveawayEntry {
   id: string;
@@ -524,20 +525,21 @@ export default function Giveaway() {
   return <PublicGiveawayView brandName={navbar.brand_name} />;
 }
 
-function getNextSunday(): string {
+function getNextSunday(en = false): string {
   const now = new Date();
   const day = now.getDay();
   const daysUntilSunday = day === 0 ? 7 : 7 - day;
   const next = new Date(now);
   next.setDate(now.getDate() + daysUntilSunday);
-  return format(next, 'dd MMMM yyyy', { locale: bn });
+  return en ? format(next, 'dd MMMM yyyy') : format(next, 'dd MMMM yyyy', { locale: bn });
 }
 
 function PublicGiveawayView({ brandName }: { brandName?: string }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const { data: footerConfig } = useSiteConfig('footer_config');
+  const { data: footerConfig } = useFooterConfig();
+  const { en } = useLang();
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ['giveaway-entries-public'],
@@ -588,6 +590,7 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
   }, [entries]);
 
   const toBanglaOrdinal = (n: number) => {
+    if (en) return n.toLocaleString('en-US');
     const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
     return String(n).split('').map(d => banglaDigits[parseInt(d)]).join('');
   };
@@ -618,18 +621,18 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
               <Gift className="h-8 w-8" />
               <h1 className="text-3xl font-extrabold tracking-tight">🎁 Giveaway Board</h1>
             </div>
-            <p className="text-sm opacity-90 max-w-md mx-auto">আমরা আমাদের প্রিয় কাস্টমারদের গিফট দিয়ে থাকি — এখানে তাদের তালিকা দেখুন!</p>
+            <p className="text-sm opacity-90 max-w-md mx-auto">{trNow('আমরা আমাদের প্রিয় কাস্টমারদের গিফট দিয়ে থাকি — এখানে তাদের তালিকা দেখুন!', 'We give gifts to our dear customers — see who won them here!')}</p>
 
             {entries.length > 0 && (
               <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                 <div className="inline-flex items-center gap-1.5 bg-primary-foreground/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-bold badge-shimmer">
-                  🎁 মোট গিফট: {toBanglaOrdinal(entries.length)}টি
+                  {en ? `🎁 Gifts: ${entries.length}` : `🎁 মোট গিফট: ${toBanglaOrdinal(entries.length)}টি`}
                 </div>
                 <div className="inline-flex items-center gap-1.5 bg-primary-foreground/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-bold">
-                  <Package className="h-4 w-4" /> বিজয়ী: {toBanglaOrdinal(uniqueRecipients)} জন
+                  <Package className="h-4 w-4" /> {en ? `Winners: ${uniqueRecipients}` : `বিজয়ী: ${toBanglaOrdinal(uniqueRecipients)} জন`}
                 </div>
                 <div className="inline-flex items-center gap-1.5 bg-primary-foreground/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-bold">
-                  💰 মোট মূল্য: ৳{toBanglaOrdinal(Math.round(totalGiftValue))}
+                  💰 {trNow('মোট মূল্য:', 'Total value:')} ৳{toBanglaOrdinal(Math.round(totalGiftValue))}
                 </div>
               </div>
             )}
@@ -638,22 +641,22 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
             <div className="mt-5 grid grid-cols-3 gap-2 max-w-md mx-auto">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl p-2.5 text-center">
                 <span className="text-lg">🎁</span>
-                <p className="text-[11px] font-bold leading-tight mt-1">প্রতি সপ্তাহে ৫ জন</p>
-                <p className="text-[9px] opacity-80 mt-0.5">কাস্টমার গিফট পাবে</p>
+                <p className="text-[11px] font-bold leading-tight mt-1">{trNow('প্রতি সপ্তাহে ৫ জন', '5 people every week')}</p>
+                <p className="text-[9px] opacity-80 mt-0.5">{trNow('কাস্টমার গিফট পাবে', 'customers win a gift')}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl p-2.5 text-center">
                 <span className="text-lg">📅</span>
-                <p className="text-[11px] font-bold leading-tight mt-1">পরবর্তী গিভঅ্যাওয়ে</p>
-                <p className="text-[9px] opacity-80 mt-0.5">{getNextSunday()} (রবিবার)</p>
+                <p className="text-[11px] font-bold leading-tight mt-1">{trNow('পরবর্তী গিভঅ্যাওয়ে', 'Next giveaway')}</p>
+                <p className="text-[9px] opacity-80 mt-0.5">{getNextSunday(en)} ({trNow('রবিবার', 'Sunday')})</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl p-2.5 text-center">
                 <span className="text-lg">📦</span>
-                <p className="text-[11px] font-bold leading-tight mt-1">শর্তাবলী</p>
-                <p className="text-[9px] opacity-80 mt-0.5">Facebook ও YouTube এ Active থাকুন</p>
+                <p className="text-[11px] font-bold leading-tight mt-1">{trNow('শর্তাবলী', 'Rules')}</p>
+                <p className="text-[9px] opacity-80 mt-0.5">{trNow('Facebook ও YouTube এ Active থাকুন', 'Stay active on Facebook and YouTube')}</p>
               </div>
             </div>
 
-            <p className="mt-3 text-[11px] opacity-80 max-w-sm mx-auto leading-relaxed">আমাদের Facebook পেজ ও YouTube এ নিয়মিত Active থাকতে হবে। যার পয়েন্ট ভালো থাকবে, সেই গিফট পাবে। যে যত Active থাকবে!</p>
+            <p className="mt-3 text-[11px] opacity-80 max-w-sm mx-auto leading-relaxed">{trNow('আমাদের Facebook পেজ ও YouTube এ নিয়মিত Active থাকতে হবে। যার পয়েন্ট ভালো থাকবে, সেই গিফট পাবে। যে যত Active থাকবে!', 'Stay active on our Facebook page and YouTube. The best points win the gifts — the more active, the better!')}</p>
 
             {/* Social Links */}
             {socialLinks && (
@@ -695,8 +698,8 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
           ) : entries.length === 0 ? (
             <div className="text-center py-16">
               <Gift className="h-16 w-16 mx-auto text-muted-foreground/40 mb-4" />
-              <p className="text-lg font-semibold text-muted-foreground">এখনো কোনো গিফট এন্ট্রি নেই</p>
-              <p className="text-sm text-muted-foreground mt-1">শীঘ্রই আমাদের গিভওয়ে শুরু হবে!</p>
+              <p className="text-lg font-semibold text-muted-foreground">{trNow('এখনো কোনো গিফট এন্ট্রি নেই', 'No gift winners yet')}</p>
+              <p className="text-sm text-muted-foreground mt-1">{trNow('শীঘ্রই আমাদের গিভওয়ে শুরু হবে!', 'Our giveaway starts soon!')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:gap-5">
@@ -771,7 +774,7 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
                         <div className="flex items-center gap-1 shrink-0">
                           {totalForPerson > 1 && (
                             <span className="text-[9px] sm:text-[10px] font-medium bg-accent text-accent-foreground rounded-full px-1.5 py-0.5">
-                              {toBanglaOrdinal(nthTime)}য়
+                              {en ? `#${nthTime}` : `${toBanglaOrdinal(nthTime)}য়`}
                             </span>
                           )}
                           {secondaryProductImg && slug && (
@@ -785,7 +788,7 @@ function PublicGiveawayView({ brandName }: { brandName?: string }) {
                       {/* Date row */}
                       <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-border/50">
                         <span className="text-[10px] sm:text-xs font-semibold text-primary truncate">
-                          {giftValue > 0 ? `৳${toBanglaOrdinal(Math.round(giftValue))}` : '🎁 ফ্রি'}
+                          {giftValue > 0 ? `৳${toBanglaOrdinal(Math.round(giftValue))}` : trNow('🎁 ফ্রি', '🎁 Free')}
                         </span>
                         <span className="text-[9px] sm:text-[11px] text-muted-foreground shrink-0">
                           {format(new Date(entry.created_at), 'dd MMM', { locale: bn })}

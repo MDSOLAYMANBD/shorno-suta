@@ -1,12 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { translateText, startAdminEnglish, stopAdminEnglish } from './adminTranslate';
+import { buildWords, translateText, startEnglish, stopEnglish } from './pageTranslate';
 
-const dict = new Map([
-  ['অর্ডার', 'Orders'],
-  ['মোট', 'Total'],
-  ['সেভ করুন', 'Save'],
-  ['জন সিলেক্টেড', 'selected'],
-]);
+const dict = buildWords(
+  [{ 'অর্ডার': 'Orders', 'মোট': 'Total', 'সেভ করুন': 'Save', 'জন সিলেক্টেড': 'selected', 'লাল': 'Red' }],
+  [{ '৳{0} কেনাকাটায় ফ্রি ডেলিভারি': 'Free delivery on orders of ৳{0}', '{0} রঙে {1}টি পণ্য': '{1} products in {0}' }],
+);
 
 describe('translateText', () => {
   it('swaps a known text and keeps its spaces', () => {
@@ -28,6 +26,13 @@ describe('translateText', () => {
     expect(translateText('মোট ১২', dict)).toBe('Total 12');
     expect(translateText('মোট: ৳৫০০', dict)).toBe('Total: ৳500');
   });
+  it('fills a text with a value inside', () => {
+    expect(translateText('৳১০০০ কেনাকাটায় ফ্রি ডেলিভারি', dict)).toBe('Free delivery on orders of ৳1000');
+    expect(translateText('লাল রঙে ৫টি পণ্য', dict)).toBe('5 products in Red');
+  });
+  it('does each part of a one-line list', () => {
+    expect(translateText('মোট | লাল শাড়ি | অর্ডার', dict)).toBe('Total | লাল শাড়ি | Orders');
+  });
   it('leaves unknown Bangla and English alone', () => {
     expect(translateText('লাল শাড়ি', dict)).toBeNull();
     expect(translateText('Orders', dict)).toBeNull();
@@ -42,7 +47,7 @@ describe('the admin page in English', () => {
       <textarea id="t">অর্ডার</textarea>
       <div class="print-invoice-wrapper"><span id="m">মোট</span></div>
       <div translate="no"><span id="n">মোট</span></div>`;
-    startAdminEnglish();
+    startEnglish('admin');
     const $ = (id: string) => document.getElementById(id)!;
     // the word list loads the first time
     await vi.waitFor(() => expect($('a').textContent).toBe('Save'), { timeout: 10000 });
@@ -58,7 +63,7 @@ describe('the admin page in English', () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(added.textContent).toBe('Orders');
 
-    stopAdminEnglish();
+    stopEnglish('admin');
     expect($('a').textContent).toBe('সেভ করুন');
     expect($('i').getAttribute('placeholder')).toBe('অর্ডার');
     expect(added.textContent).toBe('অর্ডার');

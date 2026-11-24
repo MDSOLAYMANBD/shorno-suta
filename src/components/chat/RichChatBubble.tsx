@@ -6,6 +6,7 @@ import { Mic, Sparkles, User as UserIcon, Phone } from 'lucide-react';
 import VoiceMessage from './VoiceMessage';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { trNow } from '@/lib/i18n';
 
 interface RichChatBubbleProps {
   message: string;
@@ -96,7 +97,7 @@ export default function RichChatBubble({
             {voiceUrl && (
               <div className="flex flex-col gap-1">
                 <div className={cn('flex items-center gap-1 text-[10px] opacity-80', isVisitor ? 'text-primary-foreground' : 'text-muted-foreground')}>
-                  <Mic className="h-3 w-3" /> ভয়েস মেসেজ
+                  <Mic className="h-3 w-3" /> {trNow('ভয়েস মেসেজ', 'Voice message')}
                 </div>
                 <VoiceMessage url={voiceUrl} durationMs={voiceDurationMs ?? undefined} variant={isVisitor ? 'visitor' : isStaff ? 'staff' : 'ai'} />
               </div>
@@ -162,7 +163,7 @@ export default function RichChatBubble({
                     </div>
                   </div>
                   <span className="text-[10px] font-semibold text-primary border border-primary/40 rounded-full px-2 py-0.5 shrink-0">
-                    দেখুন →
+                    {trNow('দেখুন →', 'View →')}
                   </span>
                 </Link>
               );
@@ -170,7 +171,7 @@ export default function RichChatBubble({
           </div>
           {meta.category_link && (
             <Link to={meta.category_link} target="_blank" rel="noopener noreferrer" className="block text-center text-[11px] text-primary font-semibold py-1 hover:underline">
-              আরও দেখুন →
+              {trNow('আরও দেখুন →', 'See more →')}
             </Link>
           )}
         </div>
@@ -193,7 +194,7 @@ export default function RichChatBubble({
           <div className="flex items-start gap-1.5">
             <span>📍</span>
             <div className="flex-1">
-              <div className="font-semibold text-emerald-900 dark:text-emerald-100 mb-0.5">অফিস ঠিকানা</div>
+              <div className="font-semibold text-emerald-900 dark:text-emerald-100 mb-0.5">{trNow('অফিস ঠিকানা', 'Office address')}</div>
               <div className="text-emerald-800 dark:text-emerald-200 leading-relaxed">{meta.address_card.address}</div>
             </div>
           </div>
@@ -204,7 +205,7 @@ export default function RichChatBubble({
             </div>
           )}
           {meta.address_card.pickup && (
-            <div className="text-[10px] text-emerald-700 dark:text-emerald-300 italic">✓ অফিস থেকে সরাসরি পিকআপ সুবিধা আছে</div>
+            <div className="text-[10px] text-emerald-700 dark:text-emerald-300 italic">✓ {trNow('অফিস থেকে সরাসরি পিকআপ সুবিধা আছে', 'Pick-up from the office is available')}</div>
           )}
         </div>
       )}

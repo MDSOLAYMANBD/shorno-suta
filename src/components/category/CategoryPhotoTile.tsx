@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { optimizedImageUrl } from '@/lib/imageUrl';
+import { nameNow } from '@/lib/i18n';
 
 const CELL_COUNT = 4;
 const CYCLE_MS = 2600; // how often one cell (of the 4) advances to its next photo
@@ -91,7 +92,7 @@ export default function CategoryPhotoTile({ category, parent, images }: { catego
   }, [canRotate, pool]);
 
   const hasImages = slots.length > 0;
-  const alt = category.name_bn || category.name;
+  const alt = nameNow(category.name_bn, category.name);
 
   return (
     <Link to={`/shop/${category.slug}`} className="group block">
@@ -128,7 +129,7 @@ export default function CategoryPhotoTile({ category, parent, images }: { catego
         </h3>
         {parent && (
           <span className="text-[10px] text-muted-foreground line-clamp-1">
-            {parent.icon ? `${parent.icon} ` : ''}{parent.name_bn || parent.name}
+            {parent.icon ? `${parent.icon} ` : ''}{nameNow(parent.name_bn, parent.name)}
           </span>
         )}
       </div>

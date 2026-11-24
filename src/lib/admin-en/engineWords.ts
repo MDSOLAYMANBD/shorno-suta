@@ -1,7 +1,7 @@
 // The CORE Shop engine's English for its admin (store-engine lib/i18nAdmin.ts, lib/admin-en/*,
 // lib/i18nKnown.ts), copied as one list: this admin is the same admin, written in Bangla.
-// Used by lib/adminTranslate.ts; loaded only when the admin is switched to English.
-// Shorno Suta's own texts are in shornoWords.ts.
+// Used by lib/pageTranslate.ts; loaded only when the admin is switched to English.
+// This shop's own texts are in shopWords.ts.
 const words: Record<string, string> = {
   "হোম": "Home",
   "শপ": "Shop",

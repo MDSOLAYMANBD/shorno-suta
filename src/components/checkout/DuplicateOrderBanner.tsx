@@ -3,6 +3,7 @@ import { AlertTriangle, Phone, MessageCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useStoreSettings } from '@/hooks/useStoreSettings';
+import { trNow } from '@/lib/i18n';
 
 interface ExistingOrder {
   order_number: string;
@@ -88,10 +89,10 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-orange-800 dark:text-orange-300">
-              আপনার আগে একটি অর্ডার করা হয়েছে
+              {trNow('আপনার আগে একটি অর্ডার করা হয়েছে', 'You already have an order with us')}
             </h3>
             <p className="text-xs text-orange-700 dark:text-orange-400">
-              অর্ডার নম্বর: <strong>{existingOrder.order_number}</strong>
+              {trNow('অর্ডার নম্বর:', 'Order number:')} <strong>{existingOrder.order_number}</strong>
             </p>
           </div>
         </div>
@@ -110,7 +111,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
             </div>
           ))}
           <div className="flex justify-between text-sm font-bold border-t border-orange-200 dark:border-orange-800 pt-2">
-            <span>মোট</span>
+            <span>{trNow('মোট', 'Total')}</span>
             <span>৳{existingOrder.total}</span>
           </div>
         </div>
@@ -118,7 +119,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
         {newItems && newItems.length > 0 && (
           <div className="bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800 p-3 space-y-2">
             <p className="text-[11px] font-bold text-green-800 dark:text-green-300 uppercase tracking-wide">
-              ➕ নতুন যোগ করতে চান
+              ➕ {trNow('নতুন যোগ করতে চান', 'You want to add')}
             </p>
             {newItems.map((item, i) => (
               <div key={i} className="flex justify-between text-xs">
@@ -135,7 +136,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
         )}
 
         <p className="text-xs text-orange-700 dark:text-orange-400">
-          WhatsApp-এ ক্লিক করলে আপনার আগের অর্ডার এবং নতুন যোগ করতে চাওয়া পণ্যের বিস্তারিত সহ মেসেজ চলে যাবে। প্রয়োজনে হটলাইনে কল করুন:{' '}
+          {trNow('WhatsApp-এ ক্লিক করলে আপনার আগের অর্ডার এবং নতুন যোগ করতে চাওয়া পণ্যের বিস্তারিত সহ মেসেজ চলে যাবে। প্রয়োজনে হটলাইনে কল করুন:', 'Tap WhatsApp to send us your earlier order and what you want to add. Or call our hotline:')}{' '}
           <a
             href={`tel:${helplineNumber || '+8809617356977'}`}
             className="font-bold text-orange-900 dark:text-orange-200 underline underline-offset-2 hover:text-green-700"
@@ -153,7 +154,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2.2s_infinite]" />
               <MessageCircle className="h-3.5 w-3.5 animate-bounce" />
-              WhatsApp করুন
+              {trNow('WhatsApp করুন', 'WhatsApp us')}
             </a>
           </Button>
           {helplineNumber && (
@@ -166,7 +167,7 @@ export default function DuplicateOrderBanner({ existingOrder, onDismiss, newItem
           )}
           {onDismiss && (
             <Button variant="ghost" size="sm" onClick={onDismiss} className="text-xs ml-auto">
-              বন্ধ করুন
+              {trNow('বন্ধ করুন', 'Close')}
             </Button>
           )}
         </div>

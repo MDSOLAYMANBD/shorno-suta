@@ -249,6 +249,13 @@ export function useSiteConfig(configKey: string) {
   return { data, isLoading, error };
 }
 
+/** The footer's settings: the saved ones over the defaults. */
+export function useFooterConfig() {
+  const { data: saved, isLoading } = useSiteConfig('footer_config');
+  const data = useMemo(() => ({ ...DEFAULT_FOOTER_CONFIG, ...(saved || {}) }) as typeof DEFAULT_FOOTER_CONFIG, [saved]);
+  return { data, isLoading };
+}
+
 export function useSaveSiteConfig() {
   const qc = useQueryClient();
   return useMutation({

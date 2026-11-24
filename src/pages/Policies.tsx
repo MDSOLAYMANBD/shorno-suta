@@ -5,6 +5,7 @@ import { sanitizeHtml } from '@/lib/sanitize';
 import { Link } from 'react-router-dom';
 import NotFound from './NotFound';
 import SEOHead from '@/components/SEOHead';
+import { useLang } from '@/lib/i18n';
 
 const policyLinks = [
   { title: 'শর্তাবলী ও অর্ডার নীতিমালা', subtitle: 'Terms & Conditions', icon: '📜', path: '/terms-and-conditions' },
@@ -16,6 +17,7 @@ const policyLinks = [
 
 export default function Policies() {
   const { data: pagesData, isLoading } = useSiteConfig('pages_config');
+  const { en, own } = useLang();
 
   if (isLoading) {
     return (
@@ -54,8 +56,8 @@ export default function Policies() {
                 <CardContent className="flex items-center gap-4 p-6">
                   <span className="text-3xl">{link.icon}</span>
                   <div>
-                    <p className="font-semibold text-foreground">{link.title}</p>
-                    <p className="text-sm text-muted-foreground">{link.subtitle}</p>
+                    <p className="font-semibold text-foreground">{en ? link.subtitle : link.title}</p>
+                    {!en && <p className="text-sm text-muted-foreground">{link.subtitle}</p>}
                   </div>
                 </CardContent>
               </Card>

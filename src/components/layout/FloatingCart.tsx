@@ -3,6 +3,7 @@ import { ShoppingBag } from 'lucide-react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
+import { useLang } from '@/lib/i18n';
 
 const POS_KEY = 'shorno-suta-floating-cart-pos';
 const DRAG_THRESHOLD = 5;
@@ -11,6 +12,7 @@ type Pos = { x: number; y: number };
 
 export default function FloatingCart() {
   const { totalItems, subtotal } = useCart();
+  const { tr } = useLang();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [bump, setBump] = useState(false);
@@ -210,7 +212,7 @@ export default function FloatingCart() {
       </div>
 
       <div className="text-[8px] lg:text-[11px] font-medium opacity-95 leading-tight pointer-events-none">
-        {totalItems > 0 ? `${totalItems}টি` : 'খালি'}
+        {totalItems > 0 ? tr(`${totalItems}টি`, `${totalItems} item${totalItems === 1 ? '' : 's'}`) : tr('খালি', 'Empty')}
       </div>
 
       <div className="mt-0.5 px-1 lg:px-2 py-0.5 rounded-full bg-background/95 text-primary text-[9px] lg:text-[12px] font-bold shadow-inner pointer-events-none">

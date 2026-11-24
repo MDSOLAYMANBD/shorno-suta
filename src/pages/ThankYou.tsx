@@ -5,10 +5,11 @@ import OrderSuccessContent, { OrderSuccessItem } from '@/components/order/OrderS
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { getVisitorClickKeys } from '@/lib/sms/shortLinks';
+import { trNow } from '@/lib/i18n';
 
+const GOOGLE_MERCHANT_ID = '5372768452';
 
 const STORAGE_KEY = 'thank_you_order';
-const GOOGLE_MERCHANT_ID = '5372768452';
 
 export interface ThankYouOrderData {
   orderNumber: string;
@@ -122,7 +123,7 @@ export default function ThankYou() {
             discount={orderData.discount}
             customerPhone={orderData.customerPhone}
             onClose={() => navigate('/shop')}
-            closeLabel="শপিং চালিয়ে যান"
+            closeLabel={trNow('শপিং চালিয়ে যান', 'Continue shopping')}
           />
         </div>
       </div>

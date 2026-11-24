@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Package, CheckCircle, Circle, Truck, MapPin, XCircle, Clock, Loader2, User, Phone, Building2 } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 interface OrderItem {
   id: string;
@@ -45,10 +46,10 @@ interface Order {
 }
 
 const STATUS_STEPS = [
-  { key: 'pending', label: 'অর্ডার গৃহীত', icon: Clock },
-  { key: 'confirmed', label: 'নিশ্চিত', icon: CheckCircle },
-  { key: 'shipped', label: 'শিপিং', icon: Truck },
-  { key: 'delivered', label: 'ডেলিভারি সম্পন্ন', icon: MapPin },
+  { key: 'pending', label: 'অর্ডার গৃহীত', en: 'Received', icon: Clock },
+  { key: 'confirmed', label: 'নিশ্চিত', en: 'Confirmed', icon: CheckCircle },
+  { key: 'shipped', label: 'শিপিং', en: 'Shipped', icon: Truck },
+  { key: 'delivered', label: 'ডেলিভারি সম্পন্ন', en: 'Delivered', icon: MapPin },
 ];
 
 function getStepIndex(status: string) {
@@ -65,8 +66,8 @@ function StatusTimeline({ status }: { status: string }) {
       <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4 flex items-center gap-3">
         <XCircle className="h-6 w-6 text-destructive" />
         <div>
-          <p className="font-semibold text-destructive">অর্ডার বাতিল করা হয়েছে</p>
-          <p className="text-sm text-muted-foreground">এই অর্ডারটি বাতিল হয়ে গেছে।</p>
+          <p className="font-semibold text-destructive">{trNow('অর্ডার বাতিল করা হয়েছে', 'Order cancelled')}</p>
+          <p className="text-sm text-muted-foreground">{trNow('এই অর্ডারটি বাতিল হয়ে গেছে।', 'This order has been cancelled.')}</p>
         </div>
       </div>
     );
@@ -101,7 +102,7 @@ function StatusTimeline({ status }: { status: string }) {
                 isCompleted ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
-              {step.label}
+              {trNow(step.label, step.en)}
             </span>
           </div>
         );
@@ -115,7 +116,7 @@ function TrackingTimeline({ events }: { events: TrackingEvent[] }) {
 
   return (
     <div className="space-y-1">
-      <h4 className="text-sm font-semibold mb-3">কুরিয়ার ট্র্যাকিং হিস্টোরি</h4>
+      <h4 className="text-sm font-semibold mb-3">{trNow('কুরিয়ার ট্র্যাকিং হিস্টোরি', 'Courier tracking')}</h4>
       <div className="relative pl-6 space-y-4">
         {/* Vertical line */}
         <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-border" />
@@ -126,7 +127,7 @@ function TrackingTimeline({ events }: { events: TrackingEvent[] }) {
             }`} />
             <div className="bg-muted/50 rounded-md p-3 text-sm space-y-1">
               <div className="flex items-center justify-between flex-wrap gap-1">
-                <span className="font-medium">{evt.status || 'আপডেট'}</span>
+                <span className="font-medium">{evt.status || trNow('আপডেট', 'Update')}</span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(evt.created_at).toLocaleString('bn-BD', { dateStyle: 'medium', timeStyle: 'short' })}
                 </span>
@@ -195,7 +196,7 @@ export default function OrderStatus() {
       setOrders(result.orders || []);
     } catch (err) {
       console.error('Search error:', err);
-      setErrorMsg('সার্চ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      setErrorMsg(trNow('সার্চ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'Search failed. Please try again.'));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -227,7 +228,7 @@ export default function OrderStatus() {
             />
             <Button type="submit" disabled={loading || !phone.trim()}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              <span className="ml-1 hidden sm:inline">সার্চ</span>
+              <span className="ml-1 hidden sm:inline">{trNow('সার্চ', 'Search')}</span>
             </Button>
           </div>
           {errorMsg && (
@@ -239,20 +240,20 @@ export default function OrderStatus() {
         {loading && (
           <div className="text-center py-12 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
-            <p>সার্চ করা হচ্ছে...</p>
+            <p>{trNow('সার্চ করা হচ্ছে...', 'Searching...')}</p>
           </div>
         )}
 
         {!loading && searched && orders.length === 0 && !errorMsg && (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground">কোনো অর্ডার পাওয়া যায়নি।</p>
-            <p className="text-sm text-muted-foreground mt-1">অনুগ্রহ করে সঠিক ফোন নম্বর দিন।</p>
+            <p className="text-muted-foreground">{trNow('কোনো অর্ডার পাওয়া যায়নি।', 'No orders found.')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{trNow('অনুগ্রহ করে সঠিক ফোন নম্বর দিন।', 'Please check the phone number.')}</p>
           </div>
         )}
 
         {!loading && orders.length > 0 && (
-          <p className="text-sm text-muted-foreground mb-4 text-center">{orders.length}টি অর্ডার পাওয়া গেছে</p>
+          <p className="text-sm text-muted-foreground mb-4 text-center">{trNow(`${orders.length}টি অর্ডার পাওয়া গেছে`, `${orders.length} order${orders.length === 1 ? '' : 's'} found`)}</p>
         )}
 
         {!loading && orders.map(order => (
@@ -263,17 +264,17 @@ export default function OrderStatus() {
                 <Badge
                   variant={order.status === 'delivered' ? 'default' : order.status === 'cancelled' ? 'destructive' : 'secondary'}
                 >
-                  {order.status === 'pending' && 'অপেক্ষমান'}
-                  {order.status === 'confirmed' && 'নিশ্চিত'}
-                  {order.status === 'in_review' && 'কুরিয়ারে হস্তান্তর'}
-                  {order.status === 'shipped' && 'শিপিং'}
-                  {order.status === 'delivered' && 'ডেলিভারি সম্পন্ন'}
-                  {order.status === 'cancelled' && 'বাতিল'}
+                  {order.status === 'pending' && trNow('অপেক্ষমান', 'Pending')}
+                  {order.status === 'confirmed' && trNow('নিশ্চিত', 'Confirmed')}
+                  {order.status === 'in_review' && trNow('কুরিয়ারে হস্তান্তর', 'With the courier')}
+                  {order.status === 'shipped' && trNow('শিপিং', 'Shipped')}
+                  {order.status === 'delivered' && trNow('ডেলিভারি সম্পন্ন', 'Delivered')}
+                  {order.status === 'cancelled' && trNow('বাতিল', 'Cancelled')}
                   {!['pending', 'confirmed', 'in_review', 'shipped', 'delivered', 'cancelled'].includes(order.status) && order.status}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                তারিখ: {new Date(order.created_at).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                {trNow('তারিখ:', 'Date:')} {new Date(order.created_at).toLocaleDateString(trNow('bn-BD', 'en-GB'), { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -283,7 +284,7 @@ export default function OrderStatus() {
               {/* Courier info */}
               {order.courier_consignment_id && (
                 <div className="rounded-md bg-muted p-3 text-sm">
-                  <span className="font-medium">কুরিয়ার কনসাইনমেন্ট আইডি:</span>{' '}
+                  <span className="font-medium">{trNow('কুরিয়ার কনসাইনমেন্ট আইডি:', 'Courier consignment ID:')}</span>{' '}
                   <span className="font-mono">{order.courier_consignment_id}</span>
                   {order.courier_status && (
                     <span className="ml-2 text-muted-foreground">({order.courier_status})</span>
@@ -296,7 +297,7 @@ export default function OrderStatus() {
 
               {/* Order Items */}
               <div>
-                <h4 className="text-sm font-semibold mb-2">অর্ডার আইটেমস</h4>
+                <h4 className="text-sm font-semibold mb-2">{trNow('অর্ডার আইটেমস', 'Items')}</h4>
                 <div className="divide-y divide-border rounded-md border">
                   {order.items.map(item => (
                     <div key={item.id} className="flex items-center justify-between px-3 py-2 text-sm">
@@ -318,18 +319,18 @@ export default function OrderStatus() {
               {/* Price Summary */}
               <div className="space-y-1 text-sm border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">সাবটোটাল</span>
+                  <span className="text-muted-foreground">{trNow('সাবটোটাল', 'Subtotal')}</span>
                   <span>৳{order.subtotal}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
-                  <span>{order.free_shipping ? <span className="font-bold text-green-600">ফ্রি</span> : `৳${order.delivery_charge}`}</span>
+                  <span className="text-muted-foreground">{trNow('ডেলিভারি চার্জ', 'Delivery')}</span>
+                  <span>{order.free_shipping ? <span className="font-bold text-green-600">{trNow('ফ্রি', 'Free')}</span> : `৳${order.delivery_charge}`}</span>
                 </div>
                 {(() => {
                   const disc = Number(order.subtotal || 0) + (order.free_shipping ? 0 : Number(order.delivery_charge || 0)) - Number(order.total || 0);
                   return disc > 0 ? (
                     <div className="flex justify-between text-red-500">
-                      <span className="text-muted-foreground">ডিসকাউন্ট</span>
+                      <span className="text-muted-foreground">{trNow('ডিসকাউন্ট', 'Discount')}</span>
                       <span>-৳{disc}</span>
                     </div>
                   ) : null;
@@ -338,7 +339,7 @@ export default function OrderStatus() {
                   <p className="text-xs italic text-muted-foreground">{order.discount_note}</p>
                 )}
                 <div className="flex justify-between font-bold text-base pt-1">
-                  <span>মোট</span>
+                  <span>{trNow('মোট', 'Total')}</span>
                   <span>৳{order.total}</span>
                 </div>
               </div>

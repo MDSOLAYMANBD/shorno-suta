@@ -29,6 +29,8 @@ import { useFreeShipping } from '@/hooks/useFreeShipping';
 import { FreeShippingProgress } from '@/components/freeShipping/FreeShippingProgress';
 import { useEnabledPaymentMethods } from '@/hooks/usePaymentMethods';
 import { optimizedImageUrl } from '@/lib/imageUrl';
+import { knownNow, nameNow, trNow } from '@/lib/i18n';
+import { variantLabel } from '@/lib/variantPresets';
 
 export default function Checkout() {
   const { items, subtotal, clearCart } = useCart();
@@ -137,24 +139,24 @@ export default function Checkout() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) {
-      toast.error('অনুগ্রহ করে শর্তাবলীতে সম্মতি দিন');
+      toast.error(trNow('অনুগ্রহ করে শর্তাবলীতে সম্মতি দিন', 'Please agree to the terms'));
       return;
     }
     if (!form.customer_name || !form.customer_phone || !form.customer_address) {
-      toast.error('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন');
+      toast.error(trNow('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন', 'Please fill in all required details'));
       return;
     }
     const phoneClean = form.customer_phone.replace(/[\s-]/g, '').replace(/^\+?88/, '');
     if (!/^01[3-9]\d{8}$/.test(phoneClean)) {
-      toast.error('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)');
+      toast.error(trNow('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)', 'Enter a valid phone number (01XXXXXXXXX)'));
       return;
     }
     if (form.customer_name.trim().length < 3 || form.customer_name.length > 100) {
-      toast.error('নাম ৩-১০০ অক্ষরের মধ্যে হতে হবে');
+      toast.error(trNow('নাম ৩-১০০ অক্ষরের মধ্যে হতে হবে', 'Name must be 3–100 letters'));
       return;
     }
     if (form.customer_address.trim().length < 10 || form.customer_address.length > 500) {
-      toast.error('সম্পূর্ণ ঠিকানা দিন (কমপক্ষে ১০ অক্ষর)');
+      toast.error(trNow('সম্পূর্ণ ঠিকানা দিন (কমপক্ষে ১০ অক্ষর)', 'Enter your full address (at least 10 letters)'));
       return;
     }
     try {
@@ -175,7 +177,7 @@ export default function Checkout() {
             },
           });
           if (error || data?.error) {
-            toast.error(data?.error || 'পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+            toast.error(data?.error || trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
             setPaymentLoading(false);
             return;
           }
@@ -183,7 +185,7 @@ export default function Checkout() {
           window.open(data.payment_url, '_blank');
           return;
         } catch {
-          toast.error('পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+          toast.error(trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
           setPaymentLoading(false);
           return;
         }
@@ -197,7 +199,7 @@ export default function Checkout() {
             body: { order_id: order.id },
           });
           if (error || data?.error) {
-            toast.error(data?.error || 'পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+            toast.error(data?.error || trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
             setPaymentLoading(false);
             return;
           }
@@ -205,7 +207,7 @@ export default function Checkout() {
           window.open(data.payment_url, '_blank');
           return;
         } catch {
-          toast.error('পেমেন্ট শুরু করতে সমস্যা হয়েছে');
+          toast.error(trNow('পেমেন্ট শুরু করতে সমস্যা হয়েছে', 'Could not start the payment'));
           setPaymentLoading(false);
           return;
         }
@@ -254,7 +256,7 @@ export default function Checkout() {
       } else if (isBlockedOrderError(err)) {
         toast.error(err.message);
       } else {
-        toast.error('অর্ডার দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        toast.error(trNow('অর্ডার দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'Could not place the order. Please try again.'));
       }
     }
   };
@@ -271,7 +273,7 @@ export default function Checkout() {
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
               <ShoppingBag className="h-5 w-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold">চেকআউট</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">{trNow('চেকআউট', 'Checkout')}</h1>
           </div>
         </div>
 
@@ -297,18 +299,18 @@ export default function Checkout() {
               {/* Customer Info Card */}
               <div className="bg-card rounded-xl shadow-sm border border-primary/15 p-4">
                 <h2 className="text-base font-semibold text-primary mb-3">
-                  👤 কাস্টমার তথ্য
+                  👤 {trNow('কাস্টমার তথ্য', 'Your details')}
                 </h2>
                 <div className="space-y-3">
                   {/* নাম */}
                   <div>
                     <Label className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                      👤 নাম *
+                      👤 {trNow('নাম', 'Name')} *
                     </Label>
                     <Input
                       value={form.customer_name}
                       onChange={e => update('customer_name', e.target.value)}
-                      placeholder="আপনার পূর্ণ নাম"
+                      placeholder={trNow('আপনার পূর্ণ নাম', 'Your full name')}
                       required
                       autoComplete="name"
                       className="rounded-lg border-primary/20 focus-visible:ring-primary/30"
@@ -317,7 +319,7 @@ export default function Checkout() {
                   {/* ফোন */}
                   <div>
                     <Label className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                      📞 ফোন *
+                      📞 {trNow('ফোন', 'Phone')} *
                     </Label>
                     <Input
                       value={form.customer_phone}
@@ -331,12 +333,12 @@ export default function Checkout() {
                   {/* ঠিকানা */}
                   <div>
                     <Label className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                      📍 ঠিকানা *
+                      📍 {trNow('ঠিকানা', 'Address')} *
                     </Label>
                     <Textarea
                       value={form.customer_address}
                       onChange={e => update('customer_address', e.target.value)}
-                      placeholder="বিস্তারিত ঠিকানা লিখুন (বাড়ি, রোড, এলাকা, জেলা)"
+                      placeholder={trNow('বিস্তারিত ঠিকানা লিখুন (বাড়ি, রোড, এলাকা, জেলা)', 'Full address (house, road, area, district)')}
                       required
                       autoComplete="street-address"
                       className="rounded-lg min-h-[70px] border-primary/20 focus-visible:ring-primary/30"
@@ -347,13 +349,13 @@ export default function Checkout() {
                   {fieldCfg.email.show && (
                     <div>
                       <Label className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                        📧 {fieldCfg.email.label}
+                        📧 {knownNow(fieldCfg.email.label)}
                       </Label>
                       <Input
                         type="email"
                         value={form.customer_email}
                         onChange={e => update('customer_email', e.target.value)}
-                        placeholder={fieldCfg.email.placeholder || ''}
+                        placeholder={knownNow(fieldCfg.email.placeholder)}
                         required={fieldCfg.email.required}
                         autoComplete="email"
                         className="rounded-lg border-primary/20 focus-visible:ring-primary/30"
@@ -364,12 +366,12 @@ export default function Checkout() {
                   {fieldCfg.note.show && (
                     <div>
                       <Label className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                        📝 {fieldCfg.note.label}
+                        📝 {knownNow(fieldCfg.note.label)}
                       </Label>
                       <Input
                         value={form.notes}
                         onChange={e => update('notes', e.target.value)}
-                        placeholder={fieldCfg.note.placeholder || ''}
+                        placeholder={knownNow(fieldCfg.note.placeholder)}
                         required={fieldCfg.note.required}
                         className="rounded-lg border-primary/20 focus-visible:ring-primary/30"
                       />
@@ -387,7 +389,7 @@ export default function Checkout() {
               {/* Order Summary Card - after notes */}
               <div className="bg-card rounded-xl shadow-sm border border-primary/15 p-4">
                 <h2 className="text-base font-semibold text-primary mb-3">
-                  🛍️ অর্ডার সারাংশ
+                  🛍️ {trNow('অর্ডার সারাংশ', 'Order summary')}
                 </h2>
                 <div className="space-y-3 mb-4">
                   {items.map(item => (
@@ -395,17 +397,17 @@ export default function Checkout() {
                       <div className="w-14 h-14 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-primary/10">
                         <img
                           src={item.image ? optimizedImageUrl(item.image, 90, 70) : '/placeholder.svg'}
-                          alt={item.name_bn || item.name}
+                          alt={nameNow(item.name_bn, item.name)}
                           loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium line-clamp-1">{item.name_bn || item.name}</p>
+                        <p className="text-sm font-medium line-clamp-1">{nameNow(item.name_bn, item.name)}</p>
                         <p className="text-xs text-muted-foreground">
                           ৳{item.price} × {item.quantity}
-                          {item.size && ` | ${item.size}`}
-                          {item.color && ` | ${item.color}`}
+                          {item.size && ` | ${variantLabel(item.size)}`}
+                          {item.color && ` | ${variantLabel(item.color)}`}
                         </p>
                       </div>
                       <span className="text-sm font-semibold whitespace-nowrap text-primary">৳{item.price * item.quantity}</span>
@@ -413,7 +415,7 @@ export default function Checkout() {
                   ))}
                 </div>
                 <div className="flex justify-between text-sm border-t border-primary/10 pt-3">
-                  <span className="text-muted-foreground">সাবটোটাল</span>
+                  <span className="text-muted-foreground">{trNow('সাবটোটাল', 'Subtotal')}</span>
                   <span className="font-semibold">৳{subtotal}</span>
                 </div>
                 <div className="mt-3">
@@ -424,7 +426,7 @@ export default function Checkout() {
               {/* Delivery Charge */}
               <div className="bg-card rounded-xl shadow-sm border border-accent/15 p-4">
                 <h2 className="text-base font-semibold text-primary mb-3">
-                  🚚 ডেলিভারি চার্জ
+                  🚚 {trNow('ডেলিভারি চার্জ', 'Delivery')}
                 </h2>
                 <RadioGroup
                   value={form.delivery_area}
@@ -445,7 +447,7 @@ export default function Checkout() {
                       )}
                     >
                       <RadioGroupItem value={opt.value} />
-                      <span className="flex-1 text-sm font-medium">{opt.label}</span>
+                      <span className="flex-1 text-sm font-medium">{knownNow(opt.label)}</span>
                       <span className={cn(
                         'text-sm font-bold',
                         form.delivery_area === opt.value ? 'text-primary' : 'text-muted-foreground'
@@ -458,7 +460,7 @@ export default function Checkout() {
               {/* Payment Method Card */}
               <div className="bg-card rounded-xl shadow-sm border border-accent/15 p-4">
                 <h2 className="text-base font-semibold text-primary mb-3">
-                  💳 পেমেন্ট মেথড
+                  💳 {trNow('পেমেন্ট মেথড', 'Payment method')}
                 </h2>
                 <div className={cn(
                   "grid gap-3",
@@ -505,8 +507,8 @@ export default function Checkout() {
                           )}>
                             <Icon className={cn("h-6 w-6", brand ? brand.iconColor : 'text-primary')} />
                           </div>
-                          <span className="text-sm sm:text-base font-semibold text-center">{method.labelBn}</span>
-                          <span className="text-[11px] text-muted-foreground">{method.sublabel}</span>
+                          <span className="text-sm sm:text-base font-semibold text-center">{trNow(method.labelBn, method.label)}</span>
+                          <span className="text-[11px] text-muted-foreground">{knownNow(method.sublabel)}</span>
                         </div>
                       </button>
                     );
@@ -519,7 +521,7 @@ export default function Checkout() {
             <div className="lg:col-span-2">
               <div className="bg-card rounded-xl shadow-sm border border-primary/15 p-4 lg:sticky lg:top-24">
                 <h2 className="text-base font-semibold text-primary mb-3">
-                  🧾 মোট হিসাব
+                  🧾 {trNow('মোট হিসাব', 'Total')}
                 </h2>
 
                 {/* Compact items list */}
@@ -529,13 +531,13 @@ export default function Checkout() {
                       <div className="w-10 h-10 rounded-md overflow-hidden bg-muted flex-shrink-0 border border-primary/10">
                         <img
                           src={item.image ? optimizedImageUrl(item.image, 90, 70) : '/placeholder.svg'}
-                          alt={item.name_bn || item.name}
+                          alt={nameNow(item.name_bn, item.name)}
                           loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium line-clamp-1">{item.name_bn || item.name}</p>
+                        <p className="text-xs font-medium line-clamp-1">{nameNow(item.name_bn, item.name)}</p>
                         <p className="text-[11px] text-muted-foreground">৳{item.price} × {item.quantity}</p>
                       </div>
                       <span className="text-xs font-semibold whitespace-nowrap">৳{item.price * item.quantity}</span>
@@ -546,19 +548,19 @@ export default function Checkout() {
                 {/* Totals */}
                 <div className="border-t border-primary/10 pt-3 space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">সাবটোটাল</span>
+                    <span className="text-muted-foreground">{trNow('সাবটোটাল', 'Subtotal')}</span>
                     <span>৳{subtotal}</span>
                   </div>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-primary">
-                      <span>কুপন ছাড়</span>
+                      <span>{trNow('কুপন ছাড়', 'Coupon discount')}</span>
                       <span className="font-medium">-৳{couponDiscount}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
+                    <span className="text-muted-foreground">{trNow('ডেলিভারি চার্জ', 'Delivery')}</span>
                     {freeShipping.isFree ? (
-                      <span className="text-emerald-600 font-semibold">ফ্রি 🎉</span>
+                      <span className="text-emerald-600 font-semibold">{trNow('ফ্রি', 'Free')} 🎉</span>
                     ) : (
                       <span className="text-primary font-medium">৳{deliveryCharge}</span>
                     )}
@@ -569,7 +571,7 @@ export default function Checkout() {
                     variant="inline"
                   />
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-primary/10">
-                    <span>সর্বমোট</span>
+                    <span>{trNow('সর্বমোট', 'Grand total')}</span>
                     <span className="text-primary">৳{total}</span>
                   </div>
                 </div>

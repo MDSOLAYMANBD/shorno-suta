@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import Shop from './Shop';
+import { trNow } from '@/lib/i18n';
 
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -33,7 +34,7 @@ export default function CollectionPage() {
   if (!collection) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">কালেকশন পাওয়া যায়নি।</p>
+        <p className="text-muted-foreground">{trNow('কালেকশন পাওয়া যায়নি।', 'Collection not found.')}</p>
       </div>
     );
   }

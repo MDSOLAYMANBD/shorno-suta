@@ -1,5 +1,5 @@
-// Shorno Suta's own admin texts in English (the ones the CORE Shop engine's list in
-// engineWords.ts does not have). Used by lib/adminTranslate.ts. A Bangla text here must be
+// This shop's (Shorno Suta's) own admin texts in English (the ones the CORE Shop engine's list in
+// engineWords.ts does not have). Used by lib/pageTranslate.ts. A Bangla text here must be
 // written exactly as on the page (spaces around it do not matter).
 const words: Record<string, string> = {
   // the menu and the admin's frame (pages/admin/AdminDashboard.tsx)

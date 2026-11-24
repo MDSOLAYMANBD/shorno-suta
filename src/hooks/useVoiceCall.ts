@@ -25,6 +25,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { checkMicCapability, micErrorMessage } from '@/lib/browserCapability';
 import { getIceServers, logSelectedCandidatePair, logCandidateBreakdown, hasTurnServer } from '@/lib/turnCredentials';
+import { trNow } from '@/lib/i18n';
 
 export type CallStatus =
   | 'idle'
@@ -245,7 +246,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
   const handleCallSnapshot = useCallback(async (row: any) => {
     if (!row || !pcRef.current) return;
     if (row.status === 'rejected') {
-      failWith('agent-rejected', 'এজেন্ট কলটি গ্রহণ করেননি');
+      failWith('agent-rejected', trNow('এজেন্ট কলটি গ্রহণ করেননি', 'The agent did not take the call'));
       return;
     }
     if (row.status === 'ended' || row.status === 'missed') {
@@ -255,7 +256,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
           cleanupCall();
         }
       } else {
-        failWith('agent-unavailable', 'এজেন্ট কলটি শেষ করে দিয়েছেন');
+        failWith('agent-unavailable', trNow('এজেন্ট কলটি শেষ করে দিয়েছেন', 'The agent ended the call'));
       }
       return;
     }
@@ -279,12 +280,12 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
           if (connectingWatchdogRef.current) clearTimeout(connectingWatchdogRef.current);
           connectingWatchdogRef.current = setTimeout(() => {
             if (statusRef.current === 'connecting') {
-              failWith('negotiation-timeout', 'অডিও সংযোগ স্থাপনে সময় লেগেছে। নেটওয়ার্ক চেক করে আবার চেষ্টা করুন।');
+              failWith('negotiation-timeout', trNow('অডিও সংযোগ স্থাপনে সময় লেগেছে। নেটওয়ার্ক চেক করে আবার চেষ্টা করুন।', 'The audio took too long to connect. Check your network and try again.'));
             }
           }, CONNECTING_WATCHDOG_MS);
         } catch (e) {
           console.error('[call visitor] setRemoteDescription failed', e);
-          failWith('sdp-apply-failed', 'এজেন্টের সাথে অডিও সংযোগ স্থাপন করা যায়নি। আবার চেষ্টা করুন।');
+          failWith('sdp-apply-failed', trNow('এজেন্টের সাথে অডিও সংযোগ স্থাপন করা যায়নি। আবার চেষ্টা করুন।', 'Could not connect audio with the agent. Please try again.'));
           return;
         }
       }
@@ -305,7 +306,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
       const cap = await checkMicCapability();
       if (!cap.ok) {
         setErrorCode('mic-unavailable');
-        setError(cap.message || 'মাইক্রোফোন উপলব্ধ নেই');
+        setError(cap.message || trNow('মাইক্রোফোন উপলব্ধ নেই', 'No microphone available'));
         setStatus('failed');
         return;
       }
@@ -437,9 +438,9 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
             const now = pcRef.current?.connectionState;
             if (now === 'connected') return;
             if (everConnectedRef.current) {
-              failWith('connection-lost', 'নেটওয়ার্ক সংযোগ বিচ্ছিন্ন হয়েছে। আবার চেষ্টা করুন।');
+              failWith('connection-lost', trNow('নেটওয়ার্ক সংযোগ বিচ্ছিন্ন হয়েছে। আবার চেষ্টা করুন।', 'The network connection was lost. Please try again.'));
             } else {
-              failWith('ice-failed', 'অডিও সংযোগ স্থাপন করা যায়নি। ইন্টারনেট চেক করে আবার চেষ্টা করুন।');
+              failWith('ice-failed', trNow('অডিও সংযোগ স্থাপন করা যায়নি। ইন্টারনেট চেক করে আবার চেষ্টা করুন।', 'Could not connect audio. Check your internet and try again.'));
             }
           }, DISCONNECT_GRACE_MS);
           return;
@@ -450,7 +451,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
             console.log('[call visitor] failed during pre-answer phase — ignoring (waiting for agent)');
             return;
           }
-          failWith('ice-failed', 'নেটওয়ার্ক সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+          failWith('ice-failed', trNow('নেটওয়ার্ক সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'There was a network problem. Please try again.'));
           return;
         }
 
@@ -460,7 +461,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
             setStatus('ended');
             cleanupCall();
           } else if (!preAnswer) {
-            failWith('connection-lost', 'কল সংযোগ বন্ধ হয়েছে');
+            failWith('connection-lost', trNow('কল সংযোগ বন্ধ হয়েছে', 'The call was disconnected'));
           }
         }
       };
@@ -570,10 +571,10 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
   useEffect(() => {
     if (!isActive) return;
     const original = document.title;
-    document.title = `📞 কল চলছে · ${original.replace(/^📞\s*কল চলছে\s*·\s*/, '')}`;
+    document.title = `📞 ${trNow('কল চলছে', 'On a call')} · ${original.replace(/^📞\s*(কল চলছে|On a call)\s*·\s*/, '')}`;
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      e.returnValue = 'কল চলছে — পেজ ছাড়লে কল কেটে যাবে।';
+      e.returnValue = trNow('কল চলছে — পেজ ছাড়লে কল কেটে যাবে।', 'A call is on — leaving the page ends it.');
       return e.returnValue;
     };
     window.addEventListener('beforeunload', onBeforeUnload);
@@ -590,7 +591,7 @@ export function useVoiceCall({ sessionId, sessionToken, callerName, callerPhone 
     } catch { /* ignore */ }
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload);
-      document.title = original.replace(/^📞\s*কল চলছে\s*·\s*/, '');
+      document.title = original.replace(/^📞\s*(কল চলছে|On a call)\s*·\s*/, '');
       try {
         if ('mediaSession' in navigator) {
           (navigator as any).mediaSession.metadata = null;

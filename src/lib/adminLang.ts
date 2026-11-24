@@ -1,6 +1,6 @@
 // The admin's language: বাংলা (the admin is written in Bangla) or English, remembered in this
-// browser. In English the admin's texts are shown in English by lib/adminTranslate.ts. The
-// website (what customers see) stays Bangla either way.
+// browser. In English the admin's texts are shown in English by lib/pageTranslate.ts. The
+// website has its own choice (lib/i18n.ts).
 import { useSyncExternalStore } from 'react';
 
 export type AdminLang = 'bn' | 'en';

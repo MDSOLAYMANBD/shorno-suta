@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Store, Download, CheckCircle2, Share, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { trNow } from '@/lib/i18n';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

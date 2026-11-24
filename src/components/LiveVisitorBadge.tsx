@@ -2,6 +2,7 @@ import { Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLiveVisitorCount } from '@/hooks/useLiveVisitorCount';
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
+import { trNow } from '@/lib/i18n';
 
 interface LiveVisitorBadgeProps {
   className?: string;
@@ -24,7 +25,7 @@ export default function LiveVisitorBadge({ className, compactBelowSm = true }: L
         'flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/30 shrink-0',
         className,
       )}
-      title="এই মুহূর্তে সাইটে যত জন আছেন"
+      title={trNow('এই মুহূর্তে সাইটে যত জন আছেন', 'People on the website right now')}
     >
       <span className="relative flex h-2 w-2 shrink-0">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -32,10 +33,10 @@ export default function LiveVisitorBadge({ className, compactBelowSm = true }: L
       </span>
       <Eye className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
       <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">
-        {animated.toLocaleString('bn-BD')}
+        {animated.toLocaleString(trNow('bn-BD', 'en-US'))}
       </span>
       <span className={cn('text-xs text-emerald-600/80 dark:text-emerald-400/70', compactBelowSm && 'hidden sm:inline')}>
-        জন দেখছেন
+        {trNow('জন দেখছেন', 'watching')}
       </span>
     </div>
   );

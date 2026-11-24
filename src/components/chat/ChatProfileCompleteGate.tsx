@@ -5,6 +5,7 @@ import { Loader2, Phone as PhoneIcon, MapPin, User as UserIcon } from 'lucide-re
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { User } from '@supabase/supabase-js';
+import { trNow } from '@/lib/i18n';
 
 interface Props {
   user: User;
@@ -22,9 +23,9 @@ export default function ChatProfileCompleteGate({ user, defaultName = '', defaul
 
   const submit = async () => {
     const n = name.trim(), p = phone.trim(), a = address.trim();
-    if (!n) { toast.error('নাম দিন'); return; }
-    if (!/^01[3-9]\d{8}$/.test(p)) { toast.error('সঠিক ফোন দিন (01XXXXXXXXX)'); return; }
-    if (a.length < 3) { toast.error('ঠিকানা দিন (এলাকা/শহর)'); return; }
+    if (!n) { toast.error(trNow('নাম দিন', 'Enter your name')); return; }
+    if (!/^01[3-9]\d{8}$/.test(p)) { toast.error(trNow('সঠিক ফোন দিন (01XXXXXXXXX)', 'Enter a valid phone (01XXXXXXXXX)')); return; }
+    if (a.length < 3) { toast.error(trNow('ঠিকানা দিন (এলাকা/শহর)', 'Enter your address (area / city)')); return; }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('customer_profiles').upsert({
@@ -39,7 +40,7 @@ export default function ChatProfileCompleteGate({ user, defaultName = '', defaul
       await onComplete(n, p, a);
     } catch (e: any) {
       console.error(e);
-      toast.error(e?.message || 'সংরক্ষণ ব্যর্থ');
+      toast.error(e?.message || trNow('সংরক্ষণ ব্যর্থ', 'Could not save'));
     } finally {
       setSubmitting(false);
     }
@@ -55,25 +56,25 @@ export default function ChatProfileCompleteGate({ user, defaultName = '', defaul
         )}
       </div>
       <div className="text-center">
-        <h3 className="font-semibold text-base">আর একটি ছোট ধাপ</h3>
-        <p className="text-xs text-muted-foreground mt-1">আপনার ফোন ও ঠিকানা দিন — পরের অর্ডারে কাজে লাগবে</p>
+        <h3 className="font-semibold text-base">{trNow('আর একটি ছোট ধাপ', 'One more small step')}</h3>
+        <p className="text-xs text-muted-foreground mt-1">{trNow('আপনার ফোন ও ঠিকানা দিন — পরের অর্ডারে কাজে লাগবে', 'Add your phone and address — it helps with your next order')}</p>
       </div>
 
       <div className="w-full space-y-2.5">
         <div className="relative">
           <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="আপনার নাম" className="h-11 rounded-xl pl-9" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={trNow('আপনার নাম', 'Your name')} className="h-11 rounded-xl pl-9" />
         </div>
         <div className="relative">
           <PhoneIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="মোবাইল (01XXXXXXXXX)" inputMode="tel" className="h-11 rounded-xl pl-9" />
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={trNow('মোবাইল (01XXXXXXXXX)', 'Mobile (01XXXXXXXXX)')} inputMode="tel" className="h-11 rounded-xl pl-9" />
         </div>
         <div className="relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="ঠিকানা (এলাকা, শহর)" className="h-11 rounded-xl pl-9" />
+          <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={trNow('ঠিকানা (এলাকা, শহর)', 'Address (area, city)')} className="h-11 rounded-xl pl-9" />
         </div>
         <Button onClick={submit} disabled={submitting} className="w-full h-11 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all">
-          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'সংরক্ষণ করে চ্যাট শুরু'}
+          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : trNow('সংরক্ষণ করে চ্যাট শুরু', 'Save and start chatting')}
         </Button>
       </div>
     </div>

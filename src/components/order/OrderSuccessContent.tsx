@@ -1,7 +1,8 @@
 import { CheckCircle, Facebook, MessageCircle, ShoppingBag, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useSiteConfig, DEFAULT_FOOTER_CONFIG } from '@/hooks/useSiteConfig';
+import { DEFAULT_FOOTER_CONFIG, useFooterConfig } from '@/hooks/useSiteConfig';
+import { trNow } from '@/lib/i18n';
 
 export interface OrderSuccessItem {
   name: string;
@@ -64,9 +65,8 @@ function SuccessLeafSprig({ className, mirrored, style }: { className?: string; 
   );
 }
 
-export default function OrderSuccessContent({ orderNumber, orderId, items, deliveryCharge, discount, onClose, closeLabel = 'ঠিক আছে', customerPhone }: OrderSuccessContentProps) {
-  const { data: footerConfig } = useSiteConfig('footer_config');
-  const config = { ...DEFAULT_FOOTER_CONFIG, ...footerConfig };
+export default function OrderSuccessContent({ orderNumber, orderId, items, deliveryCharge, discount, onClose, closeLabel = trNow('ঠিক আছে', 'OK'), customerPhone }: OrderSuccessContentProps) {
+  const { data: config } = useFooterConfig();
 
   const facebookUrl = config.facebook || DEFAULT_FOOTER_CONFIG.facebook;
   const whatsappNumber = config.whatsapp || DEFAULT_FOOTER_CONFIG.whatsapp;
@@ -116,18 +116,18 @@ ${itemLines}
       </div>
 
       <div>
-        <h2 className="text-xl font-bold">অর্ডার সম্পন্ন! 🎉</h2>
+        <h2 className="text-xl font-bold">{trNow('অর্ডার সম্পন্ন!', 'Order placed!')} 🎉</h2>
         <p className="text-muted-foreground text-sm mt-1">
-          অর্ডার নম্বর: <strong className="text-primary">{orderNumber}</strong>
+          {trNow('অর্ডার নম্বর:', 'Order number:')} <strong className="text-primary">{orderNumber}</strong>
         </p>
-        <p className="text-xs text-muted-foreground mt-1">শীঘ্রই ফোন করে কনফার্ম করা হবে।</p>
-        <p className="text-sm text-primary font-medium mt-2">আমাদের থেকে কেনাকাটা করার জন্য ধন্যবাদ! 💚</p>
+        <p className="text-xs text-muted-foreground mt-1">{trNow('শীঘ্রই ফোন করে কনফার্ম করা হবে।', 'We will call you soon to confirm.')}</p>
+        <p className="text-sm text-primary font-medium mt-2">{trNow('আমাদের থেকে কেনাকাটা করার জন্য ধন্যবাদ!', 'Thank you for shopping with us!')} 💚</p>
       </div>
 
       {/* Order summary */}
       {items.length > 0 && (
         <div className="bg-muted/50 rounded-xl p-3 space-y-2 text-left">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">অর্ডার সামারি ({totalQty}টি পণ্য)</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{trNow(`অর্ডার সামারি (${totalQty}টি পণ্য)`, `Order summary (${totalQty} item${totalQty === 1 ? '' : 's'})`)}</p>
           {items.map((item, idx) => (
             <div key={idx} className="flex items-center gap-2.5">
               <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border border-border flex-shrink-0">
@@ -151,23 +151,23 @@ ${itemLines}
           {/* Totals */}
           <div className="border-t border-border pt-2 mt-2 space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">সাবটোটাল</span>
+              <span className="text-muted-foreground">{trNow('সাবটোটাল', 'Subtotal')}</span>
               <span className="font-medium">৳{subtotal}</span>
             </div>
             {discount != null && discount > 0 && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">ডিসকাউন্ট</span>
+                <span className="text-muted-foreground">{trNow('ডিসকাউন্ট', 'Discount')}</span>
                 <span className="font-medium text-green-600">-৳{discount}</span>
               </div>
             )}
             {deliveryCharge != null && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
+                <span className="text-muted-foreground">{trNow('ডেলিভারি চার্জ', 'Delivery')}</span>
                 <span className="font-medium text-primary">৳{deliveryCharge}</span>
               </div>
             )}
             <div className="flex justify-between font-bold pt-1 border-t border-border">
-              <span>সর্বমোট</span>
+              <span>{trNow('সর্বমোট', 'Grand total')}</span>
               <span className="text-primary">৳{grandTotal}</span>
             </div>
           </div>
@@ -184,7 +184,7 @@ ${itemLines}
           className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-primary hover:bg-primary/90 active:scale-[0.98] transition-all text-base font-bold text-primary-foreground shadow-lg shadow-primary/25 animate-pulse hover:animate-none"
         >
           <FileDown className="h-5 w-5" />
-          📄 ইনভয়েস ডাউনলোড করুন
+          📄 {trNow('ইনভয়েস ডাউনলোড করুন', 'Download invoice')}
         </button>
       )}
 
@@ -197,7 +197,7 @@ ${itemLines}
           className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
         >
           <Facebook className="h-5 w-5 text-[#1877F2]" />
-          <span className="text-[10px] font-medium">ফেসবুক পেজ</span>
+          <span className="text-[10px] font-medium">{trNow('ফেসবুক পেজ', 'Facebook page')}</span>
         </a>
         <a
           href={whatsappUrl}
@@ -206,14 +206,14 @@ ${itemLines}
           className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
         >
           <MessageCircle className="h-5 w-5 text-[#25D366]" />
-          <span className="text-[10px] font-medium">হোয়াটসঅ্যাপ</span>
+          <span className="text-[10px] font-medium">{trNow('হোয়াটসঅ্যাপ', 'WhatsApp')}</span>
         </a>
         <Link
           to="/shop"
           className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
         >
           <ShoppingBag className="h-5 w-5 text-primary" />
-          <span className="text-[10px] font-medium">আরো পণ্য দেখুন</span>
+          <span className="text-[10px] font-medium">{trNow('আরো পণ্য দেখুন', 'More products')}</span>
         </Link>
       </div>
 

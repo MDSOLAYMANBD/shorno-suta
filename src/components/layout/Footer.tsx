@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Phone, MapPin, Facebook, Instagram, Youtube, MessageCircle, Sparkles } from 'lucide-react';
 import { useSiteConfig, DEFAULT_FOOTER_CONFIG } from '@/hooks/useSiteConfig';
 import SeamVineMotif from './SeamVineMotif';
+import { useLang } from '@/lib/i18n';
 
 /** Hand-drawn line-art paisley (কলকা) motif — classic Bengali textile print. */
 function KolkaMotif({ className }: { className: string }) {
@@ -73,6 +74,7 @@ function LeafBranchMotif({ className }: { className: string }) {
 export default function Footer() {
   const { data: savedFooterConfig } = useSiteConfig('footer_config');
   const cfg = savedFooterConfig ? { ...DEFAULT_FOOTER_CONFIG, ...savedFooterConfig } : DEFAULT_FOOTER_CONFIG;
+  const { en, known, menu } = useLang();
 
   useEffect(() => {
     if (document.getElementById('google-merchant-widget-script')) return;
@@ -142,7 +144,7 @@ export default function Footer() {
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl shrink-0">{(cfg.brand_name || 'স').charAt(0)}</div>
                 )}
-                <h3 className="text-xl font-bold">{cfg.brand_name || 'স্বর্ণ সুতা'}</h3>
+                <h3 className="text-xl font-bold">{en ? 'Shorno Suta' : cfg.brand_name || 'স্বর্ণ সুতা'}</h3>
               </>
             )}
           </div>
@@ -153,7 +155,7 @@ export default function Footer() {
             <span className="h-px w-8 bg-gradient-to-l from-transparent via-primary/60 to-primary/60 sm:hidden" />
           </div>
 
-          <p className="text-[15px] sm:text-base opacity-90 leading-relaxed mb-5 max-w-xs mx-auto sm:mx-0 font-light">{cfg.brand_description}</p>
+          <p className="text-[15px] sm:text-base opacity-90 leading-relaxed mb-5 max-w-xs mx-auto sm:mx-0 font-light">{known(cfg.brand_description)}</p>
           <div className="flex items-center gap-3 justify-center sm:justify-start">
             {cfg.facebook && (
               <a href={cfg.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full backdrop-blur-sm bg-white/10 border border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-[0_0_14px_hsl(var(--primary)/0.5)]">
@@ -187,7 +189,7 @@ export default function Footer() {
               {quickLinks.map((l: any) => (
                 <Link key={l.to + l.label} to={l.to} className="group block text-sm opacity-80 hover:opacity-100 transition-all duration-200">
                   <span className="inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-200">
-                    {l.label}
+                    {menu(l.label, l.to)}
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">→</span>
                   </span>
                 </Link>
@@ -201,7 +203,7 @@ export default function Footer() {
               {policyLinks.map((l: any) => (
                 <Link key={l.to + l.label} to={l.to} className="group block text-sm opacity-80 hover:opacity-100 transition-all duration-200">
                   <span className="inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-200">
-                    {l.label}
+                    {menu(l.label, l.to)}
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">→</span>
                   </span>
                 </Link>
@@ -247,7 +249,7 @@ export default function Footer() {
                     </span>
                   </div>
                   <p className="text-sm leading-snug group-hover:text-primary transition-colors">
-                    {cfg.address}
+                    {known(cfg.address)}
                   </p>
                 </div>
               </div>
@@ -285,7 +287,7 @@ export default function Footer() {
       <div id="google-customer-reviews-badge" className="relative z-10 flex justify-center py-2" />
 
       <div className="relative z-10 text-center py-4 pb-20 lg:pb-4 text-xs text-white/60">
-        {(cfg.copyright || '© {year} স্বর্ণ সুতা। সর্বস্বত্ব সংরক্ষিত।').replace('{year}', new Date().getFullYear().toString())}
+        {known(cfg.copyright || '© {year} স্বর্ণ সুতা। সর্বস্বত্ব সংরক্ষিত।').replace('{year}', new Date().getFullYear().toString())}
       </div>
     </footer>
   );

@@ -16,6 +16,7 @@ import CategoryOrderCounter from '@/components/shop/CategoryOrderCounter';
 import CategoryPhotoTile from '@/components/category/CategoryPhotoTile';
 import { optimizedImageUrl } from '@/lib/imageUrl';
 import { explodeProductsByColor, productCardKey, getVariantCount } from '@/lib/productVariants';
+import { knownNow, nameNow, trNow } from '@/lib/i18n';
 
 function useProductsByIds(ids: string[]) {
   return useQuery({
@@ -300,19 +301,19 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
           const shopTagline = (currentCategory as any).shop_banner_tagline || currentCategory.banner_tagline;
           const banners = shopGallery.length > 0 ? shopGallery : shopBanner ? [{ url: shopBanner, tagline: shopTagline }] : [];
           return banners.length > 0 ? (
-            <ShopBannerSlider banners={banners} categoryName={currentCategory.name_bn || currentCategory.name} showOverlay={showOverlay} />
+            <ShopBannerSlider banners={banners} categoryName={nameNow(currentCategory.name_bn, currentCategory.name)} showOverlay={showOverlay} />
           ) : (
             <div className="relative rounded-xl overflow-hidden mb-8 bg-gradient-to-r from-primary/10 to-accent/10" style={{ aspectRatio: '21/9' }}>
               <div className="absolute inset-0 flex flex-col justify-center items-center p-6">
                 <h1 className="text-2xl md:text-4xl font-bold text-foreground">
-                  {currentCategory.name_bn || currentCategory.name}
+                  {nameNow(currentCategory.name_bn, currentCategory.name)}
                 </h1>
               </div>
             </div>
           );
         })() : (
           <h1 className="text-3xl font-bold mb-8">
-            {titleParam ? decodeURIComponent(titleParam) : 'শপ'}
+            {titleParam ? knownNow(decodeURIComponent(titleParam)) : trNow('শপ', 'Shop')}
           </h1>
         )}
 
@@ -324,7 +325,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                 to="/shop"
                 className={cn('shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors', !category ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground')}
               >
-                সব পণ্য
+                {trNow('সব পণ্য', 'All products')}
               </Link>
               {categoryTree.map(({ category: cat, depth }) => (
                 <Link
@@ -332,7 +333,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                   to={`/shop/${cat.slug}`}
                   className={cn('shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors', category === cat.slug ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground')}
                 >
-                  {depth > 0 ? `↳ ${cat.name_bn || cat.name}` : (cat.name_bn || cat.name)}
+                  {depth > 0 ? `↳ ${nameNow(cat.name_bn, cat.name)}` : nameNow(cat.name_bn, cat.name)}
                 </Link>
               ))}
             </div>
@@ -340,13 +341,13 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
 
           {/* Desktop: sidebar */}
           <aside className="hidden md:block md:w-56 shrink-0 sticky top-24 self-start">
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-3">ক্যাটেগরি</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-3">{trNow('ক্যাটেগরি', 'Categories')}</h3>
             <div className="space-y-1">
               <Link
                 to="/shop"
                 className={cn('block text-sm py-1.5 px-2 rounded', !category ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}
               >
-                সব পণ্য
+                {trNow('সব পণ্য', 'All products')}
               </Link>
               {categoryTree.map(({ category: cat, depth }) => (
                 <Link
@@ -354,7 +355,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                   to={`/shop/${cat.slug}`}
                   className={cn('block text-sm py-1.5 px-2 rounded', depth > 0 && 'ml-3 text-[13px]', category === cat.slug ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}
                 >
-                  {depth > 0 ? `↳ ${cat.name_bn || cat.name}` : (cat.name_bn || cat.name)}
+                  {depth > 0 ? `↳ ${nameNow(cat.name_bn, cat.name)}` : nameNow(cat.name_bn, cat.name)}
                 </Link>
               ))}
             </div>
@@ -402,7 +403,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                   <>
                     {parentCategories.length > 0 && (
                       <section className="mb-6">
-                        <h2 className="text-base sm:text-lg font-bold mb-3">ক্যাটাগরি</h2>
+                        <h2 className="text-base sm:text-lg font-bold mb-3">{trNow('ক্যাটাগরি', 'Categories')}</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {parentCategories.map((cat: any) => (
                             <CategoryPhotoTile
@@ -417,7 +418,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
 
                     {subCategories.length > 0 && (
                       <section className="mb-6">
-                        <h2 className="text-base sm:text-lg font-bold mb-3">সাব-ক্যাটাগরি</h2>
+                        <h2 className="text-base sm:text-lg font-bold mb-3">{trNow('সাব-ক্যাটাগরি', 'Subcategories')}</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {subCategories.map((cat: any) => (
                             <CategoryPhotoTile
@@ -431,7 +432,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                       </section>
                     )}
 
-                    <h2 className="text-base sm:text-lg font-bold mb-3">সেরা পণ্য</h2>
+                    <h2 className="text-base sm:text-lg font-bold mb-3">{trNow('সেরা পণ্য', 'Top products')}</h2>
                   </>
                 )}
               </>
@@ -446,7 +447,7 @@ export default function Shop({ collectionIds, collectionTitle }: ShopProps = {})
                 ))}
               </div>
             ) : displayCards.length === 0 ? (
-              <p className="text-muted-foreground text-center py-16">কোনো পণ্য পাওয়া যায়নি।</p>
+              <p className="text-muted-foreground text-center py-16">{trNow('কোনো পণ্য পাওয়া যায়নি।', 'No products found.')}</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {displayCards.map((p: any) => (

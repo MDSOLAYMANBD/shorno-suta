@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserPlus, Eye, EyeOff, ArrowLeft, RefreshCw } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
+import { trNow } from '@/lib/i18n';
 
 export default function CustomerSignup() {
   const [phone, setPhone] = useState('');
@@ -40,15 +41,15 @@ export default function CustomerSignup() {
   const handleSendOtp = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
-      toast({ title: 'ভুল নম্বর', description: 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন', variant: 'destructive' });
+      toast({ title: trNow('ভুল নম্বর', 'Wrong number'), description: trNow('সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন', 'Enter a valid 11-digit mobile number'), variant: 'destructive' });
       return;
     }
     if (password.length !== 6) {
-      toast({ title: 'পাসওয়ার্ড ভুল', description: '৬ সংখ্যার পাসওয়ার্ড দিন', variant: 'destructive' });
+      toast({ title: trNow('পাসওয়ার্ড ভুল', 'Wrong password'), description: trNow('৬ সংখ্যার পাসওয়ার্ড দিন', 'Enter a 6-digit password'), variant: 'destructive' });
       return;
     }
     if (name.trim().length < 2) {
-      toast({ title: 'নাম দিন', description: 'আপনার পুরো নাম লিখুন', variant: 'destructive' });
+      toast({ title: trNow('নাম দিন', 'Enter your name'), description: trNow('আপনার পুরো নাম লিখুন', 'Write your full name'), variant: 'destructive' });
       return;
     }
 
@@ -129,10 +130,10 @@ export default function CustomerSignup() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
-              {step === 'form' ? 'একাউন্ট তৈরি করুন' : 'ফোন ভেরিফিকেশন'}
+              {step === 'form' ? trNow('একাউন্ট তৈরি করুন', 'Create an account') : trNow('ফোন ভেরিফিকেশন', 'Phone verification')}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              {step === 'form' ? 'নতুন একাউন্ট খুলুন' : `${cleanPhone} নম্বরে পাঠানো ৪ সংখ্যার কোড দিন`}
+              {step === 'form' ? trNow('নতুন একাউন্ট খুলুন', 'Open a new account') : trNow(`${cleanPhone} নম্বরে পাঠানো ৪ সংখ্যার কোড দিন`, `Enter the 4-digit code sent to ${cleanPhone}`)}
             </p>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -140,15 +141,15 @@ export default function CustomerSignup() {
               <>
                 <form onSubmit={handleSendOtp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">আপনার নাম *</Label>
-                    <Input id="name" type="text" placeholder="পুরো নাম" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} />
+                    <Label htmlFor="name">{trNow('আপনার নাম *', 'Your name *')}</Label>
+                    <Input id="name" type="text" placeholder={trNow('পুরো নাম', 'Full name')} value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">মোবাইল নম্বর *</Label>
+                    <Label htmlFor="phone">{trNow('মোবাইল নম্বর *', 'Mobile number *')}</Label>
                     <Input id="phone" type="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">৬ সংখ্যার পাসওয়ার্ড *</Label>
+                    <Label htmlFor="password">{trNow('৬ সংখ্যার পাসওয়ার্ড *', '6-digit password *')}</Label>
                     <div className="relative">
                       <Input
                         id="password"

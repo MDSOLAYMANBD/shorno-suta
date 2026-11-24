@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getOrCreateVisitorKey } from '@/lib/sms/shortLinks';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 type State = 'loading' | 'expired' | 'notfound' | 'error';
 
@@ -42,16 +43,16 @@ export default function SmsRedirect() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-amber-50">
         <div className="flex flex-col items-center gap-3 text-rose-600">
           <Loader2 className="h-10 w-10 animate-spin" />
-          <p className="text-sm">রিডাইরেক্ট হচ্ছে...</p>
+          <p className="text-sm">{trNow('রিডাইরেক্ট হচ্ছে...', 'Redirecting...')}</p>
         </div>
       </div>
     );
   }
 
-  const title = state === 'expired' ? 'লিংকের মেয়াদ শেষ' : 'লিংক পাওয়া যায়নি';
+  const title = state === 'expired' ? trNow('লিংকের মেয়াদ শেষ', 'This link has expired') : trNow('লিংক পাওয়া যায়নি', 'Link not found');
   const desc = state === 'expired'
-    ? 'এই অফারটির সময় শেষ হয়ে গেছে। আমাদের সর্বশেষ কালেকশন দেখতে নিচের বাটনে ক্লিক করুন।'
-    : 'এই লিংকটি ভুল অথবা মুছে ফেলা হয়েছে। আমাদের সাইট ভিজিট করুন।';
+    ? trNow('এই অফারটির সময় শেষ হয়ে গেছে। আমাদের সর্বশেষ কালেকশন দেখতে নিচের বাটনে ক্লিক করুন।', 'This offer has ended. Tap the button below to see our latest collection.')
+    : trNow('এই লিংকটি ভুল অথবা মুছে ফেলা হয়েছে। আমাদের সাইট ভিজিট করুন।', 'This link is wrong or was removed. Please visit our site.');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-amber-50 px-4">

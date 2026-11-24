@@ -3,6 +3,7 @@ import { Truck, Gift, Sparkles, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatFreeShippingMessage, type FreeShippingEvalForCampaign, type FreeShippingCampaign } from '@/lib/freeShipping';
 import { useFreeShipping, useFreeShippingUnlockEffect } from '@/hooks/useFreeShipping';
+import { trNow } from '@/lib/i18n';
 
 export type FreeShippingVariant = 'compact' | 'banner' | 'inline' | 'sticky';
 
@@ -237,10 +238,10 @@ export function FreeShippingTeaser({
 }) {
   const sub =
     campaign.rule_type === 'amount' || campaign.rule_type === 'product_amount'
-      ? `৳${campaign.min_amount} অর্ডার করলেই ফ্রি ডেলিভারি!`
+      ? trNow(`৳${campaign.min_amount} অর্ডার করলেই ফ্রি ডেলিভারি!`, `Free delivery on orders of ৳${campaign.min_amount}!`)
       : campaign.rule_type === 'combo'
-        ? `${campaign.min_quantity || 0} টি প্রোডাক্ট ${campaign.combine_logic === 'and' ? 'এবং' : 'অথবা'} ৳${campaign.min_amount || 0} অর্ডারে ফ্রি ডেলিভারি!`
-        : `${campaign.min_quantity} টি প্রোডাক্ট নিলেই ফ্রি ডেলিভারি!`;
+        ? trNow(`${campaign.min_quantity || 0} টি প্রোডাক্ট ${campaign.combine_logic === 'and' ? 'এবং' : 'অথবা'} ৳${campaign.min_amount || 0} অর্ডারে ফ্রি ডেলিভারি!`, `Free delivery for ${campaign.min_quantity || 0} products ${campaign.combine_logic === 'and' ? 'and' : 'or'} ৳${campaign.min_amount || 0}!`)
+        : trNow(`${campaign.min_quantity} টি প্রোডাক্ট নিলেই ফ্রি ডেলিভারি!`, `Free delivery when you take ${campaign.min_quantity} products!`);
   return (
     <div
       className={cn(
@@ -250,7 +251,7 @@ export function FreeShippingTeaser({
     >
       <Truck className="h-4 w-4 shrink-0" />
       <div className="flex-1">
-        <div className="font-semibold">🚚 ফ্রি ডেলিভারি অফার</div>
+        <div className="font-semibold">🚚 {trNow('ফ্রি ডেলিভারি অফার', 'Free delivery offer')}</div>
         <div className="opacity-90">{sub}</div>
       </div>
     </div>

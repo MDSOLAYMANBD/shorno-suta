@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ChevronDown, ChevronUp, Wifi, Shield, Globe, Network, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { trNow } from '@/lib/i18n';
 
 export interface CallHealthIndicatorProps {
   pc: RTCPeerConnection | null;
@@ -57,11 +58,11 @@ function fmtDuration(sec: number) {
 
 function pairLabel(t: PairType) {
   switch (t) {
-    case 'relay': return 'TURN রিলে';
-    case 'srflx': return 'STUN ডাইরেক্ট';
-    case 'host':  return 'লোকাল নেটওয়ার্ক';
-    case 'prflx': return 'পিয়ার রিফ্লেক্সিভ';
-    default:      return 'অজানা';
+    case 'relay': return trNow('TURN রিলে', 'TURN relay');
+    case 'srflx': return trNow('STUN ডাইরেক্ট', 'STUN direct');
+    case 'host':  return trNow('লোকাল নেটওয়ার্ক', 'Local network');
+    case 'prflx': return trNow('পিয়ার রিফ্লেক্সিভ', 'Peer reflexive');
+    default:      return trNow('অজানা', 'Unknown');
   }
 }
 
@@ -100,10 +101,10 @@ function qualityColor(q: Quality) {
 
 function qualityLabel(q: Quality) {
   switch (q) {
-    case 'good': return 'ভালো';
-    case 'fair': return 'মাঝারি';
-    case 'poor': return 'দুর্বল';
-    default:     return 'সংযোগ হচ্ছে';
+    case 'good': return trNow('ভালো', 'Good');
+    case 'fair': return trNow('মাঝারি', 'Fair');
+    case 'poor': return trNow('দুর্বল', 'Poor');
+    default:     return trNow('সংযোগ হচ্ছে', 'Connecting');
   }
 }
 
@@ -279,7 +280,7 @@ export default function CallHealthIndicator({
         >
           <span className={cn('h-2 w-2 rounded-full shrink-0', dotCls, quality !== 'unknown' && 'animate-pulse')} />
           <Activity className="h-3 w-3 shrink-0" />
-          <span className="truncate">কল কোয়ালিটি · {qualityLabel(quality)}</span>
+          <span className="truncate">{trNow('কল কোয়ালিটি', 'Call quality')} · {qualityLabel(quality)}</span>
           {connectedAt && (
             <span className="ml-auto tabular-nums opacity-80">{fmtDuration(durationSec)}</span>
           )}
@@ -353,7 +354,7 @@ function DetailGrid({
     }).join('\n');
     try {
       await navigator.clipboard.writeText(lines || '(no transitions yet)');
-      toast.success('Timeline কপি হয়েছে');
+      toast.success(trNow('Timeline কপি হয়েছে', 'Timeline copied'));
     } catch {
       toast.error('Clipboard access blocked');
     }

@@ -29,6 +29,7 @@ import {
   MessageCircle,
   PhoneCall,
 } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 type SectionDef = {
   id: string;
@@ -119,6 +120,8 @@ const SECTIONS: SectionDef[] = [
 ];
 
 export default function TermsAndConditions() {
+  // Bangla: both languages as written; English: the English only
+  const { en, tr } = useLang();
   const [activeId, setActiveId] = useState<string>('order-process');
   const [showTop, setShowTop] = useState(false);
   const [showFloatingToc, setShowFloatingToc] = useState(false);
@@ -188,15 +191,15 @@ export default function TermsAndConditions() {
           <Breadcrumb className="mb-6 print:hidden">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink asChild><Link to="/">হোম</Link></BreadcrumbLink>
+                <BreadcrumbLink asChild><Link to="/">{tr('হোম', 'Home')}</Link></BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink asChild><Link to="/policies">নীতিমালা</Link></BreadcrumbLink>
+                <BreadcrumbLink asChild><Link to="/policies">{tr('নীতিমালা', 'Policies')}</Link></BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>শর্তাবলী</BreadcrumbPage>
+                <BreadcrumbPage>{tr('শর্তাবলী', 'Terms')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -206,12 +209,12 @@ export default function TermsAndConditions() {
               <ScrollText className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold text-foreground tracking-tight">
-              শর্তাবলী ও অর্ডার নীতিমালা
+              {tr('শর্তাবলী ও অর্ডার নীতিমালা', 'Terms & Conditions')}
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground">Terms &amp; Conditions</p>
+            {!en && <p className="text-base sm:text-lg text-muted-foreground">Terms &amp; Conditions</p>}
             <div className="inline-flex items-center gap-2 rounded-full bg-background/80 backdrop-blur px-4 py-1.5 text-xs font-medium text-muted-foreground border border-border">
               <Calendar className="h-3.5 w-3.5" />
-              সর্বশেষ আপডেট: মে ২০২৬
+              {tr('সর্বশেষ আপডেট: মে ২০২৬', 'Last updated: May 2026')}
             </div>
           </div>
         </div>
@@ -225,7 +228,7 @@ export default function TermsAndConditions() {
             <div className="sticky top-24">
               <div className="rounded-2xl border border-border bg-card p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-2">
-                  সূচিপত্র
+                  {tr('সূচিপত্র', 'Contents')}
                 </p>
                 <nav className="space-y-0.5">
                   {SECTIONS.map((s) => {
@@ -243,7 +246,7 @@ export default function TermsAndConditions() {
                         <span className={`text-xs mt-0.5 font-mono ${active ? 'text-primary' : 'text-muted-foreground/60'}`}>
                           {String(s.num).padStart(2, '0')}
                         </span>
-                        <span className="leading-snug">{s.bn}</span>
+                        <span className="leading-snug">{en ? s.en : s.bn}</span>
                       </a>
                     );
                   })}
@@ -272,7 +275,7 @@ export default function TermsAndConditions() {
               <Card className="border-primary/20">
                 <CardContent className="pt-4 pb-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                    📑 সূচিপত্র
+                    📑 {tr('সূচিপত্র', 'Contents')}
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {SECTIONS.map((s) => (
@@ -282,7 +285,7 @@ export default function TermsAndConditions() {
                         className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                       >
                         <span className="font-mono text-[10px] text-primary shrink-0">{String(s.num).padStart(2, '0')}</span>
-                        <span className="leading-snug truncate">{s.bn}</span>
+                        <span className="leading-snug truncate">{en ? s.en : s.bn}</span>
                       </a>
                     ))}
                   </div>
@@ -295,11 +298,11 @@ export default function TermsAndConditions() {
               className={`lg:hidden print:hidden fixed top-20 right-1.5 z-30 w-[120px] rounded-xl border border-border bg-card/85 backdrop-blur shadow-md transition-all duration-300 ${
                 showFloatingToc ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-4 pointer-events-none'
               }`}
-              aria-label="সূচিপত্র"
+              aria-label={tr('সূচিপত্র', 'Contents')}
               aria-hidden={!showFloatingToc}
             >
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 pt-1.5 pb-1 border-b border-border/50">
-                সূচিপত্র
+                {tr('সূচিপত্র', 'Contents')}
               </p>
               <nav className="max-h-[55vh] overflow-y-auto py-1">
                 {SECTIONS.map((s) => (
@@ -309,7 +312,7 @@ export default function TermsAndConditions() {
                     className="flex items-start gap-1.5 px-2 py-1 text-[11px] leading-tight text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                   >
                     <span className="font-mono text-[10px] text-primary shrink-0 mt-0.5">{String(s.num).padStart(2, '0')}</span>
-                    <span className="leading-snug">{s.bn}</span>
+                    <span className="leading-snug">{en ? s.en : s.bn}</span>
                   </a>
                 ))}
               </nav>
@@ -336,12 +339,15 @@ export default function TermsAndConditions() {
                       Section {String(s.num).padStart(2, '0')}
                     </div>
                     <h2 className="text-base sm:text-xl font-bold text-foreground break-words leading-tight">
-                      {s.bn} <span className="text-muted-foreground font-normal">/ {s.en}</span>
+                      {en ? s.en : <>{s.bn} <span className="text-muted-foreground font-normal">/ {s.en}</span></>}
                     </h2>
                   </div>
                 </div>
 
-                {/* Bilingual body */}
+                {/* Bilingual body; on the English website the English only */}
+                {en ? (
+                  <div className="p-4 sm:p-5 space-y-3 text-sm leading-relaxed text-muted-foreground break-words min-w-0">{s.enContent}</div>
+                ) : (
                 <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
                   <div className="p-4 sm:p-5 space-y-3 text-sm leading-relaxed text-muted-foreground break-words min-w-0">
                     <div className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
@@ -356,6 +362,7 @@ export default function TermsAndConditions() {
                     {s.enContent}
                   </div>
                 </div>
+                )}
               </section>
             ))}
 
@@ -399,7 +406,7 @@ export default function TermsAndConditions() {
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="print:hidden fixed bottom-24 right-5 z-40 h-11 w-11 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 transition-transform"
-          aria-label="উপরে যান"
+          aria-label={tr('উপরে যান', 'Back to top')}
         >
           <ArrowUp className="h-5 w-5" />
         </button>

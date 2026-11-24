@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { FreeShippingProgress } from './FreeShippingProgress';
+import { trNow } from '@/lib/i18n';
 
 const DISMISS_KEY = 'shorno-suta-fs-bar-dismissed';
 
@@ -64,7 +65,7 @@ export default function GlobalFreeShippingBar() {
         />
         <button
           type="button"
-          aria-label="বন্ধ করুন"
+          aria-label={trNow('বন্ধ করুন', 'Close')}
           onClick={() => {
             setDismissed(true);
             try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}

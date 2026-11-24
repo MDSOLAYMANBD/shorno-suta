@@ -4,6 +4,7 @@ import SEOHead from '@/components/SEOHead';
 import { useClearanceProducts, useProductSalesCounts, useProductViewCounts } from '@/hooks/useProducts';
 import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { Tag, Flame } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 export default function ClearanceProducts() {
   const { data: products, isLoading } = useClearanceProducts();
@@ -32,14 +33,14 @@ export default function ClearanceProducts() {
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight flex items-center gap-2 flex-wrap">
             <Tag className="h-7 w-7 sm:h-10 sm:w-10 fill-current drop-shadow" />
-            স্টক ক্লিয়ারেন্স সেল
+            {trNow('স্টক ক্লিয়ারেন্স সেল', 'Clearance sale')}
           </h1>
           <p className="mt-2 text-sm sm:text-base text-white/90 max-w-2xl">
-            সীমিত সময়ের জন্য বিশেষ ছাড়ে — দ্রুত শেষ হয়ে যাবে! যত দ্রুত পারেন অর্ডার করে নিন।
+            {trNow('সীমিত সময়ের জন্য বিশেষ ছাড়ে — দ্রুত শেষ হয়ে যাবে! যত দ্রুত পারেন অর্ডার করে নিন।', 'Special prices for a short time — going fast! Order while they last.')}
           </p>
           {!isLoading && products && (
             <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-rose-600 shadow-md">
-              <span className="text-sm font-extrabold">🔥 {products.length} টি প্রোডাক্ট</span>
+              <span className="text-sm font-extrabold">🔥 {trNow(`${products.length} টি প্রোডাক্ট`, `${products.length} products`)}</span>
             </div>
           )}
         </div>
@@ -56,8 +57,8 @@ export default function ClearanceProducts() {
         ) : !products || products.length === 0 ? (
           <div className="text-center py-20">
             <Tag className="h-14 w-14 mx-auto text-muted-foreground/40 mb-3" />
-            <h2 className="text-lg font-semibold mb-1">এই মুহূর্তে কোনো ক্লিয়ারেন্স অফার নেই</h2>
-            <p className="text-sm text-muted-foreground">শীঘ্রই নতুন অফার আসছে — চোখ রাখুন!</p>
+            <h2 className="text-lg font-semibold mb-1">{trNow('এই মুহূর্তে কোনো ক্লিয়ারেন্স অফার নেই', 'No clearance offers right now')}</h2>
+            <p className="text-sm text-muted-foreground">{trNow('শীঘ্রই নতুন অফার আসছে — চোখ রাখুন!', 'New offers coming soon — keep an eye out!')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">

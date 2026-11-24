@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Tag, X, Loader2 } from 'lucide-react';
+import { trNow } from '@/lib/i18n';
 
 interface CouponResult {
   code: string;
@@ -58,7 +59,7 @@ export default function CouponApply({ subtotal, onApply, applied, accentColor }:
       const result = data as { valid: boolean; error?: string; code?: string; discount?: number; discount_type?: string; discount_value?: number };
 
       if (!result?.valid) {
-        setError(result?.error || 'কুপন কোডটি সঠিক নয়');
+        setError(result?.error || trNow('কুপন কোডটি সঠিক নয়', 'This coupon code is not valid'));
         localStorage.removeItem('active_coupon');
         setLoading(false);
         return;
@@ -73,7 +74,7 @@ export default function CouponApply({ subtotal, onApply, applied, accentColor }:
       setCode('');
       localStorage.removeItem('active_coupon');
     } catch {
-      setError('কুপন চেক করতে সমস্যা হয়েছে');
+      setError(trNow('কুপন চেক করতে সমস্যা হয়েছে', 'Could not check the coupon'));
     } finally {
       setLoading(false);
     }
@@ -87,8 +88,8 @@ export default function CouponApply({ subtotal, onApply, applied, accentColor }:
           <span className="text-xs font-medium">
             <Badge variant="secondary" className="text-[10px] mr-1.5">{applied.code}</Badge>
             {applied.discount_type === 'percentage'
-              ? `${applied.discount_value}% ছাড়`
-              : `৳${applied.discount_value} ছাড়`}
+              ? trNow(`${applied.discount_value}% ছাড়`, `${applied.discount_value}% off`)
+              : trNow(`৳${applied.discount_value} ছাড়`, `৳${applied.discount_value} off`)}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -113,7 +114,7 @@ export default function CouponApply({ subtotal, onApply, applied, accentColor }:
           <Input
             value={code}
             onChange={e => { setCode(e.target.value); setError(''); }}
-            placeholder="কুপন কোড"
+            placeholder={trNow('কুপন কোড', 'Coupon code')}
             className="h-9 pl-8 text-xs rounded-lg uppercase"
             onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), applyCode(code))}
           />
@@ -127,7 +128,7 @@ export default function CouponApply({ subtotal, onApply, applied, accentColor }:
           className="h-9 text-xs rounded-lg px-3"
           style={accentColor ? { borderColor: accentColor, color: accentColor } : {}}
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'প্রয়োগ'}
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : trNow('প্রয়োগ', 'Apply')}
         </Button>
       </div>
       {error && <p className="text-[11px] text-destructive">{error}</p>}

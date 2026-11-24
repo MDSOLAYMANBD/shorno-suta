@@ -7,10 +7,12 @@ import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { sanitizeHtml } from '@/lib/sanitize';
 import NotFound from './NotFound';
 import SEOHead from '@/components/SEOHead';
+import { useLang } from '@/lib/i18n';
 
 export default function About() {
   const { data: pagesData, isLoading } = useSiteConfig('pages_config');
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const { tr, en } = useLang();
 
   if (isLoading) {
     return (
@@ -447,7 +449,7 @@ export default function About() {
           <section>
             <div className="text-center mb-12">
               <div className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-2">— Our Journey —</div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">পথচলার গল্প</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">{tr('পথচলার গল্প', 'Our journey')}</h2>
             </div>
             <div className="relative">
               {/* vertical line */}

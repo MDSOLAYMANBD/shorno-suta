@@ -22,10 +22,12 @@ import Layout from '@/components/layout/Layout';
 import CustomerAuthGuard from '@/components/account/CustomerAuthGuard';
 import { toast as sonnerToast } from 'sonner';
 import { optimizedImageUrl } from '@/lib/imageUrl';
+import { trNow, nameNow } from '@/lib/i18n';
 
 // Badge tier system
 interface BadgeTier {
   name: string;
+  nameEn: string;
   emoji: string;
   icon: typeof Award;
   glowClass: string;
@@ -36,10 +38,10 @@ interface BadgeTier {
 }
 
 const BADGE_TIERS: BadgeTier[] = [
-  { name: 'ডায়মন্ড মেম্বার', emoji: '💎', icon: Diamond, glowClass: 'avatar-glow-diamond', bgGradient: 'bg-gradient-to-r from-violet-500/10 via-blue-500/10 to-purple-500/10', textColor: 'text-violet-600', borderColor: 'border-violet-300', minDelivered: 5 },
-  { name: 'গোল্ড মেম্বার', emoji: '🏅', icon: Crown, glowClass: 'avatar-glow-gold', bgGradient: 'bg-gradient-to-r from-amber-500/10 to-yellow-500/10', textColor: 'text-amber-600', borderColor: 'border-amber-300', minDelivered: 3 },
-  { name: 'স্টার কাস্টমার', emoji: '⭐', icon: Sparkles, glowClass: 'avatar-glow-star', bgGradient: 'bg-gradient-to-r from-yellow-400/10 to-orange-400/10', textColor: 'text-yellow-600', borderColor: 'border-yellow-300', minDelivered: 2 },
-  { name: 'ব্রোঞ্জ মেম্বার', emoji: '🥉', icon: Award, glowClass: 'avatar-glow-bronze', bgGradient: 'bg-gradient-to-r from-orange-400/10 to-amber-300/10', textColor: 'text-orange-600', borderColor: 'border-orange-300', minDelivered: 1 },
+  { name: 'ডায়মন্ড মেম্বার', nameEn: 'Diamond member', emoji: '💎', icon: Diamond, glowClass: 'avatar-glow-diamond', bgGradient: 'bg-gradient-to-r from-violet-500/10 via-blue-500/10 to-purple-500/10', textColor: 'text-violet-600', borderColor: 'border-violet-300', minDelivered: 5 },
+  { name: 'গোল্ড মেম্বার', nameEn: 'Gold member', emoji: '🏅', icon: Crown, glowClass: 'avatar-glow-gold', bgGradient: 'bg-gradient-to-r from-amber-500/10 to-yellow-500/10', textColor: 'text-amber-600', borderColor: 'border-amber-300', minDelivered: 3 },
+  { name: 'স্টার কাস্টমার', nameEn: 'Star customer', emoji: '⭐', icon: Sparkles, glowClass: 'avatar-glow-star', bgGradient: 'bg-gradient-to-r from-yellow-400/10 to-orange-400/10', textColor: 'text-yellow-600', borderColor: 'border-yellow-300', minDelivered: 2 },
+  { name: 'ব্রোঞ্জ মেম্বার', nameEn: 'Bronze member', emoji: '🥉', icon: Award, glowClass: 'avatar-glow-bronze', bgGradient: 'bg-gradient-to-r from-orange-400/10 to-amber-300/10', textColor: 'text-orange-600', borderColor: 'border-orange-300', minDelivered: 1 },
 ];
 
 function getTier(deliveredCount: number): BadgeTier | null {
@@ -56,13 +58,13 @@ function getNextTier(deliveredCount: number): { tier: BadgeTier; remaining: numb
   return null;
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: 'অপেক্ষমান', color: 'bg-yellow-100 text-yellow-800' },
-  confirmed: { label: 'নিশ্চিত', color: 'bg-blue-100 text-blue-800' },
-  shipped: { label: 'পাঠানো হয়েছে', color: 'bg-purple-100 text-purple-800' },
-  delivered: { label: 'ডেলিভারি হয়েছে', color: 'bg-green-100 text-green-800' },
-  cancelled: { label: 'বাতিল', color: 'bg-red-100 text-red-800' },
-  returned: { label: 'রিটার্ন', color: 'bg-orange-100 text-orange-800' },
+const STATUS_LABELS: Record<string, { label: string; en?: string; color: string }> = {
+  pending: { label: 'অপেক্ষমান', en: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
+  confirmed: { label: 'নিশ্চিত', en: 'Confirmed', color: 'bg-blue-100 text-blue-800' },
+  shipped: { label: 'পাঠানো হয়েছে', en: 'Shipped', color: 'bg-purple-100 text-purple-800' },
+  delivered: { label: 'ডেলিভারি হয়েছে', en: 'Delivered', color: 'bg-green-100 text-green-800' },
+  cancelled: { label: 'বাতিল', en: 'Cancelled', color: 'bg-red-100 text-red-800' },
+  returned: { label: 'রিটার্ন', en: 'Returned', color: 'bg-orange-100 text-orange-800' },
 };
 
 function DashboardContent() {
@@ -241,9 +243,9 @@ function DashboardContent() {
       await supabase.from('customer_profiles').update({ avatar_url: newUrl } as any).eq('user_id', user.id);
       setLocalAvatarUrl(newUrl);
       setProfile((prev: any) => prev ? { ...prev, avatar_url: newUrl } : prev);
-      sonnerToast.success('প্রোফাইল ছবি আপডেট হয়েছে');
+      sonnerToast.success(trNow('প্রোফাইল ছবি আপডেট হয়েছে', 'Profile photo updated'));
     } catch (err: any) {
-      sonnerToast.error(err.message || 'আপলোড ব্যর্থ');
+      sonnerToast.error(err.message || trNow('আপলোড ব্যর্থ', 'Upload failed'));
     }
     setUploadingAvatar(false);
   };
@@ -257,9 +259,9 @@ function DashboardContent() {
       .eq('user_id', user!.id);
 
     if (error) {
-      toast({ title: 'সেভ ব্যর্থ', description: error.message, variant: 'destructive' });
+      toast({ title: trNow('সেভ ব্যর্থ', 'Could not save'), description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'প্রোফাইল আপডেট হয়েছে' });
+      toast({ title: trNow('প্রোফাইল আপডেট হয়েছে', 'Profile updated') });
       setProfile((prev: any) => ({ ...prev, ...editForm }));
       setEditing(false);
     }
@@ -278,7 +280,7 @@ function DashboardContent() {
       }
       setReviewImages(prev => [...prev, ...urls].slice(0, 5));
     } catch (err: any) {
-      sonnerToast.error(err.message || 'ছবি আপলোড ব্যর্থ');
+      sonnerToast.error(err.message || trNow('ছবি আপলোড ব্যর্থ', 'Photo upload failed'));
     }
     setUploadingReviewImg(false);
   };
@@ -286,7 +288,7 @@ function DashboardContent() {
   const handleSubmitReview = async () => {
     if (!reviewTarget) return;
     if (!reviewText.trim() && reviewImages.length === 0) {
-      sonnerToast.error('রিভিউ লিখুন অথবা ছবি দিন');
+      sonnerToast.error(trNow('রিভিউ লিখুন অথবা ছবি দিন', 'Write a review or add a photo'));
       return;
     }
     setSubmittingReview(true);
@@ -304,11 +306,11 @@ function DashboardContent() {
         product_name: reviewTarget.productName,
       } as any);
       if (error) throw error;
-      sonnerToast.success('রিভিউ সাবমিট হয়েছে! অনুমোদনের পর দেখা যাবে।');
+      sonnerToast.success(trNow('রিভিউ সাবমিট হয়েছে! অনুমোদনের পর দেখা যাবে।', 'Review sent! It shows once approved.'));
       setReviewDialogOpen(false);
       loadData();
     } catch (err: any) {
-      sonnerToast.error(err.message || 'রিভিউ সাবমিট ব্যর্থ');
+      sonnerToast.error(err.message || trNow('রিভিউ সাবমিট ব্যর্থ', 'Could not send the review'));
     }
     setSubmittingReview(false);
   };
@@ -338,13 +340,13 @@ function DashboardContent() {
   const handleActivateCoupon = (code: string) => {
     localStorage.setItem('active_coupon', code);
     setActiveCoupon(code);
-    sonnerToast.success(`কুপন "${code}" সক্রিয় হয়েছে! চেকআউটে অটো অ্যাপ্লাই হবে।`);
+    sonnerToast.success(trNow(`কুপন "${code}" সক্রিয় হয়েছে! চেকআউটে অটো অ্যাপ্লাই হবে।`, `Coupon "${code}" is on! It applies at checkout by itself.`));
   };
 
   const handleDeactivateCoupon = () => {
     localStorage.removeItem('active_coupon');
     setActiveCoupon(null);
-    sonnerToast.info('কুপন নিষ্ক্রিয় করা হয়েছে');
+    sonnerToast.info(trNow('কুপন নিষ্ক্রিয় করা হয়েছে', 'Coupon turned off'));
   };
 
   return (
@@ -376,20 +378,20 @@ function DashboardContent() {
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold truncate">{profile?.full_name || 'কাস্টমার'}</h1>
+              <h1 className="text-xl font-bold truncate">{profile?.full_name || trNow('কাস্টমার', 'Customer')}</h1>
               <p className="text-sm text-muted-foreground">{profile?.phone || ''}</p>
               {currentTier && (
                 <div className="flex items-center gap-1.5 mt-1">
                   <span className="text-base">{currentTier.emoji}</span>
                   <Badge className={`text-[10px] px-2 py-0.5 ${currentTier.textColor} border ${currentTier.borderColor} bg-background/60 badge-shimmer`} variant="outline">
-                    {currentTier.name}
+                    {trNow(currentTier.name, currentTier.nameEn)}
                   </Badge>
                 </div>
               )}
             </div>
             <Button variant="outline" size="sm" onClick={handleLogout} className="shrink-0">
               <LogOut className="h-4 w-4 mr-1" />
-              লগআউট
+              {trNow('লগআউট', 'Sign out')}
             </Button>
           </div>
 
@@ -399,9 +401,9 @@ function DashboardContent() {
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Zap className="h-3 w-3" />
-                  পরবর্তী লেভেল: {nextTier.tier.emoji} {nextTier.tier.name}
+                  {trNow('পরবর্তী লেভেল:', 'Next level:')} {nextTier.tier.emoji} {trNow(nextTier.tier.name, nextTier.tier.nameEn)}
                 </span>
-                <span>আরো {nextTier.remaining}টি ডেলিভারি</span>
+                <span>{trNow(`আরো ${nextTier.remaining}টি ডেলিভারি`, `${nextTier.remaining} more deliveries`)}</span>
               </div>
               <Progress value={(deliveredCount / nextTier.tier.minDelivered) * 100} className="h-2" />
             </div>
@@ -409,7 +411,7 @@ function DashboardContent() {
           {!nextTier && deliveredCount >= 5 && (
             <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-              <span>আপনি সর্বোচ্চ লেভেলে পৌঁছেছেন! 🎉</span>
+              <span>{trNow('আপনি সর্বোচ্চ লেভেলে পৌঁছেছেন! 🎉', 'You have reached the top level! 🎉')}</span>
             </div>
           )}
         </CardContent>
@@ -418,16 +420,16 @@ function DashboardContent() {
       {/* Profile Edit Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base">প্রোফাইল তথ্য</CardTitle>
+          <CardTitle className="text-base">{trNow('প্রোফাইল তথ্য', 'Profile')}</CardTitle>
           {!editing ? (
             <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
-              <Edit2 className="h-4 w-4 mr-1" /> এডিট
+              <Edit2 className="h-4 w-4 mr-1" /> {trNow('এডিট', 'Edit')}
             </Button>
           ) : (
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={() => setEditing(false)}><X className="h-4 w-4" /></Button>
               <Button size="sm" onClick={handleSaveProfile} disabled={saving}>
-                <Check className="h-4 w-4 mr-1" /> {saving ? 'সেভ...' : 'সেভ'}
+                <Check className="h-4 w-4 mr-1" /> {saving ? trNow('সেভ...', 'Saving...') : trNow('সেভ', 'Save')}
               </Button>
             </div>
           )}
@@ -436,26 +438,26 @@ function DashboardContent() {
           {editing ? (
             <>
               <div className="space-y-1">
-                <Label>নাম</Label>
+                <Label>{trNow('নাম', 'Name')}</Label>
                 <Input autoComplete="name" value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <Label>ফোন</Label>
+                <Label>{trNow('ফোন', 'Phone')}</Label>
                 <Input autoComplete="tel" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <Label>ইমেইল</Label>
+                <Label>{trNow('ইমেইল', 'Email')}</Label>
                 {user?.app_metadata?.provider === 'google' ? (
                   <Input type="email" value={user?.email || ''} readOnly className="bg-muted cursor-not-allowed" />
                 ) : (
                   <Input type="email" autoComplete="email" placeholder="example@gmail.com" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
                 )}
                 {user?.app_metadata?.provider === 'google' && (
-                  <p className="text-xs text-muted-foreground">Google দিয়ে সাইনআপ করায় ইমেইল পরিবর্তন করা যাবে না</p>
+                  <p className="text-xs text-muted-foreground">{trNow('Google দিয়ে সাইনআপ করায় ইমেইল পরিবর্তন করা যাবে না', 'Signed up with Google, so the email cannot be changed')}</p>
                 )}
               </div>
               <div className="space-y-1">
-                <Label>ঠিকানা</Label>
+                <Label>{trNow('ঠিকানা', 'Address')}</Label>
                 <Input autoComplete="street-address" value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} />
               </div>
             </>
@@ -481,9 +483,9 @@ function DashboardContent() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: ShoppingBag, value: orders.length, label: 'মোট অর্ডার', gradient: 'from-blue-500/15 to-cyan-500/10', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600', blobColor: 'bg-blue-400/10' },
-          { icon: Package, value: deliveredCount, label: 'ডেলিভারড', gradient: 'from-emerald-500/15 to-green-500/10', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-600', blobColor: 'bg-emerald-400/10' },
-          { icon: Tag, value: `৳${orders.reduce((s, o) => s + Number(o.total), 0).toLocaleString('bn-BD')}`, label: 'মোট খরচ', gradient: 'from-violet-500/15 to-purple-500/10', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-600', blobColor: 'bg-violet-400/10' },
+          { icon: ShoppingBag, value: orders.length, label: trNow('মোট অর্ডার', 'Orders'), gradient: 'from-blue-500/15 to-cyan-500/10', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600', blobColor: 'bg-blue-400/10' },
+          { icon: Package, value: deliveredCount, label: trNow('ডেলিভারড', 'Delivered'), gradient: 'from-emerald-500/15 to-green-500/10', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-600', blobColor: 'bg-emerald-400/10' },
+          { icon: Tag, value: `৳${orders.reduce((s, o) => s + Number(o.total), 0).toLocaleString(trNow('bn-BD', 'en-US'))}`, label: trNow('মোট খরচ', 'Spent'), gradient: 'from-violet-500/15 to-purple-500/10', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-600', blobColor: 'bg-violet-400/10' },
         ].map((stat, i) => (
           <Card key={i} className={`stat-card-premium bg-gradient-to-br ${stat.gradient} border-0 shadow-sm`}>
             <CardContent className="pt-5 pb-4 text-center relative">
@@ -513,7 +515,7 @@ function DashboardContent() {
                 <Gift className="h-5 w-5 text-amber-500" />
                 <Sparkles className="h-3 w-3 text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
               </div>
-              আপনার জন্য বিশেষ অফার
+              {trNow('আপনার জন্য বিশেষ অফার', 'Special offers for you')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 relative z-10">
@@ -523,7 +525,7 @@ function DashboardContent() {
                 <div key={coupon.id} className={`coupon-ticket border-2 border-dashed rounded-xl p-4 transition-all ${isActive ? 'border-primary bg-primary/5 shadow-md shadow-primary/10' : 'border-amber-300/60 dark:border-amber-700/40 bg-background/80'}`}>
                   {isActive && (
                     <Badge className="absolute -top-2 right-5 text-[10px] bg-primary text-primary-foreground z-10 badge-shimmer">
-                      <Check className="h-3 w-3 mr-0.5" /> সক্রিয় কুপন
+                      <Check className="h-3 w-3 mr-0.5" /> {trNow('সক্রিয় কুপন', 'Coupon on')}
                     </Badge>
                   )}
                   <div className="flex items-center justify-between">
@@ -535,26 +537,26 @@ function DashboardContent() {
                       </div>
                       <p className="text-sm font-semibold">
                         {coupon.discount_type === 'percentage'
-                          ? `${coupon.discount_value}% ছাড়`
-                          : `৳${coupon.discount_value} ছাড়`}
-                        {coupon.max_discount_amount ? ` (সর্বোচ্চ ৳${coupon.max_discount_amount})` : ''}
+                          ? trNow(`${coupon.discount_value}% ছাড়`, `${coupon.discount_value}% off`)
+                          : trNow(`৳${coupon.discount_value} ছাড়`, `৳${coupon.discount_value} off`)}
+                        {coupon.max_discount_amount ? trNow(` (সর্বোচ্চ ৳${coupon.max_discount_amount})`, ` (up to ৳${coupon.max_discount_amount})`) : ''}
                       </p>
                       {coupon.min_order_amount > 0 && (
-                        <p className="text-xs text-muted-foreground">সর্বনিম্ন ৳{coupon.min_order_amount} অর্ডারে প্রযোজ্য</p>
+                        <p className="text-xs text-muted-foreground">{trNow(`সর্বনিম্ন ৳${coupon.min_order_amount} অর্ডারে প্রযোজ্য`, `On orders of ৳${coupon.min_order_amount} or more`)}</p>
                       )}
                       {coupon.expires_at && (
                         <p className="text-[10px] text-muted-foreground">
-                          মেয়াদ: {new Date(coupon.expires_at).toLocaleDateString('bn-BD')}
+                          {trNow('মেয়াদ:', 'Valid until:')} {new Date(coupon.expires_at).toLocaleDateString(trNow('bn-BD', 'en-GB'))}
                         </p>
                       )}
                     </div>
                     {isActive ? (
                       <Button variant="outline" size="sm" onClick={handleDeactivateCoupon} className="shrink-0 text-xs border-primary/30">
-                        <X className="h-3 w-3 mr-1" /> নিষ্ক্রিয়
+                        <X className="h-3 w-3 mr-1" /> {trNow('নিষ্ক্রিয়', 'Turn off')}
                       </Button>
                     ) : (
                       <Button size="sm" onClick={() => handleActivateCoupon(coupon.code)} className="shrink-0 text-xs animate-glow-pulse-btn">
-                        <Zap className="h-3 w-3 mr-1" /> সক্রিয় করুন
+                        <Zap className="h-3 w-3 mr-1" /> {trNow('সক্রিয় করুন', 'Turn on')}
                       </Button>
                     )}
                   </div>
@@ -562,7 +564,7 @@ function DashboardContent() {
               );
             })}
             <p className="text-[10px] text-muted-foreground text-center">
-              সক্রিয় কুপন চেকআউটে স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে
+              {trNow('সক্রিয় কুপন চেকআউটে স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে', 'A coupon that is on applies at checkout by itself')}
             </p>
           </CardContent>
         </Card>
@@ -573,7 +575,7 @@ function DashboardContent() {
         <Card className="overflow-hidden border-primary/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Gift className="h-5 w-5 text-primary" /> আপনার গিফট কার্ড ({giveawayEntries.length})
+              <Gift className="h-5 w-5 text-primary" /> {trNow('আপনার গিফট কার্ড', 'Your gift cards')} ({giveawayEntries.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -584,7 +586,7 @@ function DashboardContent() {
                   <div key={entry.id} className="relative rounded-lg overflow-hidden border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent">
                     {proofImg && (
                       <div className="aspect-[4/3] overflow-hidden">
-                        <img src={proofImg} alt="গিফট প্রুফ" className="w-full h-full object-cover" loading="lazy" />
+                        <img src={proofImg} alt={trNow('গিফট প্রুফ', 'Gift proof')} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                     )}
                     <div className="p-2 space-y-1">
@@ -601,7 +603,7 @@ function DashboardContent() {
             </div>
             <Link to="/giveaway" className="block mt-3">
               <Button variant="outline" size="sm" className="w-full text-xs">
-                <Sparkles className="h-3 w-3 mr-1" /> সব গিফট দেখুন
+                <Sparkles className="h-3 w-3 mr-1" /> {trNow('সব গিফট দেখুন', 'See all gifts')}
               </Button>
             </Link>
           </CardContent>
@@ -613,10 +615,10 @@ function DashboardContent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" /> কার্টে থাকা প্রোডাক্ট ({cartTotalItems})
+              <ShoppingCart className="h-5 w-5" /> {trNow('কার্টে থাকা প্রোডাক্ট', 'In your cart')} ({cartTotalItems})
             </CardTitle>
             <Link to="/cart">
-              <Button variant="outline" size="sm" className="text-xs">কার্ট দেখুন</Button>
+              <Button variant="outline" size="sm" className="text-xs">{trNow('কার্ট দেখুন', 'View cart')}</Button>
             </Link>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -630,16 +632,16 @@ function DashboardContent() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="truncate font-medium">{item.name_bn || item.name}</p>
+                  <p className="truncate font-medium">{nameNow(item.name_bn, item.name)}</p>
                   <p className="text-xs text-muted-foreground">
                     {item.size && `${item.size} `}{item.color && `• ${item.color} `}× {item.quantity}
                   </p>
                 </div>
-                <span className="shrink-0 font-medium">৳{(item.price * item.quantity).toLocaleString('bn-BD')}</span>
+                <span className="shrink-0 font-medium">৳{(item.price * item.quantity).toLocaleString(trNow('bn-BD', 'en-US'))}</span>
               </div>
             ))}
             {cartItems.length > 5 && (
-              <p className="text-xs text-muted-foreground text-center">+{cartItems.length - 5}টি আরো আইটেম</p>
+              <p className="text-xs text-muted-foreground text-center">{trNow(`+${cartItems.length - 5}টি আরো আইটেম`, `+${cartItems.length - 5} more items`)}</p>
             )}
           </CardContent>
         </Card>
@@ -650,7 +652,7 @@ function DashboardContent() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Heart className="h-5 w-5 fill-red-500 text-red-500" /> ফেভারিট প্রোডাক্ট ({wishlistProducts.length})
+              <Heart className="h-5 w-5 fill-red-500 text-red-500" /> {trNow('ফেভারিট প্রোডাক্ট', 'Favourites')} ({wishlistProducts.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -662,7 +664,7 @@ function DashboardContent() {
                   <Link key={p.id} to={`/product/${p.slug}`} className="group border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                     <div className="aspect-square bg-muted overflow-hidden">
                       {p.images?.[0] ? (
-                        <img src={optimizedImageUrl(p.images[0], 200, 70)} alt={p.name_bn || p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <img src={optimizedImageUrl(p.images[0], 200, 70)} alt={nameNow(p.name_bn, p.name)} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                           <ImageIcon className="h-6 w-6" />
@@ -670,7 +672,7 @@ function DashboardContent() {
                       )}
                     </div>
                     <div className="p-2">
-                      <p className="text-xs font-medium truncate">{p.name_bn || p.name}</p>
+                      <p className="text-xs font-medium truncate">{nameNow(p.name_bn, p.name)}</p>
                       <p className="text-xs font-bold text-primary">৳{dp}</p>
                     </div>
                   </Link>
@@ -685,23 +687,23 @@ function DashboardContent() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Package className="h-5 w-5" /> অর্ডার হিস্ট্রি
+            <Package className="h-5 w-5" /> {trNow('অর্ডার হিস্ট্রি', 'Order history')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {orders.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">এখনো কোনো অর্ডার নেই</p>
+            <p className="text-center text-muted-foreground py-8">{trNow('এখনো কোনো অর্ডার নেই', 'No orders yet')}</p>
           ) : (
             <div className="space-y-4">
               {orders.map((order) => {
-                const status = STATUS_LABELS[order.status] || { label: order.status, color: 'bg-muted text-muted-foreground' };
+                const status = STATUS_LABELS[order.status] || { label: order.status, en: order.status, color: 'bg-muted text-muted-foreground' };
                 const items = orderItems[order.id] || [];
                 const isDelivered = order.status === 'delivered';
                 return (
                   <div key={order.id} className="border border-border rounded-lg p-4 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">{order.order_number}</span>
-                      <Badge className={`${status.color} text-xs`}>{status.label}</Badge>
+                      <Badge className={`${status.color} text-xs`}>{trNow(status.label, status.en || status.label)}</Badge>
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(order.created_at).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -725,12 +727,12 @@ function DashboardContent() {
                                   {item.size && ` (${item.size})`}
                                   {item.color && ` - ${item.color}`}
                                 </span>
-                                <span className="shrink-0">৳{(item.price * item.quantity).toLocaleString('bn-BD')}</span>
+                                <span className="shrink-0">৳{(item.price * item.quantity).toLocaleString(trNow('bn-BD', 'en-US'))}</span>
                               </div>
                               {/* Review button for delivered orders */}
                               {isDelivered && item.product_id && (
                                 reviewed ? (
-                                  <Badge variant="secondary" className="text-[10px] ml-10">✓ রিভিউ দেওয়া হয়েছে</Badge>
+                                  <Badge variant="secondary" className="text-[10px] ml-10">✓ {trNow('রিভিউ দেওয়া হয়েছে', 'Reviewed')}</Badge>
                                 ) : (
                                   <Button
                                     variant="outline"
@@ -738,7 +740,7 @@ function DashboardContent() {
                                     className="ml-10 h-7 text-xs"
                                     onClick={() => openReviewDialog(order.id, item.product_id, item.product_name)}
                                   >
-                                    <Star className="h-3 w-3 mr-1" /> রিভিউ দিন
+                                    <Star className="h-3 w-3 mr-1" /> {trNow('রিভিউ দিন', 'Write a review')}
                                   </Button>
                                 )
                               )}
@@ -749,20 +751,20 @@ function DashboardContent() {
                     )}
                     <Separator />
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <div className="flex justify-between"><span>সাবটোটাল</span><span>৳{Number(order.subtotal).toLocaleString('bn-BD')}</span></div>
-                      <div className="flex justify-between"><span>ডেলিভারি</span><span>৳{Number(order.delivery_charge).toLocaleString('bn-BD')}</span></div>
+                      <div className="flex justify-between"><span>{trNow('সাবটোটাল', 'Subtotal')}</span><span>৳{Number(order.subtotal).toLocaleString(trNow('bn-BD', 'en-US'))}</span></div>
+                      <div className="flex justify-between"><span>{trNow('ডেলিভারি', 'Delivery')}</span><span>৳{Number(order.delivery_charge).toLocaleString(trNow('bn-BD', 'en-US'))}</span></div>
                       {(() => {
                         const disc = Number(order.subtotal || 0) + Number(order.delivery_charge || 0) - Number(order.total || 0);
                         return disc > 0 ? (
                           <div className="flex justify-between text-red-500">
-                            <span>ডিসকাউন্ট</span><span>-৳{disc.toLocaleString('bn-BD')}</span>
+                            <span>{trNow('ডিসকাউন্ট', 'Discount')}</span><span>-৳{disc.toLocaleString(trNow('bn-BD', 'en-US'))}</span>
                           </div>
                         ) : null;
                       })()}
                       {order.discount_note && <p className="text-[10px] italic">{order.discount_note}</p>}
                     </div>
                     <div className="flex justify-between text-sm font-medium">
-                      <span>মোট</span><span>৳{Number(order.total).toLocaleString('bn-BD')}</span>
+                      <span>{trNow('মোট', 'Total')}</span><span>৳{Number(order.total).toLocaleString(trNow('bn-BD', 'en-US'))}</span>
                     </div>
                   </div>
                 );
@@ -776,7 +778,7 @@ function DashboardContent() {
       {myReviews.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">আমার রিভিউসমূহ</CardTitle>
+            <CardTitle className="text-base">{trNow('আমার রিভিউসমূহ', 'My reviews')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {myReviews.map((r: any) => (
@@ -796,7 +798,7 @@ function DashboardContent() {
                     </div>
                   </div>
                   <Badge variant={r.status === 'approved' ? 'default' : r.status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px]">
-                    {r.status === 'approved' ? 'অনুমোদিত' : r.status === 'pending' ? 'অপেক্ষমান' : 'প্রত্যাখ্যাত'}
+                    {r.status === 'approved' ? trNow('অনুমোদিত', 'Approved') : r.status === 'pending' ? trNow('অপেক্ষমান', 'Pending') : trNow('প্রত্যাখ্যাত', 'Not approved')}
                   </Badge>
                 </div>
                 {r.review_text && <p className="text-sm text-muted-foreground">{r.review_text}</p>}
@@ -821,7 +823,7 @@ function DashboardContent() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
-              <Star className="h-4 w-4" /> রিভিউ দিন
+              <Star className="h-4 w-4" /> {trNow('রিভিউ দিন', 'Write a review')}
             </DialogTitle>
           </DialogHeader>
           {reviewTarget && (
@@ -849,7 +851,7 @@ function DashboardContent() {
               </div>
 
               <Textarea
-                placeholder="আপনার অভিজ্ঞতা শেয়ার করুন..."
+                placeholder={trNow('আপনার অভিজ্ঞতা শেয়ার করুন...', 'Share your experience...')}
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={3}
@@ -883,7 +885,7 @@ function DashboardContent() {
               </div>
 
               <Button onClick={handleSubmitReview} disabled={submittingReview} className="w-full">
-                {submittingReview ? 'সাবমিট হচ্ছে...' : 'রিভিউ সাবমিট করুন'}
+                {submittingReview ? trNow('সাবমিট হচ্ছে...', 'Sending...') : trNow('রিভিউ সাবমিট করুন', 'Send the review')}
               </Button>
             </div>
           )}

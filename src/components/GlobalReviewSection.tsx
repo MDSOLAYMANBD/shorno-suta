@@ -11,19 +11,20 @@ import { optimizedImageUrl } from '@/lib/imageUrl';
 import { useSiteConfig, DEFAULT_HOMEPAGE_CONFIG } from '@/hooks/useSiteConfig';
 import { useApprovedReviews, useSubmitReview, uploadReviewImage } from '@/hooks/useCustomerReviews';
 import { toast } from 'sonner';
+import { trNow, ownNow, knownNow } from '@/lib/i18n';
 
 function formatTimeAgo(iso: string): string {
   const diff = Math.max(0, Date.now() - new Date(iso).getTime());
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'এইমাত্র';
-  if (m < 60) return `${m} মিনিট আগে`;
+  if (m < 1) return trNow('এইমাত্র', 'just now');
+  if (m < 60) return trNow(`${m} মিনিট আগে`, `${m} min ago`);
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} ঘন্টা আগে`;
+  if (h < 24) return trNow(`${h} ঘন্টা আগে`, `${h} h ago`);
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d} দিন আগে`;
+  if (d < 30) return trNow(`${d} দিন আগে`, `${d} day${d === 1 ? '' : 's'} ago`);
   const mo = Math.floor(d / 30);
-  if (mo < 12) return `${mo} মাস আগে`;
-  return `${Math.floor(mo / 12)} বছর আগে`;
+  if (mo < 12) return trNow(`${mo} মাস আগে`, `${mo} month${mo === 1 ? '' : 's'} ago`);
+  return trNow(`${Math.floor(mo / 12)} বছর আগে`, `${Math.floor(mo / 12)} year${Math.floor(mo / 12) === 1 ? '' : 's'} ago`);
 }
 
 function TestimonialImageGrid({ images, onClickImage }: { images: string[]; onClickImage: (idx: number) => void }) {
@@ -37,7 +38,7 @@ function TestimonialImageGrid({ images, onClickImage }: { images: string[]; onCl
       >
         <img
           src={optimizedImageUrl(images[0], 400, 80)}
-          alt="রিভিউ ছবি"
+          alt={trNow('রিভিউ ছবি', 'Review photo')}
           className="w-full max-h-32 sm:max-h-72 object-contain group-hover:scale-[1.02] transition-transform duration-500"
         />
       </div>
@@ -55,7 +56,7 @@ function TestimonialImageGrid({ images, onClickImage }: { images: string[]; onCl
           >
             <img
               src={optimizedImageUrl(img, 300, 80)}
-              alt={`ছবি ${idx + 1}`}
+              alt={trNow(`ছবি ${idx + 1}`, `Photo ${idx + 1}`)}
               className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-400"
             />
           </div>
@@ -73,7 +74,7 @@ function TestimonialImageGrid({ images, onClickImage }: { images: string[]; onCl
       >
         <img
           src={optimizedImageUrl(images[0], 400, 80)}
-          alt="রিভিউ ছবি"
+          alt={trNow('রিভিউ ছবি', 'Review photo')}
           className="w-full max-h-28 sm:max-h-60 object-contain group-hover:scale-[1.02] transition-transform duration-500"
         />
       </div>
@@ -86,7 +87,7 @@ function TestimonialImageGrid({ images, onClickImage }: { images: string[]; onCl
           >
             <img
               src={optimizedImageUrl(img, 200, 75)}
-              alt={`ছবি ${idx + 2}`}
+              alt={trNow(`ছবি ${idx + 2}`, `Photo ${idx + 2}`)}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
             {idx === 2 && images.length > 4 && (
@@ -112,7 +113,7 @@ function ReviewSubmitDialog({ open, onOpenChange }: { open: boolean; onOpenChang
   const submitReview = useSubmitReview();
 
   const handleSubmit = async () => {
-    if (!name.trim()) { toast.error('আপনার নাম লিখুন'); return; }
+    if (!name.trim()) { toast.error(trNow('আপনার নাম লিখুন', 'Enter your name')); return; }
     setUploading(true);
     try {
       let imageUrls: string[] = [];
@@ -129,7 +130,7 @@ function ReviewSubmitDialog({ open, onOpenChange }: { open: boolean; onOpenChang
       });
       setSubmitted(true);
     } catch (e: any) {
-      toast.error('সাবমিট করতে সমস্যা হয়েছে');
+      toast.error(trNow('সাবমিট করতে সমস্যা হয়েছে', 'Could not submit'));
     } finally {
       setUploading(false);
     }
@@ -146,27 +147,27 @@ function ReviewSubmitDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{submitted ? '🎉 ধন্যবাদ!' : '📝 আপনার রিভিউ দিন'}</DialogTitle>
+          <DialogTitle>{submitted ? trNow('🎉 ধন্যবাদ!', '🎉 Thank you!') : trNow('📝 আপনার রিভিউ দিন', '📝 Write a review')}</DialogTitle>
         </DialogHeader>
 
         {submitted ? (
           <div className="text-center py-6 space-y-3">
             <p className="text-4xl">🙏</p>
-            <p className="text-sm text-muted-foreground">আপনার মূল্যবান মতামতের জন্য অসংখ্য ধন্যবাদ! আমরা দেখে অ্যাপ্রুভ করলে এটি দেখা যাবে।</p>
-            <Button onClick={handleClose}>বন্ধ করুন</Button>
+            <p className="text-sm text-muted-foreground">{trNow('আপনার মূল্যবান মতামতের জন্য অসংখ্য ধন্যবাদ! আমরা দেখে অ্যাপ্রুভ করলে এটি দেখা যাবে।', 'Thank you for your review! It will show once we approve it.')}</p>
+            <Button onClick={handleClose}>{trNow('বন্ধ করুন', 'Close')}</Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
-              <Label>আপনার নাম *</Label>
-              <Input value={name} onChange={e => setName(e.target.value)} placeholder="নাম লিখুন" maxLength={200} />
+              <Label>{trNow('আপনার নাম', 'Your name')} *</Label>
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder={trNow('নাম লিখুন', 'Your name')} maxLength={200} />
             </div>
             <div>
-              <Label>লোকেশন</Label>
-              <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="যেমন: ঢাকা" maxLength={200} />
+              <Label>{trNow('লোকেশন', 'Location')}</Label>
+              <Input value={location} onChange={e => setLocation(e.target.value)} placeholder={trNow('যেমন: ঢাকা', 'e.g. Dhaka')} maxLength={200} />
             </div>
             <div>
-              <Label>রেটিং</Label>
+              <Label>{trNow('রেটিং', 'Rating')}</Label>
               <div className="flex gap-1 mt-1">
                 {[1, 2, 3, 4, 5].map(s => (
                   <button key={s} type="button" onClick={() => setRating(s)}>
@@ -176,15 +177,15 @@ function ReviewSubmitDialog({ open, onOpenChange }: { open: boolean; onOpenChang
               </div>
             </div>
             <div>
-              <Label>আপনার মতামত</Label>
-              <Textarea value={text} onChange={e => setText(e.target.value)} placeholder="পণ্য সম্পর্কে আপনার অভিজ্ঞতা লিখুন..." maxLength={2000} rows={3} />
+              <Label>{trNow('আপনার মতামত', 'Your review')}</Label>
+              <Textarea value={text} onChange={e => setText(e.target.value)} placeholder={trNow('পণ্য সম্পর্কে আপনার অভিজ্ঞতা লিখুন...', 'Tell us about the product...')} maxLength={2000} rows={3} />
             </div>
             <div>
-              <Label>ছবি যোগ করুন</Label>
+              <Label>{trNow('ছবি যোগ করুন', 'Add photos')}</Label>
               <div className="mt-1 flex items-center gap-2 flex-wrap">
                 <label className="flex items-center gap-1.5 px-3 py-2 border border-dashed rounded-lg cursor-pointer text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
                   <Camera className="h-4 w-4" />
-                  ছবি বাছাই
+                  {trNow('ছবি বাছাই', 'Choose photos')}
                   <input
                     type="file"
                     accept="image/*"
@@ -206,12 +207,12 @@ function ReviewSubmitDialog({ open, onOpenChange }: { open: boolean; onOpenChang
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">সর্বোচ্চ ৫টি ছবি</p>
+              <p className="text-xs text-muted-foreground mt-1">{trNow('সর্বোচ্চ ৫টি ছবি', 'Up to 5 photos')}</p>
             </div>
 
             <DialogFooter>
               <Button onClick={handleSubmit} disabled={uploading || !name.trim()} className="w-full gap-2">
-                {uploading ? <><Loader2 className="h-4 w-4 animate-spin" /> আপলোড হচ্ছে...</> : 'রিভিউ সাবমিট করুন'}
+                {uploading ? <><Loader2 className="h-4 w-4 animate-spin" /> {trNow('আপলোড হচ্ছে...', 'Uploading...')}</> : trNow('রিভিউ সাবমিট করুন', 'Submit review')}
               </Button>
             </DialogFooter>
           </div>
@@ -300,15 +301,15 @@ export default function GlobalReviewSection() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">
-            {t.location && <span className="truncate">{t.location}</span>}
+            {t.location && <span className="truncate">{knownNow(t.location)}</span>}
             {t.location && timeAgo && <span>•</span>}
             {timeAgo && <span className="shrink-0">{timeAgo}</span>}
           </div>
           {t.text && (
-            <p className="text-[12px] sm:text-sm text-foreground/90 leading-relaxed mt-1.5 whitespace-pre-line">"{t.text}"</p>
+            <p className="text-[12px] sm:text-sm text-foreground/90 leading-relaxed mt-1.5 whitespace-pre-line">"{knownNow(t.text)}"</p>
           )}
           {!t.text && !hasImages && (
-            <p className="text-xs text-muted-foreground italic mt-1">🙏 ধন্যবাদ</p>
+            <p className="text-xs text-muted-foreground italic mt-1">🙏 {trNow('ধন্যবাদ', 'Thank you')}</p>
           )}
         </div>
         {hasImages && (
@@ -322,7 +323,7 @@ export default function GlobalReviewSection() {
               >
                 <img
                   src={optimizedImageUrl(img, 160, 75)}
-                  alt={`ছবি ${idx + 1}`}
+                  alt={trNow(`ছবি ${idx + 1}`, `Photo ${idx + 1}`)}
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
@@ -351,11 +352,11 @@ export default function GlobalReviewSection() {
           <div className="container">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-1">{config.heading || 'কাস্টমার রিভিউ'}</h2>
-                <p className="text-muted-foreground text-sm">{config.subheading || ''}</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-1">{ownNow(config.heading || 'কাস্টমার রিভিউ', 'Customer reviews')}</h2>
+                <p className="text-muted-foreground text-sm">{ownNow(config.subheading, 'What our happy customers say')}</p>
               </div>
               <Button size="sm" variant="outline" className="gap-1.5 text-xs shrink-0" onClick={() => setReviewFormOpen(true)}>
-                <Star className="h-3 w-3" /> আপনার রিভিউ দিন
+                <Star className="h-3 w-3" /> {trNow('আপনার রিভিউ দিন', 'Write a review')}
               </Button>
             </div>
 
@@ -370,7 +371,7 @@ export default function GlobalReviewSection() {
                       <Star key={i} className={`h-4 w-4 ${i < Math.round(stats.avg) ? 'text-yellow-500 fill-yellow-500' : 'text-muted'}`} />
                     ))}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1.5">মোট {stats.total} রিভিউ</div>
+                  <div className="text-xs text-muted-foreground mt-1.5">{trNow(`মোট ${stats.total} রিভিউ`, `${stats.total} review${stats.total === 1 ? '' : 's'}`)}</div>
                 </div>
                 {/* Right: bars */}
                 <div className="flex-1 w-full space-y-1.5">
@@ -389,7 +390,7 @@ export default function GlobalReviewSection() {
                           />
                         </div>
                         <span className="w-14 shrink-0 text-right text-muted-foreground tabular-nums">
-                          {count} জন
+                          {trNow(`${count} জন`, String(count))}
                         </span>
                       </div>
                     );
@@ -408,7 +409,7 @@ export default function GlobalReviewSection() {
               {items.slice(0, PREVIEW_COUNT).map((t: any, i: number) => renderReviewRow(t, i))}
               {items.length > PREVIEW_COUNT && (
                 <div className="px-4 py-2.5 text-center text-[11px] sm:text-xs text-primary font-medium bg-muted/20 hover:bg-primary/5 transition-colors">
-                  + আরও {items.length - PREVIEW_COUNT} টি রিভিউ দেখতে ক্লিক করুন
+                  + {trNow(`আরও ${items.length - PREVIEW_COUNT} টি রিভিউ দেখতে ক্লিক করুন`, `See ${items.length - PREVIEW_COUNT} more reviews`)}
                 </div>
               )}
             </div>
@@ -419,7 +420,7 @@ export default function GlobalReviewSection() {
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
         <DialogContent className="max-w-3xl p-0 gap-0 max-h-[85vh] flex flex-col">
           <DialogHeader className="px-4 py-3 border-b shrink-0">
-            <DialogTitle>সকল রিভিউ ({items.length})</DialogTitle>
+            <DialogTitle>{trNow('সকল রিভিউ', 'All reviews')} ({items.length})</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto divide-y divide-border">
             {items.map((t: any, i: number) => renderReviewRow(t, i))}
@@ -432,12 +433,12 @@ export default function GlobalReviewSection() {
 
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent className="max-w-3xl p-2 sm:p-4 bg-background border border-border">
-          <DialogTitle className="sr-only">রিভিউ ছবি</DialogTitle>
+          <DialogTitle className="sr-only">{trNow('রিভিউ ছবি', 'Review photo')}</DialogTitle>
           {lightboxImages.length > 0 && (
             <div className="relative">
               <img
                 src={lightboxImages[lightboxIdx]}
-                alt="রিভিউ ছবি"
+                alt={trNow('রিভিউ ছবি', 'Review photo')}
                 className="w-full max-h-[80vh] object-contain rounded-lg"
               />
               {lightboxImages.length > 1 && (

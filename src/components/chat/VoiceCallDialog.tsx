@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import type { CallStatus, CallErrorCode } from '@/hooks/useVoiceCall';
 import { useEffect, useRef, useState } from 'react';
 import CallHealthIndicator from './CallHealthIndicator';
+import { trNow } from '@/lib/i18n';
 
 interface Props {
   open: boolean;
@@ -84,25 +85,25 @@ function makeRingbackTone(): { play: () => void; stop: () => void } {
 function describeError(code: CallErrorCode | undefined, fallback: string | null) {
   switch (code) {
     case 'mic-denied':
-      return { title: 'মাইক্রোফোন অনুমতি দিন', hint: 'ব্রাউজার সেটিংস থেকে মাইক্রোফোন অনুমতি চালু করুন এবং আবার চেষ্টা করুন।' };
+      return { title: trNow('মাইক্রোফোন অনুমতি দিন', 'Allow the microphone'), hint: trNow('ব্রাউজার সেটিংস থেকে মাইক্রোফোন অনুমতি চালু করুন এবং আবার চেষ্টা করুন।', 'Turn on microphone access in your browser settings and try again.') };
     case 'mic-unavailable':
-      return { title: 'মাইক্রোফোন পাওয়া যায়নি', hint: fallback || 'আপনার ডিভাইসে মাইক্রোফোন সংযুক্ত আছে কিনা চেক করুন।' };
+      return { title: trNow('মাইক্রোফোন পাওয়া যায়নি', 'No microphone found'), hint: fallback || trNow('আপনার ডিভাইসে মাইক্রোফোন সংযুক্ত আছে কিনা চেক করুন।', 'Check that a microphone is connected to your device.') };
     case 'ice-failed':
-      return { title: 'নেটওয়ার্ক সংযোগে সমস্যা', hint: 'অডিও সংযোগ স্থাপন করা যায়নি। ইন্টারনেট/Wi-Fi চেক করে আবার চেষ্টা করুন।' };
+      return { title: trNow('নেটওয়ার্ক সংযোগে সমস্যা', 'Network problem'), hint: trNow('অডিও সংযোগ স্থাপন করা যায়নি। ইন্টারনেট/Wi-Fi চেক করে আবার চেষ্টা করুন।', 'The audio could not connect. Check your internet / Wi-Fi and try again.') };
     case 'negotiation-timeout':
-      return { title: 'সংযোগ সময় অতিক্রম করেছে', hint: 'অডিও কানেকশন তৈরি হতে সময় লাগছে। দয়া করে আবার চেষ্টা করুন।' };
+      return { title: trNow('সংযোগ সময় অতিক্রম করেছে', 'Connection timed out'), hint: trNow('অডিও কানেকশন তৈরি হতে সময় লাগছে। দয়া করে আবার চেষ্টা করুন।', 'The audio is taking long to connect. Please try again.') };
     case 'sdp-apply-failed':
-      return { title: 'এজেন্টের সাথে সংযোগ স্থাপন করা যায়নি', hint: 'সংকেত প্রক্রিয়া ব্যর্থ হয়েছে। কয়েক সেকেন্ড পরে আবার চেষ্টা করুন।' };
+      return { title: trNow('এজেন্টের সাথে সংযোগ স্থাপন করা যায়নি', 'Could not reach the agent'), hint: trNow('সংকেত প্রক্রিয়া ব্যর্থ হয়েছে। কয়েক সেকেন্ড পরে আবার চেষ্টা করুন।', 'Setting up the call failed. Try again in a few seconds.') };
     case 'connection-lost':
-      return { title: 'কল সংযোগ বিচ্ছিন্ন হয়েছে', hint: 'নেটওয়ার্ক বিচ্ছিন্ন হয়ে গেছে। আবার কল করতে পারেন।' };
+      return { title: trNow('কল সংযোগ বিচ্ছিন্ন হয়েছে', 'The call dropped'), hint: trNow('নেটওয়ার্ক বিচ্ছিন্ন হয়ে গেছে। আবার কল করতে পারেন।', 'The network dropped. You can call again.') };
     case 'agent-rejected':
-      return { title: 'এজেন্ট ব্যস্ত আছেন', hint: 'এই মুহূর্তে এজেন্ট কল ধরতে পারছেন না। চ্যাটে আপনার প্রশ্ন লিখে দিন।' };
+      return { title: trNow('এজেন্ট ব্যস্ত আছেন', 'The agent is busy'), hint: trNow('এই মুহূর্তে এজেন্ট কল ধরতে পারছেন না। চ্যাটে আপনার প্রশ্ন লিখে দিন।', 'The agent cannot take the call right now. Write your question in the chat.') };
     case 'agent-unavailable':
-      return { title: 'এজেন্ট কল ধরতে পারেননি', hint: 'অনুগ্রহ করে চ্যাটে প্রশ্ন লিখুন, আমরা দ্রুত সাহায্য করবো।' };
+      return { title: trNow('এজেন্ট কল ধরতে পারেননি', 'The agent could not answer'), hint: trNow('অনুগ্রহ করে চ্যাটে প্রশ্ন লিখুন, আমরা দ্রুত সাহায্য করবো।', 'Please write your question in the chat; we will help soon.') };
     case 'signaling-failed':
-      return { title: 'সিগন্যাল সার্ভারে সমস্যা', hint: fallback || 'সার্ভারের সাথে যোগাযোগ ব্যর্থ। কয়েক মুহূর্ত পর আবার চেষ্টা করুন।' };
+      return { title: trNow('সিগন্যাল সার্ভারে সমস্যা', 'Call server problem'), hint: fallback || trNow('সার্ভারের সাথে যোগাযোগ ব্যর্থ। কয়েক মুহূর্ত পর আবার চেষ্টা করুন।', 'Could not reach the server. Try again in a moment.') };
     default:
-      return { title: 'কল সংযোগ ব্যর্থ', hint: fallback || 'অজানা একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।' };
+      return { title: trNow('কল সংযোগ ব্যর্থ', 'The call could not connect'), hint: fallback || trNow('অজানা একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'Something went wrong. Please try again.') };
   }
 }
 
@@ -189,8 +190,8 @@ export default function VoiceCallDialog({
             type="button"
             onClick={onMinimize}
             className="absolute top-3 right-3 h-8 w-8 rounded-full bg-muted hover:bg-muted/70 flex items-center justify-center text-muted-foreground"
-            aria-label="ছোট করুন"
-            title="ছোট করুন · কল চলতে থাকবে"
+            aria-label={trNow('ছোট করুন', 'Minimise')}
+            title={trNow('ছোট করুন · কল চলতে থাকবে', 'Minimise · the call goes on')}
           >
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -237,7 +238,7 @@ export default function VoiceCallDialog({
 
           {showSpeakerWarning && (
             <div className="mt-3 mx-auto max-w-[320px] bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 text-[12px] leading-relaxed text-amber-700 dark:text-amber-300 text-left">
-              এজেন্টের কথা শুনতে না পেলে নিচের <b>লাউড / স্পিকার</b> বাটনে চাপুন।
+              {trNow('এজেন্টের কথা শুনতে না পেলে নিচের ', 'Cannot hear the agent? Press the ')}<b>{trNow('লাউড / স্পিকার', 'loudspeaker')}</b>{trNow(' বাটনে চাপুন।', ' button below.')}
             </div>
           )}
         </div>
@@ -257,7 +258,7 @@ export default function VoiceCallDialog({
                 )}
               >
                 {audioUnlocked ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
-                {audioUnlocked ? 'লাউড / স্পিকার চালু আছে' : 'লাউড / স্পিকার চালু করুন'}
+                {audioUnlocked ? trNow('লাউড / স্পিকার চালু আছে', 'Loudspeaker is on') : trNow('লাউড / স্পিকার চালু করুন', 'Turn on the loudspeaker')}
               </Button>
             )}
 
@@ -301,7 +302,7 @@ export default function VoiceCallDialog({
             <div className="flex gap-2 w-full">
               {onRetry && (
                 <Button onClick={onRetry} className="flex-1 gap-1.5">
-                  <RotateCw className="h-4 w-4" /> আবার চেষ্টা করুন
+                  <RotateCw className="h-4 w-4" /> {trNow('আবার চেষ্টা করুন', 'Try again')}
                 </Button>
               )}
               <Button
@@ -309,18 +310,18 @@ export default function VoiceCallDialog({
                 className="flex-1 gap-1.5"
                 onClick={() => { onWriteInChat?.(); onClose(); }}
               >
-                <MessageSquare className="h-4 w-4" /> চ্যাটে লিখুন
+                <MessageSquare className="h-4 w-4" /> {trNow('চ্যাটে লিখুন', 'Write in chat')}
               </Button>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground">
-              বন্ধ করুন
+              {trNow('বন্ধ করুন', 'Close')}
             </Button>
           </div>
         )}
 
         {ended && (
           <Button onClick={onClose} variant="outline" className="mt-2">
-            বন্ধ করুন
+            {trNow('বন্ধ করুন', 'Close')}
           </Button>
         )}
       </div>
@@ -352,10 +353,10 @@ export function VoiceCallMiniBar({
   if (!ringing && !connecting && !inCall) return null;
 
   const label =
-    inCall ? `কল চলছে · ${fmt(durationSec)}`
-    : connecting ? 'সংযোগ হচ্ছে...'
-    : status === 'waiting' ? 'অপেক্ষায়...'
-    : 'কল যাচ্ছে...';
+    inCall ? trNow(`কল চলছে · ${fmt(durationSec)}`, `On call · ${fmt(durationSec)}`)
+    : connecting ? trNow('সংযোগ হচ্ছে...', 'Connecting...')
+    : status === 'waiting' ? trNow('অপেক্ষায়...', 'Waiting...')
+    : trNow('কল যাচ্ছে...', 'Calling...');
 
   return (
     <div className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 z-[55] sm:w-[340px] flex flex-col gap-1.5">
@@ -385,8 +386,8 @@ export function VoiceCallMiniBar({
               'h-9 w-9 rounded-full flex items-center justify-center shrink-0',
               audioUnlocked ? 'bg-primary-foreground/20' : 'bg-amber-400 text-amber-900 animate-pulse'
             )}
-            aria-label="লাউড"
-            title={audioUnlocked ? 'স্পিকার চালু' : 'লাউড চালু করুন'}
+            aria-label={trNow('লাউড', 'Loudspeaker')}
+            title={audioUnlocked ? trNow('স্পিকার চালু', 'Speaker on') : trNow('লাউড চালু করুন', 'Turn on the loudspeaker')}
           >
             {audioUnlocked ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
           </button>
@@ -397,7 +398,7 @@ export function VoiceCallMiniBar({
             onClick={onToggleMute}
             className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0"
             aria-label={muted ? 'Unmute' : 'Mute'}
-            title={muted ? 'মাইক চালু' : 'মাইক বন্ধ'}
+            title={muted ? trNow('মাইক চালু', 'Unmute') : trNow('মাইক বন্ধ', 'Mute')}
           >
             {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
@@ -406,8 +407,8 @@ export function VoiceCallMiniBar({
           type="button"
           onClick={onEnd}
           className="h-9 w-9 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shrink-0"
-          aria-label="কল শেষ"
-          title="কল শেষ"
+          aria-label={trNow('কল শেষ', 'End call')}
+          title={trNow('কল শেষ', 'End call')}
         >
           <PhoneOff className="h-4 w-4" />
         </button>

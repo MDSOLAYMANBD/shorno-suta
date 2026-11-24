@@ -5,6 +5,7 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useProducts } from '@/hooks/useProducts';
 import { LazyImage } from '@/components/ui/lazy-image';
 import { optimizedImageUrl } from '@/lib/imageUrl';
+import { trNow, nameNow } from '@/lib/i18n';
 
 function formatPrice(n: number) {
   return `৳${Math.round(n).toLocaleString('en-US')}`;
@@ -41,17 +42,17 @@ export default function RecentlyViewedSection() {
               <Eye className="h-4.5 w-4.5 text-primary" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold leading-tight">এই মাত্র দেখেছেন</h2>
-              <p className="text-xs text-muted-foreground hidden sm:block">আপনার সাম্প্রতিক দেখা পণ্য</p>
+              <h2 className="text-base sm:text-lg font-bold leading-tight">{trNow('এই মাত্র দেখেছেন', 'Recently viewed')}</h2>
+              <p className="text-xs text-muted-foreground hidden sm:block">{trNow('আপনার সাম্প্রতিক দেখা পণ্য', 'Products you looked at')}</p>
             </div>
           </div>
           <button
             onClick={clear}
             className="text-xs text-muted-foreground hover:text-destructive inline-flex items-center gap-1 transition-colors"
-            aria-label="ক্লিয়ার হিস্ট্রি"
+            aria-label={trNow('ক্লিয়ার হিস্ট্রি', 'Clear history')}
           >
             <X className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">ক্লিয়ার</span>
+            <span className="hidden sm:inline">{trNow('ক্লিয়ার', 'Clear')}</span>
           </button>
         </div>
 
@@ -73,7 +74,7 @@ export default function RecentlyViewedSection() {
                   {img ? (
                     <LazyImage
                       src={optimizedImageUrl(img, 320)}
-                      alt={p.name_bn || p.name}
+                      alt={nameNow(p.name_bn, p.name)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
@@ -82,7 +83,7 @@ export default function RecentlyViewedSection() {
                 </div>
                 <div className="mt-2">
                   <p className="text-xs sm:text-sm font-medium line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                    {p.name_bn || p.name}
+                    {nameNow(p.name_bn, p.name)}
                   </p>
                   <div className="flex items-baseline gap-1.5 mt-1">
                     <span className="text-sm font-bold text-primary">{formatPrice(salePrice)}</span>

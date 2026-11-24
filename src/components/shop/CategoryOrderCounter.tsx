@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ShoppingBag, TrendingUp, ChevronRight, Home } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 interface CategoryLite { slug: string; name: string; name_bn?: string | null }
 
@@ -80,12 +81,13 @@ export default function CategoryOrderCounter({ productIds, parentCategory, curre
 
   const total = baseCount + liveDelta;
   const animated = useAnimatedNumber(total);
+  const { name, tr, num } = useLang();
 
   if (!hideCounter && productIds.length === 0) return null;
   if (hideCounter && !currentCategory) return null;
 
-  const parentLabel = parentCategory ? (parentCategory.name_bn || parentCategory.name) : null;
-  const currentLabel = currentCategory ? (currentCategory.name_bn || currentCategory.name) : null;
+  const parentLabel = parentCategory ? name(parentCategory.name_bn, parentCategory.name) : null;
+  const currentLabel = currentCategory ? name(currentCategory.name_bn, currentCategory.name) : null;
 
   return (
     <div className="mb-4 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 via-amber-50 to-orange-50 dark:from-primary/15 dark:via-amber-500/10 dark:to-orange-500/10 overflow-hidden">
@@ -101,18 +103,18 @@ export default function CategoryOrderCounter({ productIds, parentCategory, curre
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground font-medium">
             <TrendingUp className="h-3 w-3 text-emerald-600" />
-            লাইভ অর্ডার কাউন্টার
+            {tr('লাইভ অর্ডার কাউন্টার', 'Live order counter')}
           </div>
           <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
             <span className="text-primary text-base sm:text-lg font-extrabold tabular-nums">
-              {animated.toLocaleString('bn-BD')}
+              {num(animated)}
             </span>
-            {' '}টি অর্ডার
+            {' '}{tr('টি অর্ডার', 'orders')}
           </div>
         </div>
         {liveDelta > 0 && (
           <span className="shrink-0 text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5 animate-fade-in">
-            +{liveDelta} এইমাত্র
+            +{liveDelta} {tr('এইমাত্র', 'just now')}
           </span>
         )}
       </div>
@@ -124,7 +126,7 @@ export default function CategoryOrderCounter({ productIds, parentCategory, curre
           to="/shop"
           className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-background/70 border border-border/60 text-[10px] sm:text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
         >
-          <Home className="h-3 w-3" /> শপ
+          <Home className="h-3 w-3" /> {tr('শপ', 'Shop')}
         </Link>
         {parentLabel && parentCategory && (
           <>

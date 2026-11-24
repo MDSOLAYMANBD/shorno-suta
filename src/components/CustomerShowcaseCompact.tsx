@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Repeat, MapPin, User, Clock, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { trNow } from '@/lib/i18n';
 
 interface ShowcaseData { total: number; repeat: number; top: any[] }
 interface RecentCustomer { name: string; address: string; total_orders: number; avatar_url?: string | null; created_at: string | null }
@@ -11,15 +12,15 @@ function formatTimeAgo(iso: string | null): string {
   if (!iso) return '';
   const diff = Math.max(0, Date.now() - new Date(iso).getTime());
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'এইমাত্র';
-  if (m < 60) return `${m} মিনিট আগে`;
+  if (m < 1) return trNow('এইমাত্র', 'just now');
+  if (m < 60) return trNow(`${m} মিনিট আগে`, `${m} min ago`);
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} ঘন্টা আগে`;
+  if (h < 24) return trNow(`${h} ঘন্টা আগে`, `${h} h ago`);
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d} দিন আগে`;
+  if (d < 30) return trNow(`${d} দিন আগে`, `${d} days ago`);
   const mo = Math.floor(d / 30);
-  if (mo < 12) return `${mo} মাস আগে`;
-  return `${Math.floor(mo / 12)} বছর আগে`;
+  if (mo < 12) return trNow(`${mo} মাস আগে`, `${mo} months ago`);
+  return trNow(`${Math.floor(mo / 12)} বছর আগে`, `${Math.floor(mo / 12)} years ago`);
 }
 
 export default function CustomerShowcaseCompact() {
@@ -70,13 +71,13 @@ export default function CustomerShowcaseCompact() {
     return recent;
   }, [recent, listOpen]);
 
-  const dialogTitle = listOpen === 'repeat' ? 'রিপিট কাস্টমার' : 'সকল রেজিস্টার্ড কাস্টমার';
+  const dialogTitle = listOpen === 'repeat' ? trNow('রিপিট কাস্টমার', 'Repeat customers') : trNow('সকল রেজিস্টার্ড কাস্টমার', 'All registered customers');
 
   return (
     <section className="max-w-3xl mx-auto px-3 sm:px-4 mt-4">
       <div className="flex items-center justify-center gap-1.5 mb-2">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground">লাইভ কাস্টমার আপডেট</span>
+        <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground">{trNow('লাইভ কাস্টমার আপডেট', 'Live customer update')}</span>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
@@ -89,8 +90,8 @@ export default function CustomerShowcaseCompact() {
               <Users className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-base sm:text-lg font-extrabold tabular-nums leading-tight">{total.toLocaleString('bn-BD')}</div>
-              <div className="text-[10px] text-muted-foreground leading-tight">রেজিস্টার্ড কাস্টমার</div>
+              <div className="text-base sm:text-lg font-extrabold tabular-nums leading-tight">{total.toLocaleString(trNow('bn-BD', 'en-US'))}</div>
+              <div className="text-[10px] text-muted-foreground leading-tight">{trNow('রেজিস্টার্ড কাস্টমার', 'Registered customers')}</div>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-primary/60 group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
@@ -106,8 +107,8 @@ export default function CustomerShowcaseCompact() {
               <Repeat className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-base sm:text-lg font-extrabold tabular-nums leading-tight">{repeat.toLocaleString('bn-BD')}</div>
-              <div className="text-[10px] text-muted-foreground leading-tight">রিপিট কাস্টমার</div>
+              <div className="text-base sm:text-lg font-extrabold tabular-nums leading-tight">{repeat.toLocaleString(trNow('bn-BD', 'en-US'))}</div>
+              <div className="text-[10px] text-muted-foreground leading-tight">{trNow('রিপিট কাস্টমার', 'Repeat customers')}</div>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-amber-500/70 group-hover:translate-x-0.5 transition-transform shrink-0" />
           </div>
@@ -123,7 +124,7 @@ export default function CustomerShowcaseCompact() {
                 : <Users className="h-4 w-4 text-primary shrink-0" />}
               <span className="truncate">{dialogTitle}</span>
               <span className="ml-auto text-xs font-normal text-muted-foreground shrink-0 bg-background/70 rounded-full px-2 py-0.5 border">
-                {filteredRecent.length} জন
+                {filteredRecent.length} {trNow('জন', 'people')}
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -135,7 +136,7 @@ export default function CustomerShowcaseCompact() {
                 ))}
               </div>
             ) : filteredRecent.length === 0 ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">কোনো কাস্টমার পাওয়া যায়নি।</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">{trNow('কোনো কাস্টমার পাওয়া যায়নি।', 'No customers found.')}</div>
             ) : (
               filteredRecent.map((c, i) => (
                 <div key={i} className="flex items-center gap-3 px-3 sm:px-4 py-2.5 hover:bg-muted/40 transition-colors">
@@ -151,7 +152,7 @@ export default function CustomerShowcaseCompact() {
                       <span className="text-xs sm:text-sm font-semibold truncate">{c.name}</span>
                       {(c.total_orders || 0) > 1 && (
                         <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold text-amber-700 bg-amber-100 border border-amber-200 rounded-full px-1.5 py-0.5">
-                          <Repeat className="h-2.5 w-2.5" /> রিপিট
+                          <Repeat className="h-2.5 w-2.5" /> {trNow('রিপিট', 'Repeat')}
                         </span>
                       )}
                     </div>
@@ -172,7 +173,7 @@ export default function CustomerShowcaseCompact() {
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <div className="text-xs sm:text-sm font-bold text-primary tabular-nums">{c.total_orders || 0}</div>
-                    <div className="text-[9px] sm:text-[10px] text-muted-foreground">অর্ডার</div>
+                    <div className="text-[9px] sm:text-[10px] text-muted-foreground">{trNow('অর্ডার', 'orders')}</div>
                   </div>
                 </div>
               ))

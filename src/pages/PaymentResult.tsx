@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { trackPurchase } from '@/lib/ecommerceTracking';
 import { trackMetaPurchase } from '@/lib/metaTracking';
 import { storeThankYouData } from '@/pages/ThankYou';
+import { trNow } from '@/lib/i18n';
 
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();
@@ -137,7 +138,7 @@ export default function PaymentResult() {
           {status === 'loading' && (
             <>
               <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="text-lg font-semibold">পেমেন্ট যাচাই করা হচ্ছে...</p>
+              <p className="text-lg font-semibold">{trNow('পেমেন্ট যাচাই করা হচ্ছে...', 'Checking the payment...')}</p>
             </>
           )}
 
@@ -146,16 +147,16 @@ export default function PaymentResult() {
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
                 <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
-              <h2 className="text-xl font-bold text-green-700">পেমেন্ট সফল!</h2>
+              <h2 className="text-xl font-bold text-green-700">{trNow('পেমেন্ট সফল!', 'Payment successful!')}</h2>
               {orderNumber && (
                 <p className="text-muted-foreground">
-                  অর্ডার নম্বর: <span className="font-semibold text-foreground">{orderNumber}</span>
+                  {trNow('অর্ডার নম্বর:', 'Order number:')} <span className="font-semibold text-foreground">{orderNumber}</span>
                 </p>
               )}
-              <p className="text-sm text-muted-foreground">আপনার অর্ডার সফলভাবে গৃহীত হয়েছে।</p>
+              <p className="text-sm text-muted-foreground">{trNow('আপনার অর্ডার সফলভাবে গৃহীত হয়েছে।', 'Your order has been received.')}</p>
               <div className="flex gap-2 pt-2">
-                <Button onClick={() => navigate('/shop')} className="flex-1">শপিং চালিয়ে যান</Button>
-                <Button variant="outline" onClick={() => navigate('/order-status')} className="flex-1">অর্ডার ট্র্যাক</Button>
+                <Button onClick={() => navigate('/shop')} className="flex-1">{trNow('শপিং চালিয়ে যান', 'Continue shopping')}</Button>
+                <Button variant="outline" onClick={() => navigate('/order-status')} className="flex-1">{trNow('অর্ডার ট্র্যাক', 'Track order')}</Button>
               </div>
             </>
           )}

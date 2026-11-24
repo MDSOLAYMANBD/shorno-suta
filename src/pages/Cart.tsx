@@ -13,6 +13,8 @@ import { applyClearanceList } from '@/lib/clearancePrice';
 import { FreeShippingProgress } from '@/components/freeShipping/FreeShippingProgress';
 import { optimizedImageUrl } from '@/lib/imageUrl';
 import { getColorPrimaryImage } from '@/lib/productVariants';
+import { trNow, nameNow } from '@/lib/i18n';
+import { variantLabel } from '@/lib/variantPresets';
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, subtotal, addItem, updateItemSize, updateItemColor } = useCart();
@@ -265,7 +267,7 @@ export default function Cart() {
                   <button
                     onClick={() => removeItem(item.id, item.size, item.color, item.instance_id)}
                     className="absolute top-1.5 right-1.5 p-1 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                    title="ডিলিট"
+                    title={trNow('ডিলিট', 'Remove')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -274,12 +276,12 @@ export default function Cart() {
                     {item.image ? <img src={optimizedImageUrl(item.image, 100, 70)} alt={item.name} className="w-full h-full object-cover" loading="lazy" /> : null}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <Link to={`/product/${item.slug}`} className="font-medium text-sm hover:underline line-clamp-1">{item.name_bn || item.name}</Link>
+                    <Link to={`/product/${item.slug}`} className="font-medium text-sm hover:underline line-clamp-1">{nameNow(item.name_bn, item.name)}</Link>
 
                     {/* Color selector */}
                     {availableColors.length > 1 && (
                       <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-muted-foreground">রঙ:</span>
+                        <span className="text-[10px] text-muted-foreground">{trNow('রঙ:', 'Colour:')}</span>
                         <div className="flex flex-wrap gap-1">
                           {availableColors.map(c => (
                             <button
@@ -291,20 +293,20 @@ export default function Cart() {
                                   : 'border-border text-muted-foreground hover:border-primary/50'
                               }`}
                             >
-                              {c}
+                              {variantLabel(c)}
                             </button>
                           ))}
                         </div>
                       </div>
                     )}
                     {availableColors.length <= 1 && item.color && (
-                      <span className="text-[10px] text-muted-foreground mt-0.5 block">রঙ: {item.color}</span>
+                      <span className="text-[10px] text-muted-foreground mt-0.5 block">{trNow('রঙ:', 'Colour:')} {variantLabel(item.color)}</span>
                     )}
 
                     {/* Size selector */}
                     {availableSizes.length > 1 ? (
                       <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-muted-foreground">সাইজ:</span>
+                        <span className="text-[10px] text-muted-foreground">{trNow('সাইজ:', 'Size:')}</span>
                         <div className="flex flex-wrap gap-1">
                           {availableSizes.map(s => (
                             <button
@@ -316,13 +318,13 @@ export default function Cart() {
                                   : 'border-border text-muted-foreground hover:border-primary/50'
                               }`}
                             >
-                              {s}
+                              {variantLabel(s)}
                             </button>
                           ))}
                         </div>
                       </div>
                     ) : item.size ? (
-                      <span className="text-[10px] text-muted-foreground mt-0.5 block">সাইজ: {item.size}</span>
+                      <span className="text-[10px] text-muted-foreground mt-0.5 block">{trNow('সাইজ:', 'Size:')} {variantLabel(item.size)}</span>
                     ) : null}
 
                     <div className="flex items-center justify-between mt-1.5 gap-2">
@@ -375,13 +377,13 @@ export default function Cart() {
                   const basePrice = bumpData.price;
                   return (
                     <div key={bumpData.id} className="ml-4 mt-1 border border-dashed border-primary/30 rounded-lg p-3 bg-primary/5">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 এটিও পছন্দ হতে পারে</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 {trNow('এটিও পছন্দ হতে পারে', 'You may also like')}</p>
                       <div className="flex items-center gap-3">
                         {bumpData.images?.[0] && (
                           <img src={optimizedImageUrl(bumpData.images[0], 90, 70)} alt="" className="w-12 h-14 rounded-lg object-cover" loading="lazy" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold truncate">{bumpData.name_bn || bumpData.name}</p>
+                          <p className="text-xs font-semibold truncate">{nameNow(bumpData.name_bn, bumpData.name)}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-xs font-bold text-primary">৳{basePrice - bumpDiscount}</span>
                             {bumpDiscount > 0 && (
@@ -403,10 +405,10 @@ export default function Cart() {
                               image: bumpData.images?.[0] || '',
                               slug: bumpData.slug,
                             }, 1);
-                            toast.success('কার্টে যোগ করা হয়েছে!');
+                            toast.success(trNow('কার্টে যোগ করা হয়েছে!', 'Added to cart!'));
                           }}
                         >
-                          <ShoppingBag className="h-3 w-3 mr-1" /> যোগ করুন
+                          <ShoppingBag className="h-3 w-3 mr-1" /> {trNow('যোগ করুন', 'Add')}
                         </Button>
                       </div>
                     </div>
@@ -416,13 +418,13 @@ export default function Cart() {
                 {/* Inline Addon (addon_config object) */}
                 {bumpInline && !isAddonInCart(bumpInline.name!, item.id) && (
                   <div className="ml-4 mt-1 border border-dashed border-primary/30 rounded-lg p-3 bg-primary/5">
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 এটিও নিতে পারেন</p>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">🎁 {trNow('এটিও নিতে পারেন', 'Add this too')}</p>
                     <div className="flex items-center gap-3">
                       {bumpInline.image && (
                         <img src={optimizedImageUrl(bumpInline.image, 90, 70)} alt="" className="w-12 h-14 rounded-lg object-cover" loading="lazy" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold truncate">{bumpInline.name_bn || bumpInline.name}</p>
+                        <p className="text-xs font-semibold truncate">{nameNow(bumpInline.name_bn, bumpInline.name)}</p>
                         <span className="text-xs font-bold text-primary">৳{bumpInline.price}</span>
                       </div>
                       <Button
@@ -440,10 +442,10 @@ export default function Cart() {
                             is_addon: true,
                             parent_product_id: item.id,
                           }, 1);
-                          toast.success('কার্টে যোগ করা হয়েছে!');
+                          toast.success(trNow('কার্টে যোগ করা হয়েছে!', 'Added to cart!'));
                         }}
                       >
-                        <ShoppingBag className="h-3 w-3 mr-1" /> যোগ করুন
+                        <ShoppingBag className="h-3 w-3 mr-1" /> {trNow('যোগ করুন', 'Add')}
                       </Button>
                     </div>
                   </div>

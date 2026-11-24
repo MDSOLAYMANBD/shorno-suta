@@ -5,6 +5,7 @@ import { useSiteConfig } from '@/hooks/useSiteConfig';
 import { sanitizeHtml } from '@/lib/sanitize';
 import NotFound from './NotFound';
 import SEOHead from '@/components/SEOHead';
+import { useLang } from '@/lib/i18n';
 
 const CONTACT_JSONLD = {
   '@context': 'https://schema.org',
@@ -29,6 +30,7 @@ const CONTACT_JSONLD = {
 
 export default function Contact() {
   const { data: pagesData, isLoading } = useSiteConfig('pages_config');
+  const { tr, en } = useLang();
 
   if (isLoading) {
     return (

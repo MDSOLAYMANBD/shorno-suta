@@ -12,6 +12,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import WelcomeIslandInline from './WelcomeIslandInline';
 import { trackViewSearchResults } from '@/lib/ecommerceTracking';
 import LiveVisitorBadge from '@/components/LiveVisitorBadge';
+import LangToggle from '@/components/LangToggle';
+import { useLang } from '@/lib/i18n';
 
 export default function Navbar() {
   const { totalItems } = useCart();
@@ -28,6 +30,7 @@ export default function Navbar() {
   const parentCategories = (categories || []).filter((c: any) => !c.parent_id);
   const { user } = useCustomerAuth();
   const { avatarUrl, displayName } = useCustomerProfile();
+  const { en, name, menu } = useLang();
   const navConfig = savedNavConfig ? { ...DEFAULT_NAVBAR_CONFIG, ...savedNavConfig } : DEFAULT_NAVBAR_CONFIG;
   const navLinks = navConfig.links || DEFAULT_NAVBAR_CONFIG.links;
 
@@ -97,8 +100,8 @@ export default function Navbar() {
                   </div>
                 )}
                 <div className="leading-none">
-                  <span className="text-lg sm:text-xl font-extrabold tracking-wide block brand-shine">{navConfig.brand_name || 'স্বর্ণ সুতা'}</span>
-                  <span className="text-[10px] tracking-widest text-muted-foreground uppercase block mt-0.5">{navConfig.brand_name_en || 'Shorno Suta'}</span>
+                  <span className="text-lg sm:text-xl font-extrabold tracking-wide block brand-shine">{en ? navConfig.brand_name_en || 'Shorno Suta' : navConfig.brand_name || 'স্বর্ণ সুতা'}</span>
+                  <span className="text-[10px] tracking-widest text-muted-foreground uppercase block mt-0.5">{en ? navConfig.brand_name || 'স্বর্ণ সুতা' : navConfig.brand_name_en || 'Shorno Suta'}</span>
                 </div>
               </>
             )}
@@ -115,7 +118,7 @@ export default function Navbar() {
                   location.pathname === l.to ? 'text-primary' : 'text-muted-foreground'
                 )}
               >
-                {l.label}
+                {menu(l.label, l.to)}
               </Link>
             ))}
           </nav>
@@ -124,6 +127,9 @@ export default function Navbar() {
 
           <div className="flex items-center gap-3 shrink-0">
             <LiveVisitorBadge />
+
+            {/* বাংলা | English (on a phone it is in the menu, so the welcome line keeps its room) */}
+            <LangToggle className="hidden sm:inline-flex" />
 
             {/* Search */}
             <div ref={searchRef} className="relative">
@@ -150,7 +156,7 @@ export default function Navbar() {
                         >
                           {p.images?.[0] && <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />}
                           <div>
-                            <p className="font-medium line-clamp-1">{p.name_bn || p.name}</p>
+                            <p className="font-medium line-clamp-1">{name(p.name_bn, p.name)}</p>
                             <p className="text-xs text-primary font-bold">৳{p.price}</p>
                           </div>
                         </button>
@@ -227,7 +233,7 @@ export default function Navbar() {
                           idx !== parentCategories.length - 1 && 'border-b border-border'
                         )}
                       >
-                        <span className="truncate">{cat.name_bn || cat.name}</span>
+                        <span className="truncate">{name(cat.name_bn, cat.name)}</span>
                         {hasChildren && <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
                       </button>
                     );
@@ -263,12 +269,17 @@ export default function Navbar() {
                       )}
                     >
                       <Icon className={cn('h-4 w-4', isActive ? 'text-primary' : 'text-muted-foreground')} />
-                      <span className="flex-1">{l.label}</span>
+                      <span className="flex-1">{menu(l.label, l.to)}</span>
                       <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                     </Link>
                   );
                 })}
               </div>
+            </div>
+
+            {/* বাংলা | English */}
+            <div className="px-4 pb-4">
+              <LangToggle wide />
             </div>
           </nav>
         )}

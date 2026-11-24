@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { trNow } from '@/lib/i18n';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -18,10 +19,10 @@ export default function AuthCallback() {
       const lower = errDesc.toLowerCase();
       const isScope = lower.includes('scope') || lower.includes('permission');
       toast({
-        title: 'লগইন ব্যর্থ',
+        title: trNow('লগইন ব্যর্থ', 'Login failed'),
         description: isScope
-          ? 'Facebook লগইন সাময়িকভাবে অনুপলব্ধ। Google দিয়ে চেষ্টা করুন।'
-          : 'লগইন সম্পূর্ণ হয়নি। আবার চেষ্টা করুন।',
+          ? trNow('Facebook লগইন সাময়িকভাবে অনুপলব্ধ। Google দিয়ে চেষ্টা করুন।', 'Facebook login is not available right now. Try Google.')
+          : trNow('লগইন সম্পূর্ণ হয়নি। আবার চেষ্টা করুন।', 'Login did not finish. Please try again.'),
         variant: 'destructive',
       });
       navigate(`/account/login?auth_error=${isScope ? 'fb_scope' : 'oauth'}`, { replace: true });
@@ -32,7 +33,7 @@ export default function AuthCallback() {
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (error) {
           console.error('Auth callback error:', error);
-          toast({ title: 'লগইন ব্যর্থ', description: 'সেশন তৈরি করা যায়নি। আবার চেষ্টা করুন।', variant: 'destructive' });
+          toast({ title: trNow('লগইন ব্যর্থ', 'Login failed'), description: trNow('সেশন তৈরি করা যায়নি। আবার চেষ্টা করুন।', 'Could not sign you in. Please try again.'), variant: 'destructive' });
           navigate('/account/login?auth_error=exchange', { replace: true });
         } else {
           navigate('/account', { replace: true });
