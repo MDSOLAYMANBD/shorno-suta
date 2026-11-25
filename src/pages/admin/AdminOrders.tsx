@@ -1405,160 +1405,119 @@ export default function AdminOrders() {
         <ManualOrderDialog />
       </div>
 
-      {/* Daily Summary */}
-      <div className="mb-3 p-2 border border-border rounded-lg bg-muted/30 flex flex-col gap-2">
-       <div className="flex gap-4">
-        {/* বাম কলাম */}
-        <div className="flex-1 flex flex-col">
-        {/* সারি ১: হিসাব + ক্যালেন্ডার */}
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium">📅 হিসাব:</span>
-           <Popover>
-             <PopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="h-7 w-7">
-                  <CalendarIcon className="h-3.5 w-3.5" />
-                </Button>
-             </PopoverTrigger>
-             <PopoverContent className="w-auto p-0" align="start">
-                 <SmartRangeCalendar
-                   value={summaryRange as any}
-                   onChange={(range) => setSummaryRange(range as any)}
-                   numberOfMonths={1}
-                 />
-             </PopoverContent>
-           </Popover>
-           <Button
-             variant={showTrash ? 'default' : 'outline'}
-             size="icon"
-             onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
-             className="h-7 w-7 md:hidden"
-             title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
-           >
-             <Trash2 className="h-3.5 w-3.5" />
-           </Button>
+      {/* Daily Summary: the chosen days' orders by status (a tile's tap filters the list), the money on the right */}
+      <section className="mb-4 rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" title={'তারিখ বদলান'} className="flex min-w-0 items-center gap-2.5 rounded-xl p-0.5 text-left transition-opacity hover:opacity-80">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <CalendarIcon className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-base font-bold leading-tight">হিসাব</span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {(() => {
+                        const from = summaryRange?.from || new Date();
+                        const to = summaryRange?.to || from;
+                        const day = (d: Date) => format(d, 'yyyy-MM-dd');
+                        if (day(from) === day(to)) {
+                          return day(from) === day(new Date())
+                            ? `${'আজ'}, ${format(from, 'd MMMM', { locale: bn })}`
+                            : format(from, 'd MMMM yyyy', { locale: bn });
+                        }
+                        return `${format(from, 'd MMM', { locale: bn })} – ${format(to, 'd MMM yyyy', { locale: bn })}`;
+                      })()}
+                      <ChevronDown className="h-3 w-3" />
+                    </span>
+                  </span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <SmartRangeCalendar
+                  value={summaryRange as any}
+                  onChange={(range) => setSummaryRange(range as any)}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant={showTrash ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
+              className="h-8 w-8 rounded-lg md:hidden"
+              title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
           </div>
-           {/* স্ট্যাটাস ব্যাজ: Desktop */}
-          <div className="hidden md:flex flex-wrap gap-1.5 items-center">
-           {statuses.map(s => {
-              const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
-              const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
-              const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
-              const isActive = filter === targetFilter;
-              return (
-                <span
-                  key={s}
-                  className={cn(
-                    'px-2 py-0.5 rounded text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity',
-                    statusColor[s],
-                    isActive && 'ring-2 ring-offset-1 ring-current'
-                  )}
-                  onClick={() => setFilter(prev => prev === targetFilter ? 'all' : targetFilter)}
-                  title={isReturnStatus ? 'গ্রহণ-পেন্ডিং (সব সময়ের)' : undefined}
-                >
-                  {statusLabel[s]}: {count}
-                  {(s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled') && (
-                    <span className="ml-1 opacity-80">({allTimeStatusCounts[s] || 0})</span>
-                  )}
-                </span>
-              );
-            })}
-            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-muted text-foreground">
-              মোট: {dailySummary.total}
-            </span>
-          </div>
-          {/* স্ট্যাটাস ব্যাজ: Mobile */}
-          <div className="flex md:hidden flex-wrap gap-1.5 items-center">
-           {statuses.filter(s => {
-              if (s === 'delivery_failed' || s === 'paid_return' || s === 'exchange') return false;
-              const count = dailySummary.counts[s];
-              const allTime = allTimeStatusCounts[s] || 0;
-              return count > 0 || allTime > 0;
-            }).map(s => {
-              const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
-              const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
-              const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
-              const isActive = filter === targetFilter;
-              return (
-                <span
-                  key={s}
-                  className={cn(
-                    'px-2 py-0.5 rounded text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity',
-                    statusColor[s],
-                    isActive && 'ring-2 ring-offset-1 ring-current'
-                  )}
-                  onClick={() => setFilter(prev => prev === targetFilter ? 'all' : targetFilter)}
-                  title={isReturnStatus ? 'গ্রহণ-পেন্ডিং (সব সময়ের)' : undefined}
-                >
-                  {statusLabel[s]}: {count}
-                  {(s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled') && (
-                    <span className="ml-1 opacity-80">({allTimeStatusCounts[s] || 0})</span>
-                  )}
-                </span>
-              );
-            })}
+
+          {/* the money */}
+          <div className="ml-auto flex items-stretch gap-2">
+            <div className="rounded-xl bg-muted/70 px-3 py-1.5 text-right">
+              <div className="text-[11px] font-medium text-muted-foreground">মোট টাকা</div>
+              <div className="text-base font-extrabold leading-tight sm:text-lg">৳{dailySummary.totalAmount.toLocaleString()}</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFilter(prev => prev === 'shipped' ? 'all' : 'shipped')}
+              title={'আজকের শিফট হওয়া পার্সেল'}
+              className={cn(
+                'rounded-xl bg-purple-50 px-3 py-1.5 text-right transition-opacity hover:opacity-80 dark:bg-purple-500/10',
+                filter === 'shipped' && 'ring-2 ring-purple-500 ring-offset-1'
+              )}
+            >
+              <div className="text-[11px] font-medium text-purple-700/80 dark:text-purple-300/80">
+                শিফট · {dailySummary.counts['shipped'] || 0} <span className="opacity-70">({allTimeStatusCounts['shipped'] || 0})</span>
+              </div>
+              <div className="text-base font-extrabold leading-tight text-purple-700 dark:text-purple-300 sm:text-lg">৳{dailySummary.shippedAmount.toLocaleString()}</div>
+            </button>
           </div>
         </div>
 
-        {/* ডান কলাম: উল্লম্ব স্ট্যাক */}
-        <div className="text-right space-y-0.5 min-w-[90px]">
-          <div className="flex gap-3 justify-end">
-            <div className="text-right">
-              <div className="text-xs text-muted-foreground">মোট টাকা:</div>
-              <div className="text-sm font-bold">৳{dailySummary.totalAmount.toLocaleString()}</div>
-            </div>
-            <div className="text-right hidden md:block">
+        {/* each status: the chosen days' count (all-time waiting in brackets); returns: waiting to be received */}
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+          {statuses.map(s => {
+            const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
+            const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
+            const waiting = s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled';
+            const allTime = allTimeStatusCounts[s] || 0;
+            const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
+            const isActive = filter === targetFilter;
+            // on a phone only the statuses that have something
+            const empty = !count && (isReturnStatus || !allTime);
+            return (
               <button
-                onClick={() => setFilter(prev => prev === 'shipped' ? 'all' : 'shipped')}
-                className="text-right hover:opacity-80 transition-opacity"
-                title="আজকের শিফট হওয়া পার্সেল"
+                key={s}
+                type="button"
+                onClick={() => setFilter(prev => prev === targetFilter ? 'all' : targetFilter)}
+                title={isReturnStatus ? 'গ্রহণ-পেন্ডিং (সব সময়ের)' : undefined}
+                className={cn(
+                  'flex min-w-0 flex-col items-start rounded-xl border border-border/70 bg-background px-2.5 py-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm',
+                  isActive && cn('border-transparent ring-2 ring-current', statusColor[s]),
+                  empty && 'hidden md:flex'
+                )}
               >
-                <div className="text-xs text-muted-foreground">শিফট:</div>
-                <div className="text-sm font-bold text-purple-600">
-                  {dailySummary.counts['shipped'] || 0} <span className="opacity-70 font-medium">({allTimeStatusCounts['shipped'] || 0})</span> টি · ৳{dailySummary.shippedAmount.toLocaleString()}
-                </div>
+                <span className="flex w-full min-w-0 items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className={cn('h-2 w-2 shrink-0 rounded-full', statusDot[s])} />
+                  <span className="truncate">{statusLabel[s]}</span>
+                </span>
+                <span className={cn('mt-0.5 text-lg font-extrabold leading-tight', !count && 'text-muted-foreground/60')}>
+                  {count}
+                  {waiting && <span className="ml-1 text-xs font-semibold text-muted-foreground">({allTime})</span>}
+                </span>
               </button>
-            </div>
-            <div className="text-right md:hidden">
-              <div className="text-xs text-muted-foreground">শিপড:</div>
-              <div className="text-sm font-bold text-purple-600">৳{dailySummary.shippedAmount.toLocaleString()}</div>
-              <div className="text-[10px] text-muted-foreground">{dailySummary.counts['shipped'] || 0} ({allTimeStatusCounts['shipped'] || 0}) টি</div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-0.5 items-end">
-            <button
-              onClick={() => setFilter(prev => prev === '__return_pending__:delivery_failed' ? 'all' : '__return_pending__:delivery_failed')}
-              className={cn(
-                'min-w-[90px] text-center px-2.5 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700 cursor-pointer hover:opacity-80 transition-opacity',
-                filter === '__return_pending__:delivery_failed' && 'ring-2 ring-offset-1 ring-red-500'
-              )}
-            >
-              ডেলিভারি ব্যর্থ: {returnPendingByStatus?.delivery_failed ?? 0}
-            </button>
-            <button
-              onClick={() => setFilter(prev => prev === '__return_pending__:paid_return' ? 'all' : '__return_pending__:paid_return')}
-              className={cn(
-                'min-w-[90px] text-center px-2.5 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700 cursor-pointer hover:opacity-80 transition-opacity',
-                filter === '__return_pending__:paid_return' && 'ring-2 ring-offset-1 ring-purple-500'
-              )}
-            >
-              পেইড রিটার্ন: {returnPendingByStatus?.paid_return ?? 0}
-            </button>
-          </div>
-          <div className="hidden md:block">
-            <div className="text-xs text-muted-foreground">আজ</div>
-            <div className="text-sm font-bold">{format(new Date(), 'dd/MM/yy')}</div>
+            );
+          })}
+          <div className="flex min-w-0 flex-col items-start rounded-xl bg-muted px-2.5 py-2">
+            <span className="text-[11px] font-semibold text-muted-foreground">মোট</span>
+            <span className="mt-0.5 text-lg font-extrabold leading-tight">{dailySummary.total}</span>
           </div>
         </div>
-       </div>
-       {/* Mobile-only: bottom row */}
-       <div className="md:hidden flex items-center justify-between gap-2 pt-2 border-t border-border/50 text-sm font-semibold">
-         <span>মোট: {dailySummary.total}</span>
-         <span className="text-muted-foreground">|</span>
-         <span className="text-primary">{showTrash ? '🗑️ ' : 'অর্ডার:'}{totalCount}</span>
-         <span className="text-muted-foreground">|</span>
-         <span>আজ {format(new Date(), 'dd/MM/yy')}</span>
-       </div>
-      </div>
+        {/* Mobile-only: the list's own count */}
+        <div className="mt-2 text-xs font-semibold text-primary md:hidden">{showTrash ? '🗑️ ' : 'অর্ডার:'} {totalCount}</div>
+      </section>
 
       {/* Mobile Filter Row — moved above Daily Summary */}
 
