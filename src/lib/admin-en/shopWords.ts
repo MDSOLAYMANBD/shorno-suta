@@ -376,6 +376,7 @@ const words: Record<string, string> = {
   "এই অংশটা দেখানো যায়নি। পেজটা রিফ্রেশ করে আবার চেষ্টা করুন।": "This part could not be shown. Refresh the page and try again.",
   // the orders page's daily summary
   "তারিখ বদলান": "Change the dates",
+  "কম দেখান": "Show less",
 };
 
 export default words;

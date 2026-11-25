@@ -230,6 +230,8 @@ export default function AdminOrders() {
   const [fraudPhone, setFraudPhone] = useState<string | null>(null);
   const [refreshingPhone, setRefreshingPhone] = useState<string | null>(null);
   const [summaryRange, setSummaryRange] = useState<DateRange>({ from: new Date(), to: new Date() });
+  // the summary strip's empty statuses, shown on a tap of its "+N"
+  const [allStatusChips, setAllStatusChips] = useState(false);
   const [currentPage, setCurrentPage] = useState(() => {
     const p = parseInt(searchParams.get('page') || '1', 10);
     return Number.isFinite(p) && p > 0 ? p : 1;
@@ -1378,23 +1380,6 @@ export default function AdminOrders() {
   return (
     <div>
       <div className="sticky top-14 md:top-0 z-40 bg-background pb-2">
-      {/* Header — Desktop */}
-      <div className="mb-4 hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{showTrash ? '🗑️ ট্র্যাশ' : 'অর্ডার সমূহ'}</h1>
-          <p className="text-sm text-muted-foreground">মোট {totalCount}টি {showTrash ? 'ডিলিটেড' : ''} অর্ডার</p>
-        </div>
-        <Button
-          variant={showTrash ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
-          className="gap-1.5"
-        >
-          <Trash2 className="h-4 w-4" />
-          {showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
-        </Button>
-      </div>
-
       {/* Mobile Filter Row — top */}
       <div className="flex md:hidden items-center gap-2 mb-3 bg-background py-2 -mx-3 px-3 border-b border-border shadow-sm">
         <div className="relative flex-1">
@@ -1416,14 +1401,24 @@ export default function AdminOrders() {
           countOf(b) - countOf(a)
           || (allTimeStatusCounts[b] || 0) - (allTimeStatusCounts[a] || 0)
           || statuses.indexOf(a) - statuses.indexOf(b));
-        const chip = (s: (typeof statuses)[number], phone: boolean) => {
+        // nothing in the chosen days and nothing waiting: behind the "+N" chip
+        const isEmpty = (s: (typeof statuses)[number]) =>
+          !countOf(s) && (s === 'delivery_failed' || s === 'paid_return' || s === 'exchange' || !(allTimeStatusCounts[s] || 0));
+        const hidden = allStatusChips ? 0 : statuses.filter((s) => isEmpty(s) && filter !== s && filter !== `__return_pending__:${s}`).length;
+        const more = (hidden > 0 || allStatusChips) && (
+          <button type="button" onClick={() => setAllStatusChips((v) => !v)}
+            className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-dashed border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
+            {allStatusChips ? 'কম দেখান' : `+${hidden}`}
+          </button>
+        );
+        const chip = (s: (typeof statuses)[number], _phone: boolean) => {
           const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
           const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
           const waiting = s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled';
           const allTime = allTimeStatusCounts[s] || 0;
           const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
           const isActive = filter === targetFilter;
-          if (phone && !count && !isActive && (isReturnStatus || !allTime)) return null;
+          if (!allStatusChips && !isActive && isEmpty(s)) return null;
           return (
             <button
               key={s}
@@ -1451,6 +1446,11 @@ export default function AdminOrders() {
         return (
           <section className="mb-3 rounded-2xl border border-border/70 bg-card px-2.5 py-2 shadow-sm">
             <div className="flex items-center gap-1.5 md:flex-wrap md:gap-y-1.5">
+              {/* the page's name and count (a computer; a phone has its own bar) */}
+              <div className="mr-1 hidden shrink-0 border-r border-border/70 pr-3 md:block">
+                <h1 className="text-base font-bold leading-tight">{showTrash ? '🗑️ ট্র্যাশ' : 'অর্ডার সমূহ'}</h1>
+                <p className="text-[11px] leading-tight text-muted-foreground">মোট {totalCount}টি {showTrash ? 'ডিলিটেড' : ''} অর্ডার</p>
+              </div>
               <Popover>
                 <PopoverTrigger asChild>
                   <button type="button" title={'তারিখ বদলান'}
@@ -1478,15 +1478,6 @@ export default function AdminOrders() {
                   />
                 </PopoverContent>
               </Popover>
-              <Button
-                variant={showTrash ? 'default' : 'outline'}
-                size="icon"
-                onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
-                className="h-7 w-7 shrink-0 rounded-full md:hidden"
-                title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
 
               {/* the money: at the end of the strip on a computer, on the first line on a phone */}
               <div className="ml-auto flex shrink-0 items-center gap-1.5 text-xs md:order-last">
@@ -1509,10 +1500,21 @@ export default function AdminOrders() {
                 </button>
               </div>
 
+              <Button
+                variant={showTrash ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
+                className="h-7 w-7 shrink-0 rounded-full md:order-last"
+                title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+
               {/* the statuses on a computer: they wrap between the days and the money */}
               <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-1.5 md:flex">
                 {busiest.map(s => chip(s, false))}
                 {total}
+                {more}
               </div>
             </div>
 
@@ -1520,6 +1522,7 @@ export default function AdminOrders() {
             <div className="-mx-2.5 mt-2 flex gap-1.5 overflow-x-auto px-2.5 [scrollbar-width:none] md:hidden">
               {busiest.map(s => chip(s, true))}
               {total}
+              {more}
               <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-1.5 py-1 text-xs font-semibold text-primary">
                 {showTrash ? '🗑️ ' : 'অর্ডার:'} {totalCount}
               </span>
