@@ -61,8 +61,11 @@ export default function StaffNotificationCard({
   // Realtime subscription for reactions and comments
   useEffect(() => {
     if (!groupId) return;
+    // Its own channel name each time: supabase-js hands back a channel of the same name that is
+    // still open (the same message shown twice, the tab opened again), and adding listeners to it
+    // throws, which blanked the whole page.
     const channel = supabase
-      .channel(`notif-${groupId}`)
+      .channel(`notif-${groupId}-${Math.random().toString(36).slice(2, 10)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_notification_reactions', filter: `group_id=eq.${groupId}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['notif-reactions', groupId] });
       })
@@ -75,7 +78,7 @@ export default function StaffNotificationCard({
 
   // Helper to resolve employee info by user_id
   const getEmployee = useCallback((uid: string) => {
-    return employees.find((e: any) => e.user_id === uid);
+    return (Array.isArray(employees) ? employees : []).find((e: any) => e.user_id === uid);
   }, [employees]);
 
   const getEmployeeName = useCallback((uid: string) => {

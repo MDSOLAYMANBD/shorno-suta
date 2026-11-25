@@ -372,6 +372,8 @@ const words: Record<string, string> = {
   'যোগ হচ্ছে…': 'Adding…',
   "পণ্যের রেডি ভিডিও কনটেন্ট": "Products' ready-made videos",
   "WhatsApp চ্যানেল থেকে নামিয়ে নিজের পেজে পোস্ট করুন": "Save them from the WhatsApp channel and post them on your page",
+  // the employee page: a tab that could not be drawn (AdminEmployeeProfile TabFallback)
+  "এই অংশটা দেখানো যায়নি। পেজটা রিফ্রেশ করে আবার চেষ্টা করুন।": "This part could not be shown. Refresh the page and try again.",
 };
 
 export default words;

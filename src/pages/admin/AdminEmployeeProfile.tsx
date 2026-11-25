@@ -16,10 +16,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { format, subDays, subMonths, startOfDay, startOfMonth } from 'date-fns';
-import { Pencil, X, Check, Camera, Lock, Mail, Eye, EyeOff, ArrowLeft, CalendarIcon, Clock, Sparkles, Timer, TrendingUp, User, Heart, Cake, Quote, Trash2, RefreshCw, BookmarkPlus } from 'lucide-react';
+import { Pencil, X, Check, Camera, Lock, Mail, Eye, EyeOff, ArrowLeft, CalendarIcon, Clock, Sparkles, Timer, TrendingUp, User, Heart, Cake, Quote, Trash2, RefreshCw, BookmarkPlus, Activity as ActivityIcon, CalendarCheck, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import { getRandomQuote, MOTIVATIONAL_QUOTES, type Quote as QuoteType } from '@/lib/motivationalQuotes';
 
 const FUNC_URL = `${FUNCTIONS_URL}/manage-employee`;
@@ -40,6 +41,17 @@ const HOBBY_OPTIONS = [
 
 
 
+
+/** Shown in place of a tab that could not be drawn (the rest of the page keeps working). */
+function TabFallback() {
+  return (
+    <Card className="rounded-2xl">
+      <CardContent className="py-10 text-center text-sm text-muted-foreground">
+        এই অংশটা দেখানো যায়নি। পেজটা রিফ্রেশ করে আবার চেষ্টা করুন।
+      </CardContent>
+    </Card>
+  );
+}
 
 function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSaveQuote }: { employee: any; onAvatarUpdated: () => void; canEdit: boolean; savedQuotes: QuoteType[]; onSaveQuote: (q: QuoteType) => void }) {
   const { id } = useParams<{ id: string }>();
@@ -115,130 +127,110 @@ function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSave
 
   return (
     <>
-      <Card className="overflow-hidden">
-        <div className="h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
-        <CardContent className="flex items-center gap-4 pt-5 pb-4">
-          <div className={cn("relative", canEdit && "group cursor-pointer")} onClick={() => canEdit && setMediaOpen(true)}>
-            <Avatar className="h-16 w-16 ring-2 ring-primary/20">
-              <AvatarImage src={employee.avatar_url || ''} />
-              <AvatarFallback className="text-lg bg-primary/10 text-primary">{(employee.full_name || employee.email)[0].toUpperCase()}</AvatarFallback>
-            </Avatar>
-            {canEdit && (
-              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="h-5 w-5 text-white" />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0">
-            {isEditing && canEdit ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="max-w-[250px] h-9"
-                  placeholder="নাম লিখুন"
-                  autoFocus
-                  onKeyDown={(e) => e.key === 'Enter' && saveName()}
-                />
-                <Button size="sm" onClick={saveName} disabled={saving}>
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold">{employee.full_name || 'স্বর্ণ সুতা'}</h1>
-                {canEdit && (
-                  <Button size="sm" variant="ghost" onClick={() => { setEditName(employee.full_name || ''); setIsEditing(true); }} className="h-7 w-7 p-0">
-                    <Pencil className="h-3.5 w-3.5" />
+      <Card className="overflow-hidden rounded-2xl">
+        {/* cover */}
+        <div className="relative h-20 overflow-hidden bg-gradient-to-br from-primary via-primary/75 to-primary/40 sm:h-24">
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-14 h-44 w-44 rounded-full bg-white/15 blur-2xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-10 left-1/3 h-24 w-56 rounded-full bg-white/10 blur-2xl" />
+        </div>
+        <CardContent className="px-4 pb-5 pt-0 sm:px-6">
+          <div className="-mt-10 flex min-w-0 items-end gap-4 sm:-mt-12">
+            <div className={cn("relative shrink-0", canEdit && "group cursor-pointer")} onClick={() => canEdit && setMediaOpen(true)}>
+              <Avatar className="h-20 w-20 shadow-lg ring-4 ring-card sm:h-24 sm:w-24">
+                <AvatarImage src={employee.avatar_url || ''} className="object-cover" />
+                <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">{(employee.full_name || employee.email || '?')[0].toUpperCase()}</AvatarFallback>
+              </Avatar>
+              {canEdit && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="h-5 w-5 text-white" />
+                </div>
+              )}
+              {employee.is_active !== false && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-card bg-emerald-500" />}
+            </div>
+            <div className="min-w-0 flex-1 pb-1">
+              {isEditing && canEdit ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="max-w-[250px] h-9"
+                    placeholder="নাম লিখুন"
+                    autoFocus
+                    onKeyDown={(e) => e.key === 'Enter' && saveName()}
+                  />
+                  <Button size="sm" onClick={saveName} disabled={saving}>
+                    <Check className="h-4 w-4" />
                   </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <h1 className="truncate text-xl font-extrabold leading-tight sm:text-2xl">{employee.full_name || 'স্বর্ণ সুতা'}</h1>
+                  {canEdit && (
+                    <Button size="sm" variant="ghost" onClick={() => { setEditName(employee.full_name || ''); setIsEditing(true); }} className="h-7 w-7 p-0">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              )}
+              <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <Badge className="capitalize">{employee.role}</Badge>
+                {employee.email && (
+                  <span className="inline-flex min-w-0 items-center gap-1"><Mail className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{employee.email}</span></span>
                 )}
               </div>
-            )}
-            <div className="flex gap-2 mt-1">
-              <Badge variant="secondary">{employee.role}</Badge>
             </div>
           </div>
 
-          {/* Motivational Quote */}
-          <div
-            className="hidden md:flex flex-1 items-center justify-center cursor-pointer group select-none"
-            onClick={showNextQuote}
-            title="ক্লিক করলে নতুন উক্তি আসবে"
-          >
-            <div className={cn(
-              "relative text-center px-8 py-5 max-w-lg rounded-xl bg-muted/20 border border-border/40",
-              fadeIn ? "animate-quote-in" : "animate-quote-out"
-            )}>
-              {/* Decorative quotation mark */}
-              <span className="absolute -top-3 left-4 text-5xl font-serif text-primary/20 leading-none select-none">"</span>
-              <p className="text-lg md:text-xl font-serif italic text-foreground/85 leading-relaxed tracking-wide">
-                {currentQuote.quote.quote}
-              </p>
-              <p className="text-sm font-semibold text-primary mt-3 tracking-wide">— {currentQuote.quote.author}</p>
-              <span className="absolute -bottom-3 right-4 text-5xl font-serif text-primary/20 leading-none select-none rotate-180">"</span>
+          {/* Motivational quote: a tap brings the next one */}
+          <div className="mt-4 flex items-stretch gap-2">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={showNextQuote}
+              onKeyDown={(e) => e.key === 'Enter' && showNextQuote()}
+              title={'ক্লিক করলে নতুন উক্তি আসবে'}
+              className={cn(
+                "relative min-w-0 flex-1 cursor-pointer select-none rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/[0.07] via-transparent to-transparent py-4 pl-11 pr-4",
+                fadeIn ? "animate-quote-in" : "animate-quote-out"
+              )}
+            >
+              <Quote className="absolute left-4 top-4 h-5 w-5 text-primary/30" />
+              <p className="font-serif text-base italic leading-relaxed text-foreground/85 md:text-lg">{currentQuote.quote.quote}</p>
+              <p className="mt-1.5 text-sm font-semibold text-primary">— {currentQuote.quote.author}</p>
             </div>
-          </div>
-
-          {/* Save / Refresh buttons */}
-          <div className="hidden md:flex flex-col gap-1.5 shrink-0">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-9 w-9"
-              onClick={(e) => { e.stopPropagation(); showNextQuote(); }}
-              title="নতুন উক্তি"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={cn("h-9 w-9", isAlreadySaved && "text-red-500")}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!isAlreadySaved) {
-                  onSaveQuote(currentQuote.quote);
-                  toast.success('উক্তি সেভ হয়েছে ❤️');
-                } else {
-                  toast.info('এই উক্তি আগেই সেভ করা আছে');
-                }
-              }}
-              title={isAlreadySaved ? 'সেভ করা আছে' : 'সেভ করুন'}
-            >
-              <Heart className={cn("h-4 w-4", isAlreadySaved && "fill-current")} />
-            </Button>
+            <div className="flex shrink-0 flex-col justify-center gap-1.5">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-9 w-9 rounded-xl"
+                onClick={(e) => { e.stopPropagation(); showNextQuote(); }}
+                title={'নতুন উক্তি'}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                className={cn("h-9 w-9 rounded-xl", isAlreadySaved && "text-red-500")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isAlreadySaved) {
+                    onSaveQuote(currentQuote.quote);
+                    toast.success('উক্তি সেভ হয়েছে ❤️');
+                  } else {
+                    toast.info('এই উক্তি আগেই সেভ করা আছে');
+                  }
+                }}
+                title={isAlreadySaved ? 'সেভ করা আছে' : 'সেভ করুন'}
+              >
+                <Heart className={cn("h-4 w-4", isAlreadySaved && "fill-current")} />
+              </Button>
+            </div>
           </div>
         </CardContent>
-
-        {/* Mobile quote */}
-        <div className="md:hidden px-4 pb-4">
-          <div
-            className={cn(
-              "relative text-center cursor-pointer p-4 rounded-xl bg-muted/30 border border-border/30 transition-all duration-300",
-              fadeIn ? "animate-quote-in" : "animate-quote-out"
-            )}
-            onClick={showNextQuote}
-          >
-            <span className="absolute -top-2 left-3 text-4xl font-serif text-primary/20 leading-none select-none">"</span>
-            <p className="text-base font-serif italic text-foreground/85 leading-relaxed tracking-wide">
-              {currentQuote.quote.quote}
-            </p>
-            <div className="flex items-center justify-center gap-2 mt-2.5">
-              <p className="text-sm font-semibold text-primary tracking-wide">— {currentQuote.quote.author}</p>
-              {!isAlreadySaved && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onSaveQuote(currentQuote.quote); toast.success('উক্তি সেভ হয়েছে ❤️'); }}
-                  className="text-muted-foreground hover:text-red-500 transition-colors"
-                >
-                  <Heart className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
       </Card>
       {canEdit && <MediaCenter open={mediaOpen} onOpenChange={setMediaOpen} onSelect={handleMediaSelect} />}
     </>
@@ -655,7 +647,9 @@ function NotificationsTab({ userId, isSelf }: { userId: string; isSelf: boolean 
       const res = await fetch(FUNC_URL, {
         headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
-      return await res.json();
+      // an error answer is an object, not the list
+      const list = await res.json().catch(() => []);
+      return Array.isArray(list) ? list : [];
     },
     enabled: !!currentUserId,
   });
@@ -716,8 +710,13 @@ function NotificationsTab({ userId, isSelf }: { userId: string; isSelf: boolean 
   // Merge received + sent, deduplicate, sort by created_at
   const notifications = useMemo(() => {
     const map = new Map<string, any>();
+    // A message this user sent is shown once, as sent (with who read it), never also as received
+    const sentGroups = new Set(sentNotifs.map((n) => n.group_id || n.id));
     // Add received first
-    receivedNotifs.forEach((n: any) => map.set(n.id, { ...n, _isSent: false }));
+    receivedNotifs.forEach((n: any) => {
+      if (n.group_id && sentGroups.has(n.group_id)) return;
+      map.set(n.id, { ...n, _isSent: false });
+    });
     // Add sent (mark as sent)
     sentNotifs.forEach((n: any) => {
       const key = `sent-${n.group_id || n.id}`;
@@ -849,7 +848,10 @@ function NotificationsTab({ userId, isSelf }: { userId: string; isSelf: boolean 
         </CardHeader>
         <CardContent>
           {notifications.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">কোনো বার্তা নেই</p>
+            <div className="flex flex-col items-center gap-2 py-10 text-center text-muted-foreground">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted"><MessageSquare className="h-5 w-5" /></span>
+              <p className="text-sm">কোনো বার্তা নেই</p>
+            </div>
           ) : (
             <div className="space-y-3">
               {notifications.map((n: any) => {
@@ -1016,39 +1018,39 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
       )}
       {/* Action Buttons — only for own profile */}
       {isSelf && !isOffDay && (
-        <Card className="overflow-hidden">
-          <CardContent className="p-4">
+        <Card className="overflow-hidden rounded-2xl">
+          <CardContent className="p-3 sm:p-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Button
-                className="h-16 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg"
+                className="h-20 flex flex-col gap-1.5 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 variant={todayRecord?.check_in ? 'secondary' : 'default'}
                 disabled={!!todayRecord?.check_in || attendanceAction.isPending}
                 onClick={() => attendanceAction.mutate('check_in')}
               >
                 <LogIn className="h-5 w-5" />
-                <span className="text-xs">
+                <span className="text-xs font-semibold">
                   {todayRecord?.check_in ? `✅ ${formatTime(todayRecord.check_in)}` : 'Present'}
                 </span>
               </Button>
               <Button
-                className="h-16 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.03]"
+                className="h-20 flex flex-col gap-1.5 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 variant={todayRecord?.lunch_start ? 'secondary' : 'outline'}
                 disabled={!todayRecord?.check_in || !!todayRecord?.lunch_start || attendanceAction.isPending}
                 onClick={() => attendanceAction.mutate('lunch_start')}
               >
                 <Coffee className="h-5 w-5" />
-                <span className="text-xs">
+                <span className="text-xs font-semibold">
                   {todayRecord?.lunch_start ? `🍽️ ${formatTime(todayRecord.lunch_start)}` : 'Lunch Start'}
                 </span>
               </Button>
               <Button
-                className="h-16 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.03]"
+                className="h-20 flex flex-col gap-1.5 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 variant={todayRecord?.lunch_end ? 'secondary' : 'outline'}
                 disabled={!todayRecord?.lunch_start || !!todayRecord?.lunch_end || attendanceAction.isPending}
                 onClick={() => attendanceAction.mutate('lunch_end')}
               >
                 <CoffeeIcon className="h-5 w-5" />
-                <span className="text-xs">
+                <span className="text-xs font-semibold">
                   {todayRecord?.lunch_end
                     ? `✅ ${todayRecord.lunch_duration_minutes}m`
                     : todayRecord?.lunch_start
@@ -1057,13 +1059,13 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
                 </span>
               </Button>
               <Button
-                className="h-16 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.03]"
+                className="h-20 flex flex-col gap-1.5 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 variant={todayRecord?.check_out ? 'secondary' : 'destructive'}
                 disabled={!todayRecord?.check_in || !!todayRecord?.check_out || attendanceAction.isPending}
                 onClick={() => attendanceAction.mutate('check_out')}
               >
                 <LogOut className="h-5 w-5" />
-                <span className="text-xs">
+                <span className="text-xs font-semibold">
                   {todayRecord?.check_out ? `🏠 ${formatTime(todayRecord.check_out)}` : 'End Duty'}
                 </span>
               </Button>
@@ -1081,23 +1083,23 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <div className="p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:shadow-md hover:scale-[1.02]">
+              <div className="rounded-2xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
                 <p className="text-xs text-muted-foreground">চেক-ইন</p>
                 <p className="text-sm font-bold">{formatTime(today.check_in)}</p>
                 {today.status === 'late' && <Badge variant="destructive" className="text-[10px] mt-1">লেট {today.late_minutes}m</Badge>}
                 {today.status === 'present' && <Badge className="bg-green-600 text-white text-[10px] mt-1">সময়মতো</Badge>}
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:shadow-md hover:scale-[1.02]">
+              <div className="rounded-2xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
                 <p className="text-xs text-muted-foreground">লাঞ্চ</p>
                 <p className="text-sm font-bold">{today.lunch_duration_minutes ? `${today.lunch_duration_minutes} মিনিট` : '--'}</p>
                 {today.lunch_overtime_minutes > 0 && <Badge variant="destructive" className="text-[10px] mt-1">{today.lunch_overtime_minutes}m অতিরিক্ত</Badge>}
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:shadow-md hover:scale-[1.02]">
+              <div className="rounded-2xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
                 <p className="text-xs text-muted-foreground">চেক-আউট</p>
                 <p className="text-sm font-bold">{formatTime(today.check_out)}</p>
                 {today.early_leave_minutes > 0 && <Badge variant="outline" className="text-[10px] mt-1">{today.early_leave_minutes}m আগে</Badge>}
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:shadow-md hover:scale-[1.02]">
+              <div className="rounded-2xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
                 <p className="text-xs text-muted-foreground">মোট কাজ</p>
                 <p className="text-sm font-bold">{today.total_working_hours ? `${today.total_working_hours} ঘণ্টা` : '--'}</p>
               </div>
@@ -1122,7 +1124,7 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
             {[
               { value: totalDays, label: 'কার্যদিবস', bg: 'bg-blue-50 dark:bg-blue-950/20', color: 'text-blue-600' },
               { value: onTimeDays, label: 'সময়মতো', bg: 'bg-green-50 dark:bg-green-950/20', color: 'text-green-600' },
@@ -1133,15 +1135,15 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
               { value: overtimeDays, label: 'ওভারটাইম দিন', bg: 'bg-amber-50 dark:bg-amber-950/20', color: 'text-amber-600' },
               { value: `${overtimeHours}h`, label: 'মোট ওভারটাইম', bg: 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20', color: 'text-amber-700 dark:text-amber-400' },
             ].map((item, i) => (
-              <div key={i} className={`text-center p-3 rounded-lg ${item.bg} transition-all duration-500 hover:shadow-md hover:scale-[1.03]`} style={{ animationDelay: `${i * 80}ms` }}>
-                <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
-                <p className="text-[10px] text-muted-foreground">{item.label}</p>
+              <div key={i} className={`rounded-2xl border border-black/5 p-3 text-center dark:border-white/10 ${item.bg} transition-shadow duration-300 hover:shadow-md`} style={{ animationDelay: `${i * 80}ms` }}>
+                <p className={`text-2xl font-extrabold ${item.color}`}>{item.value}</p>
+                <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">{item.label}</p>
               </div>
             ))}
           </div>
 
           {/* Performance Badge */}
-          <div className="mt-4 flex items-center justify-center gap-2 p-3 rounded-lg bg-muted/50">
+          <div className="mt-3 flex items-center justify-center gap-2 rounded-2xl border bg-muted/40 p-3">
             <Award className={`h-6 w-6 ${performanceColor} ${performanceKey === 'excellent' ? 'animate-float-slow' : ''}`} />
             <span className={`font-bold ${performanceColor} ${performanceKey === 'excellent' ? 'text-shimmer' : ''}`}>
               {performanceEmoji} {performance}
@@ -1399,8 +1401,8 @@ export default function AdminEmployeeProfile() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="mx-auto w-full max-w-6xl space-y-5 pb-10">
+      <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/admin/employees')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -1409,21 +1411,22 @@ export default function AdminEmployeeProfile() {
       <ProfileHeader employee={employee} onAvatarUpdated={() => refetch()} canEdit={canEdit} savedQuotes={savedQuotes} onSaveQuote={handleSaveQuote} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="attendance">উপস্থিতি</TabsTrigger>
-          <TabsTrigger value="notifications" className="relative">
+        <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-muted/70 p-1 [scrollbar-width:none]">
+          <TabsTrigger value="activity" className="gap-1.5 rounded-xl px-4 py-2 text-sm data-[state=active]:shadow-sm"><ActivityIcon className="h-4 w-4" />Activity</TabsTrigger>
+          <TabsTrigger value="attendance" className="gap-1.5 rounded-xl px-4 py-2 text-sm data-[state=active]:shadow-sm"><CalendarCheck className="h-4 w-4" />উপস্থিতি</TabsTrigger>
+          <TabsTrigger value="notifications" className="relative gap-1.5 rounded-xl px-4 py-2 text-sm data-[state=active]:shadow-sm"><MessageSquare className="h-4 w-4" />
             বার্তা
             {unreadNotifCount > 0 && (
-              <span className="ml-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+              <span className="ml-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                 {unreadNotifCount}
               </span>
             )}
           </TabsTrigger>
-          {canEdit && <TabsTrigger value="settings">সেটিংস</TabsTrigger>}
+          {canEdit && <TabsTrigger value="settings" className="gap-1.5 rounded-xl px-4 py-2 text-sm data-[state=active]:shadow-sm"><SettingsIcon className="h-4 w-4" />সেটিংস</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="activity" className="space-y-6">
+          <SectionErrorBoundary name="employee-activity" fallback={<TabFallback />}>
           {/* ... keep existing code */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <Card>
@@ -1473,19 +1476,26 @@ export default function AdminEmployeeProfile() {
               <ActivityTimeline logs={activityFilter === 'all' ? logs : logs.filter((l: any) => l.action_type === activityFilter)} />
             </CardContent>
           </Card>
+          </SectionErrorBoundary>
         </TabsContent>
 
         <TabsContent value="attendance">
-          <AttendanceTab userId={id!} isSelf={isSelf} />
+          <SectionErrorBoundary name="employee-attendance" fallback={<TabFallback />}>
+            <AttendanceTab userId={id!} isSelf={isSelf} />
+          </SectionErrorBoundary>
         </TabsContent>
 
         <TabsContent value="notifications">
-          <NotificationsTab userId={id!} isSelf={isSelf} />
+          <SectionErrorBoundary name="employee-messages" fallback={<TabFallback />}>
+            <NotificationsTab userId={id!} isSelf={isSelf} />
+          </SectionErrorBoundary>
         </TabsContent>
 
         {canEdit && (
           <TabsContent value="settings">
-            <SettingsTab employee={employee} isSelf={isSelf} isAdmin={isAdmin} savedQuotes={savedQuotes} onRemoveQuote={handleRemoveQuote} />
+            <SectionErrorBoundary name="employee-settings" fallback={<TabFallback />}>
+              <SettingsTab employee={employee} isSelf={isSelf} isAdmin={isAdmin} savedQuotes={savedQuotes} onRemoveQuote={handleRemoveQuote} />
+            </SectionErrorBoundary>
           </TabsContent>
         )}
       </Tabs>
