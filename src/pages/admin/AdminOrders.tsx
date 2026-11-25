@@ -1405,119 +1405,121 @@ export default function AdminOrders() {
         <ManualOrderDialog />
       </div>
 
-      {/* Daily Summary: the chosen days' orders by status (a tile's tap filters the list), the money on the right */}
-      <section className="mb-4 rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <button type="button" title={'তারিখ বদলান'} className="flex min-w-0 items-center gap-2.5 rounded-xl p-0.5 text-left transition-opacity hover:opacity-80">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <CalendarIcon className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-base font-bold leading-tight">হিসাব</span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {(() => {
-                        const from = summaryRange?.from || new Date();
-                        const to = summaryRange?.to || from;
-                        const day = (d: Date) => format(d, 'yyyy-MM-dd');
-                        if (day(from) === day(to)) {
-                          return day(from) === day(new Date())
-                            ? `${'আজ'}, ${format(from, 'd MMMM', { locale: bn })}`
-                            : format(from, 'd MMMM yyyy', { locale: bn });
-                        }
-                        return `${format(from, 'd MMM', { locale: bn })} – ${format(to, 'd MMM yyyy', { locale: bn })}`;
-                      })()}
-                      <ChevronDown className="h-3 w-3" />
-                    </span>
-                  </span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <SmartRangeCalendar
-                  value={summaryRange as any}
-                  onChange={(range) => setSummaryRange(range as any)}
-                  numberOfMonths={1}
-                />
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant={showTrash ? 'default' : 'outline'}
-              size="icon"
-              onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
-              className="h-8 w-8 rounded-lg md:hidden"
-              title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-
-          {/* the money */}
-          <div className="ml-auto flex items-stretch gap-2">
-            <div className="rounded-xl bg-muted/70 px-3 py-1.5 text-right">
-              <div className="text-[11px] font-medium text-muted-foreground">মোট টাকা</div>
-              <div className="text-base font-extrabold leading-tight sm:text-lg">৳{dailySummary.totalAmount.toLocaleString()}</div>
-            </div>
+      {/* Daily Summary: one slim strip (it stays on screen with the filters): the chosen days, each status
+          with its count (all-time waiting in brackets; returns: waiting to be received; a tap filters the
+          list), the money. On a phone the statuses slide in one row. */}
+      {(() => {
+        const chip = (s: (typeof statuses)[number], phone: boolean) => {
+          const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
+          const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
+          const waiting = s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled';
+          const allTime = allTimeStatusCounts[s] || 0;
+          const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
+          const isActive = filter === targetFilter;
+          if (phone && !count && !isActive && (isReturnStatus || !allTime)) return null;
+          return (
             <button
+              key={s}
               type="button"
-              onClick={() => setFilter(prev => prev === 'shipped' ? 'all' : 'shipped')}
-              title={'আজকের শিফট হওয়া পার্সেল'}
+              onClick={() => setFilter(prev => prev === targetFilter ? 'all' : targetFilter)}
+              title={isReturnStatus ? 'গ্রহণ-পেন্ডিং (সব সময়ের)' : undefined}
               className={cn(
-                'rounded-xl bg-purple-50 px-3 py-1.5 text-right transition-opacity hover:opacity-80 dark:bg-purple-500/10',
-                filter === 'shipped' && 'ring-2 ring-purple-500 ring-offset-1'
+                'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs transition-colors',
+                isActive ? cn('border-transparent ring-1 ring-current', statusColor[s]) : 'border-border/70 bg-background hover:bg-muted',
+                !count && !isActive && 'text-muted-foreground'
               )}
             >
-              <div className="text-[11px] font-medium text-purple-700/80 dark:text-purple-300/80">
-                শিফট · {dailySummary.counts['shipped'] || 0} <span className="opacity-70">({allTimeStatusCounts['shipped'] || 0})</span>
-              </div>
-              <div className="text-base font-extrabold leading-tight text-purple-700 dark:text-purple-300 sm:text-lg">৳{dailySummary.shippedAmount.toLocaleString()}</div>
+              <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', statusDot[s])} />
+              {statusLabel[s]}
+              <span className="font-bold">{count}</span>
+              {waiting && <span className="-ml-0.5 opacity-60">({allTime})</span>}
             </button>
-          </div>
-        </div>
-
-        {/* each status: the chosen days' count (all-time waiting in brackets); returns: waiting to be received */}
-        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-          {statuses.map(s => {
-            const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
-            const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
-            const waiting = s === 'pending' || s === 'confirmed' || s === 'in_review' || s === 'hold' || s === 'scheduled';
-            const allTime = allTimeStatusCounts[s] || 0;
-            const targetFilter = isReturnStatus ? `__return_pending__:${s}` : s;
-            const isActive = filter === targetFilter;
-            // on a phone only the statuses that have something
-            const empty = !count && (isReturnStatus || !allTime);
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setFilter(prev => prev === targetFilter ? 'all' : targetFilter)}
-                title={isReturnStatus ? 'গ্রহণ-পেন্ডিং (সব সময়ের)' : undefined}
-                className={cn(
-                  'flex min-w-0 flex-col items-start rounded-xl border border-border/70 bg-background px-2.5 py-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm',
-                  isActive && cn('border-transparent ring-2 ring-current', statusColor[s]),
-                  empty && 'hidden md:flex'
-                )}
+          );
+        };
+        const total = (
+          <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 text-xs">
+            মোট <span className="font-bold">{dailySummary.total}</span>
+          </span>
+        );
+        return (
+          <section className="mb-3 rounded-2xl border border-border/70 bg-card px-2.5 py-2 shadow-sm">
+            <div className="flex items-center gap-1.5 md:flex-wrap md:gap-y-1.5">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" title={'তারিখ বদলান'}
+                    className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/15">
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {(() => {
+                      const from = summaryRange?.from || new Date();
+                      const to = summaryRange?.to || from;
+                      const day = (d: Date) => format(d, 'yyyy-MM-dd');
+                      if (day(from) === day(to)) {
+                        return day(from) === day(new Date())
+                          ? `${'আজ'}, ${format(from, 'd MMM', { locale: bn })}`
+                          : format(from, 'd MMM yyyy', { locale: bn });
+                      }
+                      return `${format(from, 'd MMM', { locale: bn })} – ${format(to, 'd MMM', { locale: bn })}`;
+                    })()}
+                    <ChevronDown className="h-3 w-3 opacity-70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <SmartRangeCalendar
+                    value={summaryRange as any}
+                    onChange={(range) => setSummaryRange(range as any)}
+                    numberOfMonths={1}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant={showTrash ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => { setShowTrash(!showTrash); setSelectedOrders([]); setCurrentPage(1); }}
+                className="h-7 w-7 shrink-0 rounded-full md:hidden"
+                title={showTrash ? 'অর্ডার লিস্ট' : 'ট্র্যাশ'}
               >
-                <span className="flex w-full min-w-0 items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                  <span className={cn('h-2 w-2 shrink-0 rounded-full', statusDot[s])} />
-                  <span className="truncate">{statusLabel[s]}</span>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+
+              {/* the money: at the end of the strip on a computer, on the first line on a phone */}
+              <div className="ml-auto flex shrink-0 items-center gap-1.5 text-xs md:order-last">
+                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-muted px-2.5 py-1">
+                  <span className="hidden text-muted-foreground sm:inline">মোট টাকা</span>
+                  <span className="font-bold">৳{dailySummary.totalAmount.toLocaleString()}</span>
                 </span>
-                <span className={cn('mt-0.5 text-lg font-extrabold leading-tight', !count && 'text-muted-foreground/60')}>
-                  {count}
-                  {waiting && <span className="ml-1 text-xs font-semibold text-muted-foreground">({allTime})</span>}
-                </span>
-              </button>
-            );
-          })}
-          <div className="flex min-w-0 flex-col items-start rounded-xl bg-muted px-2.5 py-2">
-            <span className="text-[11px] font-semibold text-muted-foreground">মোট</span>
-            <span className="mt-0.5 text-lg font-extrabold leading-tight">{dailySummary.total}</span>
-          </div>
-        </div>
-        {/* Mobile-only: the list's own count */}
-        <div className="mt-2 text-xs font-semibold text-primary md:hidden">{showTrash ? '🗑️ ' : 'অর্ডার:'} {totalCount}</div>
-      </section>
+                <button
+                  type="button"
+                  onClick={() => setFilter(prev => prev === 'shipped' ? 'all' : 'shipped')}
+                  title={'আজকের শিফট হওয়া পার্সেল'}
+                  className={cn(
+                    'inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-purple-50 px-2.5 py-1 text-purple-700 transition-opacity hover:opacity-80 dark:bg-purple-500/10 dark:text-purple-300',
+                    filter === 'shipped' && 'ring-1 ring-purple-500'
+                  )}
+                >
+                  শিফট
+                  <span className="hidden sm:inline">{dailySummary.counts['shipped'] || 0} <span className="opacity-60">({allTimeStatusCounts['shipped'] || 0})</span> ·</span>
+                  <span className="font-bold">৳{dailySummary.shippedAmount.toLocaleString()}</span>
+                </button>
+              </div>
+
+              {/* the statuses on a computer: they wrap between the days and the money */}
+              <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-1.5 md:flex">
+                {statuses.map(s => chip(s, false))}
+                {total}
+              </div>
+            </div>
+
+            {/* the statuses on a phone: one row that slides */}
+            <div className="-mx-2.5 mt-2 flex gap-1.5 overflow-x-auto px-2.5 [scrollbar-width:none] md:hidden">
+              {statuses.map(s => chip(s, true))}
+              {total}
+              <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-1.5 py-1 text-xs font-semibold text-primary">
+                {showTrash ? '🗑️ ' : 'অর্ডার:'} {totalCount}
+              </span>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Mobile Filter Row — moved above Daily Summary */}
 
