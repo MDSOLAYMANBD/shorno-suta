@@ -1409,6 +1409,13 @@ export default function AdminOrders() {
           with its count (all-time waiting in brackets; returns: waiting to be received; a tap filters the
           list), the money. On a phone the statuses slide in one row. */}
       {(() => {
+        // the busiest statuses first: the chosen days' count, then the all-time waiting; unused last
+        const countOf = (s: (typeof statuses)[number]) =>
+          s === 'delivery_failed' || s === 'paid_return' || s === 'exchange' ? (returnPendingByStatus[s] || 0) : (dailySummary.counts[s] || 0);
+        const busiest = [...statuses].sort((a, b) =>
+          countOf(b) - countOf(a)
+          || (allTimeStatusCounts[b] || 0) - (allTimeStatusCounts[a] || 0)
+          || statuses.indexOf(a) - statuses.indexOf(b));
         const chip = (s: (typeof statuses)[number], phone: boolean) => {
           const isReturnStatus = s === 'delivery_failed' || s === 'paid_return' || s === 'exchange';
           const count = isReturnStatus ? (returnPendingByStatus[s] || 0) : dailySummary.counts[s];
@@ -1504,14 +1511,14 @@ export default function AdminOrders() {
 
               {/* the statuses on a computer: they wrap between the days and the money */}
               <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-1.5 md:flex">
-                {statuses.map(s => chip(s, false))}
+                {busiest.map(s => chip(s, false))}
                 {total}
               </div>
             </div>
 
             {/* the statuses on a phone: one row that slides */}
             <div className="-mx-2.5 mt-2 flex gap-1.5 overflow-x-auto px-2.5 [scrollbar-width:none] md:hidden">
-              {statuses.map(s => chip(s, true))}
+              {busiest.map(s => chip(s, true))}
               {total}
               <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-1.5 py-1 text-xs font-semibold text-primary">
                 {showTrash ? '🗑️ ' : 'অর্ডার:'} {totalCount}
