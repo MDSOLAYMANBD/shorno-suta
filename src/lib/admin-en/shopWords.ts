@@ -370,6 +370,8 @@ const words: Record<string, string> = {
   'JPG, PNG বা PDF': 'JPG, PNG or PDF',
   // dropshipping (pages/admin/AdminShadamon.tsx; the rest is in enginePairs.ts)
   'যোগ হচ্ছে…': 'Adding…',
+  "পণ্যের রেডি ভিডিও কনটেন্ট": "Products' ready-made videos",
+  "WhatsApp চ্যানেল থেকে নামিয়ে নিজের পেজে পোস্ট করুন": "Save them from the WhatsApp channel and post them on your page",
 };
 
 export default words;

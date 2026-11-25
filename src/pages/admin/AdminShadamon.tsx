@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
-  ArrowDownToLine, BadgeCheck, Check, Clock, Download, Flame, Loader2, Minimize2, PackagePlus, PlayCircle, Search, Sparkles, TrendingUp, Truck, Wallet, X,
+  ArrowDownToLine, BadgeCheck, Check, ChevronRight, Clock, Download, Flame, Loader2, Minimize2, PackagePlus, PlayCircle, Search, Sparkles, TrendingUp, Truck, Wallet, X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -116,6 +116,28 @@ function Hero() {
         ))}
       </div>
     </div>
+  );
+}
+
+/** Shadamon's WhatsApp channel, where each product's ready-made videos are posted (the same one
+ *  its resellers use): saved from there, they go on the shop's own page. */
+const CONTENT_CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb9Ef6THAdNT9SjMeK0B';
+
+function ContentChannel() {
+  return (
+    <a href={CONTENT_CHANNEL_URL} target="_blank" rel="noopener noreferrer"
+      className="group flex items-center gap-3 rounded-2xl border border-[#25D366]/30 bg-card p-3 shadow-sm transition-all hover:border-[#25D366]/60 hover:shadow-md">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-sm">
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 fill-current"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3ZM12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2Z" /></svg>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold">{trNow('পণ্যের রেডি ভিডিও কনটেন্ট', "Products' ready-made videos")}</span>
+        <span className="block text-xs leading-snug text-muted-foreground">{trNow('WhatsApp চ্যানেল থেকে নামিয়ে নিজের পেজে পোস্ট করুন', 'Save them from the WhatsApp channel and post them on your page')}</span>
+      </span>
+      <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#25D366]/10 px-3 py-1.5 text-xs font-bold text-[#128C7E] dark:text-[#25D366]">
+        {trNow('খুলুন', 'Open')} <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </a>
   );
 }
 
@@ -491,6 +513,7 @@ export default function AdminShadamon() {
   return (
     <div className="mx-auto max-w-6xl space-y-4 pb-28">
       <Hero />
+      <ContentChannel />
 
       {catalog.isLoading ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
