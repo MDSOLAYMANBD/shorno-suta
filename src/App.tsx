@@ -347,6 +347,8 @@ const App = () => (
 
                 <Route path="employees" element={<AdminEmployees />} />
                 <Route path="employees/:id" element={<AdminEmployeeProfile />} />
+                {/* the signed-in person's own attendance (admin → হাজিরা) */}
+                <Route path="attendance" element={<AdminEmployeeProfile />} />
                 <Route path="live-chat" element={<AdminLiveChat />} />
                 <Route path="performance" element={<AdminPerformance />} />
                 <Route path="accounting" element={<AdminAccounting />} />

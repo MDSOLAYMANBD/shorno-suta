@@ -53,8 +53,19 @@ function TabFallback() {
   );
 }
 
+/** The person shown: the link's id, or on admin → হাজিরা (no id) the signed-in person. */
+function useEmployeeId(): string | undefined {
+  const { id: linked } = useParams<{ id: string }>();
+  const [me, setMe] = useState<string | undefined>();
+  useEffect(() => {
+    if (linked) return;
+    supabase.auth.getSession().then(({ data: { session } }) => setMe(session?.user.id));
+  }, [linked]);
+  return linked || me;
+}
+
 function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSaveQuote }: { employee: any; onAvatarUpdated: () => void; canEdit: boolean; savedQuotes: QuoteType[]; onSaveQuote: (q: QuoteType) => void }) {
-  const { id } = useParams<{ id: string }>();
+  const id = useEmployeeId();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
@@ -134,9 +145,9 @@ function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSave
           <div aria-hidden className="pointer-events-none absolute -bottom-10 left-1/3 h-24 w-56 rounded-full bg-white/10 blur-2xl" />
         </div>
         <CardContent className="px-4 pb-5 pt-0 sm:px-6">
-          <div className="-mt-10 flex min-w-0 items-end gap-4 sm:-mt-12">
-            <div className={cn("relative shrink-0", canEdit && "group cursor-pointer")} onClick={() => canEdit && setMediaOpen(true)}>
-              <Avatar className="h-20 w-20 shadow-lg ring-4 ring-card sm:h-24 sm:w-24">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className={cn("relative -mt-10 shrink-0 sm:-mt-12", canEdit && "group cursor-pointer")} onClick={() => canEdit && setMediaOpen(true)}>
+              <Avatar className="h-20 w-20 bg-card shadow-lg ring-4 ring-card sm:h-24 sm:w-24">
                 <AvatarImage src={employee.avatar_url || ''} className="object-cover" />
                 <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">{(employee.full_name || employee.email || '?')[0].toUpperCase()}</AvatarFallback>
               </Avatar>
@@ -147,7 +158,7 @@ function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSave
               )}
               {employee.is_active !== false && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-card bg-emerald-500" />}
             </div>
-            <div className="min-w-0 flex-1 pb-1">
+            <div className="min-w-0 flex-1 pt-3">
               {isEditing && canEdit ? (
                 <div className="flex items-center gap-2">
                   <Input
@@ -255,7 +266,7 @@ const TIME_OPTIONS = Array.from({ length: 19 }, (_, i) => {
 });
 
 function SettingsTab({ employee, isSelf, isAdmin, savedQuotes, onRemoveQuote }: { employee: any; isSelf: boolean; isAdmin: boolean; savedQuotes: QuoteType[]; onRemoveQuote: (index: number) => void }) {
-  const { id } = useParams<{ id: string }>();
+  const id = useEmployeeId();
   const queryClient = useQueryClient();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -1243,7 +1254,8 @@ function AttendanceTab({ userId, isSelf }: { userId: string; isSelf: boolean }) 
 }
 
 export default function AdminEmployeeProfile() {
-  const { id } = useParams<{ id: string }>();
+  const { id: linkId } = useParams<{ id: string }>();
+  const id = useEmployeeId();
   const [searchParams] = useSearchParams();
   const { isAdmin } = usePermissions();
   const [currentUserId, setCurrentUserId] = useState('');
@@ -1268,8 +1280,9 @@ export default function AdminEmployeeProfile() {
         headers: { 'Authorization': `Bearer ${session?.access_token}` },
       });
       const all = await res.json();
-      return all.find((e: any) => e.user_id === id) || null;
+      return (Array.isArray(all) ? all : []).find((e: any) => e.user_id === id) || null;
     },
+    enabled: !!id,
   });
 
   // Saved quotes
@@ -1376,7 +1389,8 @@ export default function AdminEmployeeProfile() {
   }, {});
 
   const tabFromUrl = searchParams.get('tab');
-  const defaultTab = tabFromUrl === 'notifications' ? 'notifications' : (canEdit ? 'settings' : 'activity');
+  const defaultTab = tabFromUrl === 'notifications' || tabFromUrl === 'attendance' ? tabFromUrl
+    : !linkId ? 'attendance' : (canEdit ? 'settings' : 'activity');
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Query unread notifications count
@@ -1402,12 +1416,14 @@ export default function AdminEmployeeProfile() {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-5 pb-10">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/admin/employees')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <span className="text-sm text-muted-foreground">কর্মচারীদের তালিকা</span>
-      </div>
+      {linkId && (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/admin/employees')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">কর্মচারীদের তালিকা</span>
+        </div>
+      )}
       <ProfileHeader employee={employee} onAvatarUpdated={() => refetch()} canEdit={canEdit} savedQuotes={savedQuotes} onSaveQuote={handleSaveQuote} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

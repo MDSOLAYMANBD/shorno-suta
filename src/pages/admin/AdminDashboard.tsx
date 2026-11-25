@@ -3,7 +3,7 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft, Languages, PackagePlus } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Tag, LogOut, Settings, AlertTriangle, Menu, Store, Users, Ticket, Globe, Image as ImageIcon, Palette, PenTool, UserCog, MessageCircle, Bell, Gauge, Calculator, BellRing, ChevronRight, Shield, RefreshCw, BarChart3, Gift, Truck, UserCircle, Sun, Moon, Send, Inbox, Contact, Sparkles, Megaphone, Plug, MessageSquare, Wallet, Eye, Crown, ChevronDown, ChevronLeft, Languages, PackagePlus, CalendarCheck } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -30,6 +30,10 @@ import { startEnglish, stopEnglish } from '@/lib/pageTranslate';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Portal as TooltipPortal } from '@radix-ui/react-tooltip';
 import { tileClass, groupOf, groupLabel, groupRank, rowClass, subRowClass, badgeClass, type NavGroup } from '@/components/admin/sidebarLook';
+
+// Everyone's own attendance (the person's page at its attendance tab), whatever their permissions:
+// not a permission section, so it joins the menu after the permission check.
+const ATTENDANCE_LINK = { label: 'হাজিরা', to: '/admin/attendance', icon: CalendarCheck, section: 'self' };
 
 const ALL_SIDEBAR_LINKS = [
   { label: 'ড্যাশবোর্ড', to: '/admin/dashboard', icon: LayoutDashboard, section: 'dashboard', hasSubLinks: true,
@@ -430,7 +434,7 @@ export default function AdminDashboard() {
     (l.section === 'media' && isMediaExpanded);
   // the shop's pages grouped under their headings (a stable sort keeps each heading's own order);
   // the bill sits apart, under CORE Automation
-  const navLinks = (sidebarLinks as NavLink[])
+  const navLinks = ([...sidebarLinks, ATTENDANCE_LINK] as NavLink[])
     .filter((l) => l.section !== 'billing')
     .sort((a, b) => groupRank(groupOf(a.to)) - groupRank(groupOf(b.to)));
   const coreLinks = (sidebarLinks as NavLink[]).filter((l) => l.section === 'billing');
@@ -546,7 +550,7 @@ export default function AdminDashboard() {
   const railContent = () => (
     <>
       <div className="mb-2 flex flex-col items-center gap-1.5">
-        <Link to={profilePath} aria-label={shopName}>{shopAvatar('h-11 w-11 rounded-[14px]')}</Link>
+        <Link to="/admin/dashboard" aria-label={shopName}>{shopAvatar('h-11 w-11 rounded-[14px]')}</Link>
         <AdminNotificationCenter userId={userId} />
       </div>
       <div className="mx-auto mb-1.5 h-px w-6 bg-foreground/10" />
@@ -575,7 +579,7 @@ export default function AdminDashboard() {
   const panelContent = (onNavigate?: () => void) => (
     <>
       <div className="mb-3 flex items-center gap-2 px-1 pt-1">
-        <Link to={profilePath} onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5 transition-opacity hover:opacity-80">
+        <Link to="/admin/dashboard" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-2.5 transition-opacity hover:opacity-80">
           {shopAvatar('h-10 w-10 rounded-[12px]')}
           <span className="min-w-0">
             <span className="block truncate text-[15px] font-bold leading-tight text-foreground">{shopName}</span>

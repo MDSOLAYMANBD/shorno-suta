@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 // Each page's tile colour (top → bottom of the tile). Written out in full so Tailwind keeps them.
 const TILE_COLOR: Record<string, string> = {
   '/admin/dashboard': 'from-orange-400 to-orange-600',
+  '/admin/attendance': 'from-teal-400 to-emerald-600',
   '/admin/accounting': 'from-emerald-400 to-emerald-600',
   '/admin/live-chat': 'from-green-400 to-green-600',
   '/admin/smart-inbox': 'from-sky-400 to-blue-600',
