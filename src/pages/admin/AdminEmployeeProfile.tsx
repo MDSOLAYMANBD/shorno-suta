@@ -16,12 +16,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { format, subDays, subMonths, startOfDay, startOfMonth } from 'date-fns';
-import { Pencil, X, Check, Camera, Lock, Mail, Eye, EyeOff, ArrowLeft, CalendarIcon, Clock, Sparkles, Timer, TrendingUp, User, Heart, Cake, Quote, Trash2, RefreshCw, BookmarkPlus, Activity as ActivityIcon, CalendarCheck, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
+import { Pencil, X, Check, Camera, Lock, Mail, Eye, EyeOff, ArrowLeft, CalendarIcon, Clock, Sparkles, Timer, TrendingUp, User, Heart, Cake, Quote, Trash2, BookmarkPlus, Activity as ActivityIcon, CalendarCheck, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
-import { getRandomQuote, MOTIVATIONAL_QUOTES, type Quote as QuoteType } from '@/lib/motivationalQuotes';
+import { type Quote as QuoteType } from '@/lib/motivationalQuotes';
 
 const FUNC_URL = `${FUNCTIONS_URL}/manage-employee`;
 
@@ -64,25 +64,13 @@ function useEmployeeId(): string | undefined {
   return linked || me;
 }
 
-function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSaveQuote }: { employee: any; onAvatarUpdated: () => void; canEdit: boolean; savedQuotes: QuoteType[]; onSaveQuote: (q: QuoteType) => void }) {
+function ProfileHeader({ employee, onAvatarUpdated, canEdit }: { employee: any; onAvatarUpdated: () => void; canEdit: boolean }) {
   const id = useEmployeeId();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [saving, setSaving] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
-  const [currentQuote, setCurrentQuote] = useState(() => getRandomQuote());
-  const [fadeIn, setFadeIn] = useState(true);
-
-  const showNextQuote = () => {
-    setFadeIn(false);
-    setTimeout(() => {
-      setCurrentQuote(getRandomQuote());
-      setFadeIn(true);
-    }, 300);
-  };
-
-  const isAlreadySaved = savedQuotes.some(q => q.quote === currentQuote.quote.quote);
 
 
 
@@ -195,52 +183,6 @@ function ProfileHeader({ employee, onAvatarUpdated, canEdit, savedQuotes, onSave
             </div>
           </div>
 
-          {/* Motivational quote: a tap brings the next one */}
-          <div className="mt-4 flex items-stretch gap-2">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={showNextQuote}
-              onKeyDown={(e) => e.key === 'Enter' && showNextQuote()}
-              title={'ক্লিক করলে নতুন উক্তি আসবে'}
-              className={cn(
-                "relative min-w-0 flex-1 cursor-pointer select-none rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/[0.07] via-transparent to-transparent py-4 pl-11 pr-4",
-                fadeIn ? "animate-quote-in" : "animate-quote-out"
-              )}
-            >
-              <Quote className="absolute left-4 top-4 h-5 w-5 text-primary/30" />
-              <p className="font-serif text-base italic leading-relaxed text-foreground/85 md:text-lg">{currentQuote.quote.quote}</p>
-              <p className="mt-1.5 text-sm font-semibold text-primary">— {currentQuote.quote.author}</p>
-            </div>
-            <div className="flex shrink-0 flex-col justify-center gap-1.5">
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-9 w-9 rounded-xl"
-                onClick={(e) => { e.stopPropagation(); showNextQuote(); }}
-                title={'নতুন উক্তি'}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className={cn("h-9 w-9 rounded-xl", isAlreadySaved && "text-red-500")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isAlreadySaved) {
-                    onSaveQuote(currentQuote.quote);
-                    toast.success('উক্তি সেভ হয়েছে ❤️');
-                  } else {
-                    toast.info('এই উক্তি আগেই সেভ করা আছে');
-                  }
-                }}
-                title={isAlreadySaved ? 'সেভ করা আছে' : 'সেভ করুন'}
-              >
-                <Heart className={cn("h-4 w-4", isAlreadySaved && "fill-current")} />
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
       {canEdit && <MediaCenter open={mediaOpen} onOpenChange={setMediaOpen} onSelect={handleMediaSelect} />}
@@ -1299,15 +1241,6 @@ export default function AdminEmployeeProfile() {
     enabled: !!id,
   });
 
-  const handleSaveQuote = async (q: QuoteType) => {
-    const updated = [...savedQuotes, q];
-    await supabase
-      .from('employee_profiles' as any)
-      .update({ saved_quotes: updated })
-      .eq('user_id', id!);
-    queryClient.invalidateQueries({ queryKey: ['saved-quotes', id] });
-  };
-
   const handleRemoveQuote = async (index: number) => {
     const updated = savedQuotes.filter((_, i) => i !== index);
     await supabase
@@ -1424,7 +1357,7 @@ export default function AdminEmployeeProfile() {
           <span className="text-sm text-muted-foreground">কর্মচারীদের তালিকা</span>
         </div>
       )}
-      <ProfileHeader employee={employee} onAvatarUpdated={() => refetch()} canEdit={canEdit} savedQuotes={savedQuotes} onSaveQuote={handleSaveQuote} />
+      <ProfileHeader employee={employee} onAvatarUpdated={() => refetch()} canEdit={canEdit} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-muted/70 p-1 [scrollbar-width:none]">

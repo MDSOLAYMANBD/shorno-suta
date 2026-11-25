@@ -17,6 +17,7 @@ import { SmartRangeCalendar } from '@/components/ui/smart-range-calendar';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { getColorPrimaryImage } from '@/lib/productVariants';
+import QuoteCard from '@/components/admin/QuoteCard';
 
 const BLUE = { gradient: 'from-blue-500/10 to-blue-600/5', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600' };
 const GREEN = { gradient: 'from-green-500/10 to-green-600/5', iconBg: 'bg-green-500/15', iconColor: 'text-green-600' };
@@ -504,6 +505,9 @@ export default function AdminOverview() {
           </Button>
         </div>
       </div>
+
+      {/* the day's quote (a tap: the next one; the heart: saved to the person's profile) */}
+      <QuoteCard />
 
 
 
